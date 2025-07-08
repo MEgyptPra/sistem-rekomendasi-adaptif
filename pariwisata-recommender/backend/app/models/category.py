@@ -15,3 +15,4 @@ class Category(Base):
         secondary="destination_categories", 
         back_populates="categories"
     )
+    

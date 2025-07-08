@@ -7,7 +7,7 @@ from .destination_category import destination_categories
 
 # Import semua model agar register ke Base.metadata
 from .category import Category
-from .destination import Destination
+from .destinations import Destination
 from .rating import Rating
 from .review import Review
 from .user import User
