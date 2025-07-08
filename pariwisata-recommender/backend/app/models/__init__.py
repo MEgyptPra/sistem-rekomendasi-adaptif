@@ -11,6 +11,3 @@ from .destinations import Destination
 from .rating import Rating
 from .review import Review
 from .user import User
-
-# Hapus import tourism lama
-# from .tourism import Tourism  # HAPUS INI
