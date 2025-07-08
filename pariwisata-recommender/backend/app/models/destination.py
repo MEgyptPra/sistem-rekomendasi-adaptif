@@ -15,3 +15,12 @@ class Destination(Base):
     categories = relationship("Category", secondary="destination_categories", back_populates="destinations")
     ratings = relationship("Rating", back_populates="destination")
     reviews = relationship("Review", back_populates="destination")
+    
+    @property
+    def category(self):
+        """Backward compatibility property for single category access.
+        Returns the first category name if available, otherwise empty string.
+        """
+        if self.categories:
+            return self.categories[0].name
+        return ""
