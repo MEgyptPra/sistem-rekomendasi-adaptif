@@ -156,12 +156,14 @@ class HybridRecommender(BaseRecommender):
     async def get_user_profile(self, user_id: int, db: AsyncSession) -> Dict[str, Any]:
         """Get comprehensive user profile for recommendations"""
         try:
+            from sqlalchemy import func
+            from sqlalchemy.future import select
+            
             user = await db.get(User, user_id)
             if not user:
                 raise ValueError(f"User {user_id} not found")
             
             # Get user rating statistics
-            from sqlalchemy import func
             rating_stats = await db.execute(
                 select(
                     func.count(Rating.id).label('rating_count'),

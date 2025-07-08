@@ -1,14 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, Text, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from . import Base
-
-# Association table for many-to-many relationship
-destination_categories = Table(
-    'destination_categories',
-    Base.metadata,
-    Column('destination_id', Integer, ForeignKey('destinations.id')),
-    Column('category_id', Integer, ForeignKey('categories.id'))
-)
+from .destination_category import destination_categories
 
 class Destination(Base):
     __tablename__ = "destinations"
