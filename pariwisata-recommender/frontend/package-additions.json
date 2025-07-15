@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "react-router-dom": "^6.x",
+    "react-query": "^3.x", 
+    "react-hook-form": "^7.x",
+    "lucide-react": "^0.x",
+    "react-hot-toast": "^2.x",
+    "@headlessui/react": "^1.x"
+  }
+}

@@ -1,23 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Toaster } from 'react-hot-toast';
+
+// Components
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+
+// Pages
+import Home from './pages/Home';
+import Destinations from './pages/Destinations';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+
+// Styles
+import './index.css';
+
+const queryClient = new QueryClient();
 
 function App() {
+  const [currentUser, setCurrentUser] = useState({
+    id: 1, // Mock user for development
+    name: 'Ahmad Pratama',
+    email: 'ahmad@example.com',
+    preferences: 'alam,kuliner'
+  });
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-      <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
-        Tailwind CSS Berhasil! 🎉
-      </h1>
-      <p className="text-xl text-white/80">
-        Jika kamu melihat halaman ini berwarna <span className="font-semibold underline">gradasi biru-ungu</span> dan tulisan seperti ini, maka Tailwind CSS sudah aktif!
-      </p>
-      <button className="mt-8 px-6 py-2 bg-white text-blue-600 rounded-lg shadow hover:bg-blue-100 transition">
-        Contoh Tombol Tailwind
-      </button>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Header currentUser={currentUser} />
+          
+          <main>
+            <Routes>
+              <Route path="/" element={<Home currentUser={currentUser} />} />
+              <Route path="/destinations" element={<Destinations currentUser={currentUser} />} />
+              <Route path="/profile" element={<Profile currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </main>
+          
+          <Footer />
+        </div>
+        
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+          }}
+        />
+      </Router>
+    </QueryClientProvider>
   );
 }
 
-
-export default App
+export default App;
