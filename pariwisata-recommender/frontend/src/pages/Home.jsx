@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { TrendingUp, Compass, Users, Brain } from 'lucide-react';
-import DestinationCard from '../components/destination/DestinationCard';
+import DestinationCard from '../components/destination/Destinationcard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { recommendationsAPI, destinationsAPI } from '../services/api';
 
