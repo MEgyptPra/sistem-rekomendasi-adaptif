@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from app.models.user import User
 from app.models.destinations import Destination
+from sqlalchemy.future import select
 
 class BaseRecommender(ABC):
     """Base class untuk semua recommendation algorithms"""

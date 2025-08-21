@@ -6,8 +6,9 @@ from . import Base
 destination_categories = Table(
     'destination_categories',
     Base.metadata,
-    Column('destination_id', Integer, ForeignKey('destinations.id')),
-    Column('category_id', Integer, ForeignKey('categories.id'))
+    Column('destination_id', Integer, ForeignKey('destinations.id'), primary_key=True),
+    Column('category_id', Integer, ForeignKey('categories.id'), primary_key=True),
+    extend_existing=True
 )
 
 class Destination(Base):

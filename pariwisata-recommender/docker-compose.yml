@@ -4,7 +4,7 @@ services:
     image: postgres:15
     environment:
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: rekompari
       POSTGRES_DB: pariwisata
     ports:
       - "5432:5432"
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://pariwisata_user:pariwisata_pass@db:5432/pariwisata_db
+      DATABASE_URL: postgresql+asyncpg://user:rekompari@db:5432/pariwisata
       PYTHONPATH: /app
     depends_on:
       db:

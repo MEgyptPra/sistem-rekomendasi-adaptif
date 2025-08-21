@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.services.base_recommender import BaseRecommender
 from app.services.content_based_recommender import ContentBasedRecommender
