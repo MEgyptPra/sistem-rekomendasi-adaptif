@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -18,6 +19,9 @@ class HybridRecommender(BaseRecommender):
         self.collaborative_recommender = CollaborativeRecommender()
         self.content_weight = 0.6
         self.collaborative_weight = 0.4
+        # Store reference to similarity matrix for MMR
+        self.similarity_matrix = None
+        self.destinations_df = None
     
     async def train(self, db: AsyncSession):
         """Train both recommenders"""
@@ -44,10 +48,98 @@ class HybridRecommender(BaseRecommender):
                 self.collaborative_recommender.is_trained
             )
             
+            # Store similarity matrix and destinations dataframe from content recommender for MMR
+            if self.content_recommender.is_trained:
+                self.similarity_matrix = self.content_recommender.similarity_matrix
+                self.destinations_df = self.content_recommender.destinations_df
+            
             return results
             
         except Exception as e:
             raise Exception(f"Hybrid training failed: {str(e)}")
+    
+    def _rerank_with_mmr(self, recommendations, lambda_val, num_final_recs):
+        """
+        Melakukan re-ranking pada daftar rekomendasi menggunakan algoritma MMR.
+
+        Args:
+            recommendations (List[Dict]): List rekomendasi awal dengan key 'destination_id' dan 'score'.
+            lambda_val (float): Parameter untuk menyeimbangkan relevansi dan keberagaman (antara 0 dan 1).
+            num_final_recs (int): Jumlah rekomendasi final yang diinginkan.
+
+        Returns:
+            List[Dict]: List rekomendasi yang sudah di-rerank.
+        """
+        if not recommendations or self.similarity_matrix is None or self.destinations_df is None:
+            return recommendations[:num_final_recs]
+
+        # Convert to DataFrame for easier manipulation
+        candidates_df = pd.DataFrame(recommendations)
+        
+        # Create mapping from destination_id to dataframe index for similarity matrix lookup
+        dest_id_to_idx = {}
+        for idx, row in self.destinations_df.iterrows():
+            dest_id_to_idx[row['id']] = idx
+        
+        # Filter candidates that exist in similarity matrix
+        valid_candidates = []
+        for _, candidate in candidates_df.iterrows():
+            if candidate['destination_id'] in dest_id_to_idx:
+                valid_candidates.append(candidate.to_dict())
+        
+        if not valid_candidates:
+            return recommendations[:num_final_recs]
+        
+        # Inisialisasi daftar rekomendasi final
+        reranked_recs = []
+        remaining_candidates = valid_candidates.copy()
+        
+        # Pilih item pertama dengan skor relevansi tertinggi
+        if remaining_candidates:
+            # Find candidate with highest score
+            best_candidate = max(remaining_candidates, key=lambda x: x['score'])
+            reranked_recs.append(best_candidate)
+            remaining_candidates.remove(best_candidate)
+
+        # Lakukan proses iteratif untuk memilih sisa item
+        while len(reranked_recs) < num_final_recs and remaining_candidates:
+            best_item = None
+            best_mmr_score = -float('inf')
+
+            for candidate_item in remaining_candidates:
+                candidate_id = candidate_item['destination_id']
+                relevance_score = candidate_item['score']
+                
+                # Get candidate index in similarity matrix
+                candidate_idx = dest_id_to_idx[candidate_id]
+                
+                # Hitung similarity dengan item yang sudah terpilih
+                similarity_scores = []
+                for selected_item in reranked_recs:
+                    selected_id = selected_item['destination_id']
+                    if selected_id in dest_id_to_idx:
+                        selected_idx = dest_id_to_idx[selected_id]
+                        # Ambil nilai similarity dari matriks
+                        sim = self.similarity_matrix[candidate_idx, selected_idx]
+                        similarity_scores.append(sim)
+
+                max_similarity = max(similarity_scores) if similarity_scores else 0
+
+                # Hitung MMR Score
+                mmr_score = lambda_val * relevance_score - (1 - lambda_val) * max_similarity
+                
+                if mmr_score > best_mmr_score:
+                    best_mmr_score = mmr_score
+                    best_item = candidate_item
+            
+            if best_item is not None:
+                reranked_recs.append(best_item)
+                remaining_candidates.remove(best_item)
+            else:
+                # Jika tidak ada item lagi yang bisa dipilih, hentikan
+                break
+                
+        return reranked_recs
     
     async def predict(self, user_id: int, num_recommendations: int = 10, db: AsyncSession = None) -> List[Dict[str, Any]]:
         """Generate hybrid recommendations"""
@@ -62,7 +154,7 @@ class HybridRecommender(BaseRecommender):
             if self.content_recommender.is_trained:
                 try:
                     content_recs = await self.content_recommender.predict(
-                        user_id, num_recommendations * 2, db  # Get more for better mixing
+                        user_id, num_recommendations * 2, db  # Get more candidates for MMR
                     )
                 except Exception as e:
                     print(f"Content-based prediction failed: {e}")
@@ -71,7 +163,7 @@ class HybridRecommender(BaseRecommender):
             if self.collaborative_recommender.is_trained:
                 try:
                     collab_recs = await self.collaborative_recommender.predict(
-                        user_id, num_recommendations * 2, db  # Get more for better mixing
+                        user_id, num_recommendations * 2, db  # Get more candidates for MMR
                     )
                 except Exception as e:
                     print(f"Collaborative prediction failed: {e}")
@@ -105,18 +197,28 @@ class HybridRecommender(BaseRecommender):
                     }
             
             # Calculate final hybrid scores
-            final_recommendations = []
+            candidates_for_mmr = []
             for dest_id, scores in hybrid_scores.items():
                 final_score = scores['content_score'] + scores['collab_score']
                 rec = scores['destination'].copy()
                 rec['score'] = round(final_score, 4)
                 rec['algorithm'] = 'hybrid'
                 rec['explanation'] = f"Hybrid: Content({scores['content_score']:.3f}) + Collaborative({scores['collab_score']:.3f})"
-                final_recommendations.append(rec)
+                candidates_for_mmr.append(rec)
             
-            # Sort by final score and return top N
-            final_recommendations.sort(key=lambda x: x['score'], reverse=True)
-            return final_recommendations[:num_recommendations]
+            # Sort candidates by relevance score first
+            candidates_for_mmr.sort(key=lambda x: x['score'], reverse=True)
+            
+            # Apply MMR re-ranking for diversity
+            # Use lambda_val=0.7 to balance relevance and diversity
+            lambda_for_mmr = 0.7
+            final_recommendations = self._rerank_with_mmr(
+                recommendations=candidates_for_mmr,
+                lambda_val=lambda_for_mmr,
+                num_final_recs=num_recommendations
+            )
+            
+            return final_recommendations
             
         except Exception as e:
             raise Exception(f"Hybrid prediction failed: {str(e)}")
