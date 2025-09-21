@@ -1,9 +1,11 @@
-from typing import List, Dict, Any, Optional, Literal
+from typing import List, Dict, Any, Optional, Literal, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.content_based_recommender import ContentBasedRecommender
 from app.services.collaborative_recommender import CollaborativeRecommender
 from app.services.hybrid_recommender import HybridRecommender
+from app.services.mab_optimizer import MABOptimizer
+from app.services.real_time_data import RealTimeContextService
 
 class MLService:
     """Central service untuk managing semua ML recommendation algorithms"""
@@ -12,6 +14,14 @@ class MLService:
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
         self.hybrid_recommender = HybridRecommender()
+        # Initialize MAB Optimizer dengan contextual capabilities
+        self.mab_optimizer = MABOptimizer(
+            n_arms=11, 
+            exploration_param=2.0,
+            persistence_file="data/contextual_mab_state.json"  # Contextual state file
+        )
+        # Initialize Real-Time Context Service
+        self.context_service = RealTimeContextService()
         self._training_status = {
             'content_based': False,
             'collaborative': False,
@@ -61,23 +71,48 @@ class MLService:
         algorithm: Literal['content_based', 'collaborative', 'hybrid'] = 'hybrid',
         num_recommendations: int = 10,
         db: AsyncSession = None
-    ) -> List[Dict[str, Any]]:
-        """Get recommendations menggunakan algorithm yang dipilih"""
+    ) -> Tuple[List[Dict[str, Any]], Optional[int], Optional[Dict[str, Any]]]:
+        """
+        Get recommendations menggunakan algorithm yang dipilih dengan context awareness
+        
+        Returns:
+            Tuple: (recommendations, arm_index, context) where context and arm_index are None for non-hybrid algorithms
+        """
         
         if algorithm == 'content_based':
             if not self.content_recommender.is_trained:
                 raise ValueError("Content-based model belum di-train")
-            return await self.content_recommender.predict(user_id, num_recommendations, db)
+            recommendations = await self.content_recommender.predict(user_id, num_recommendations, db)
+            return recommendations, None, None
         
         elif algorithm == 'collaborative':
             if not self.collaborative_recommender.is_trained:
                 raise ValueError("Collaborative model belum di-train")
-            return await self.collaborative_recommender.predict(user_id, num_recommendations, db)
+            recommendations = await self.collaborative_recommender.predict(user_id, num_recommendations, db)
+            return recommendations, None, None
         
         elif algorithm == 'hybrid':
             if not self.hybrid_recommender.is_trained:
                 raise ValueError("Hybrid model belum di-train")
-            return await self.hybrid_recommender.predict(user_id, num_recommendations, db)
+            
+            # 1. Get current context from real-time service
+            current_context = self.context_service.get_current_context()
+            
+            # 2. Use Contextual MAB to select optimal lambda for this context
+            recommendations, arm_index = await self.hybrid_recommender.predict(
+                user_id, 
+                num_recommendations, 
+                db, 
+                mab_optimizer=self.mab_optimizer,
+                context=current_context
+            )
+            
+            # 3. Log contextual MAB decision for monitoring
+            lambda_value = self.mab_optimizer.get_lambda_value(arm_index) if arm_index is not None else 0.7
+            print(f"🎯 Contextual MAB: selected λ={lambda_value:.2f} (arm {arm_index}) "
+                  f"for user {user_id} in context: {current_context}")
+            
+            return recommendations, arm_index, current_context
         
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
@@ -121,8 +156,52 @@ class MLService:
                     "description": "Hybrid system combining content-based and collaborative"
                 }
             },
-            "training_status": self._training_status
+            "training_status": self._training_status,
+            "mab_optimizer": {
+                "total_contexts": len(self.mab_optimizer.context_data),
+                "exploration_param": self.mab_optimizer.c,
+                "persistence_file": self.mab_optimizer.persistence_file
+            }
         }
+    
+    def update_recommendation_feedback(self, arm_index: int, reward: float, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Update Contextual MAB dengan feedback dari user
+        
+        Args:
+            arm_index (int): Index arm yang digunakan untuk rekomendasi
+            reward (float): Reward value (0-1, dimana 1 = sangat baik, 0 = sangat buruk)
+            context (Dict): Konteks saat rekomendasi diberikan
+            
+        Returns:
+            Dict: Informasi update
+        """
+        if arm_index is not None and 0 <= arm_index < self.mab_optimizer.n_arms:
+            lambda_value = self.mab_optimizer.get_lambda_value(arm_index)
+            self.mab_optimizer.update_reward(arm_index, reward, context)
+            
+            return {
+                "status": "success",
+                "arm_index": arm_index,
+                "lambda_value": lambda_value,
+                "reward": reward,
+                "context": context,
+                "message": f"Contextual feedback updated for λ={lambda_value:.2f} in given context"
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "Invalid arm_index"
+            }
+    
+    def get_mab_statistics(self) -> Dict[str, Any]:
+        """Get detailed MAB statistics"""
+        return self.mab_optimizer.get_statistics()
+    
+    def reset_mab(self) -> Dict[str, Any]:
+        """Reset MAB state (for testing/development)"""
+        self.mab_optimizer.reset()
+        return {"status": "success", "message": "MAB state has been reset"}
 
 # Global instance
 ml_service = MLService()

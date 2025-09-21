@@ -38,21 +38,36 @@ async def get_recommendations(
     num_recommendations: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get personalized recommendations for user"""
+    """Get personalized recommendations for user with contextual awareness"""
     try:
-        recommendations = await ml_service.get_recommendations(
+        recommendations, arm_index, context = await ml_service.get_recommendations(
             user_id=user_id,
             algorithm=algorithm,
             num_recommendations=num_recommendations,
             db=db
         )
         
-        return {
+        response = {
             "user_id": user_id,
             "algorithm": algorithm,
             "recommendations": recommendations,
             "count": len(recommendations)
         }
+        
+        # Add contextual MAB info for hybrid algorithm
+        if algorithm == 'hybrid' and arm_index is not None and context is not None:
+            lambda_value = ml_service.mab_optimizer.get_lambda_value(arm_index)
+            response["contextual_info"] = {
+                "context": context,
+                "mab_decision": {
+                    "arm_index": arm_index,
+                    "lambda_value": lambda_value,
+                    "strategy": f"λ={lambda_value:.1f} selected for current context"
+                },
+                "total_contexts_learned": len(ml_service.mab_optimizer.context_data)
+            }
+        
+        return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -183,6 +198,53 @@ async def get_user_ratings(user_id: int, db: AsyncSession = Depends(get_db)):
         })
     
     return ratings_data
+
+# ============== MAB ENDPOINTS ==============
+
+@router.post("/mab/feedback")
+async def submit_mab_feedback(
+    arm_index: int,
+    reward: float = Query(..., ge=0.0, le=1.0, description="Reward value between 0 and 1"),
+    weather: str = Query(None, description="Weather condition when recommendation was given"),
+    is_weekend: bool = Query(None, description="Was it weekend when recommendation was given"),
+    hour_of_day: int = Query(None, description="Hour when recommendation was given"),
+    season: str = Query(None, description="Season when recommendation was given")
+):
+    """Submit contextual feedback for MAB learning"""
+    try:
+        # Reconstruct context for feedback (in real app, this would be stored with the recommendation)
+        context = None
+        if any([weather, is_weekend is not None, hour_of_day is not None, season]):
+            context = {}
+            if weather:
+                context["weather"] = weather
+            if is_weekend is not None:
+                context["is_weekend"] = is_weekend
+            if hour_of_day is not None:
+                context["hour_of_day"] = hour_of_day
+            if season:
+                context["season"] = season
+        
+        result = ml_service.update_recommendation_feedback(arm_index, reward, context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Feedback update failed: {str(e)}")
+
+@router.get("/mab/statistics")
+async def get_mab_statistics():
+    """Get detailed MAB statistics"""
+    try:
+        return ml_service.get_mab_statistics()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get MAB statistics: {str(e)}")
+
+@router.post("/mab/reset")
+async def reset_mab():
+    """Reset MAB state (for testing/development)"""
+    try:
+        return ml_service.reset_mab()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"MAB reset failed: {str(e)}")
 
 # ============== ANALYTICS ENDPOINTS ==============
 
