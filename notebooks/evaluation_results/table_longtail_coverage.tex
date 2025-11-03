@@ -1,0 +1,29 @@
+\begin{table}[htbp]
+\centering
+\caption{Analisis Cakupan Item Long-Tail}
+\label{tab:longtail_coverage}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Head} & \textbf{Torso} & \textbf{Tail} & \textbf{Gini} \\
+               & \textbf{Coverage} & \textbf{Coverage} & \textbf{Coverage} & \textbf{Coeff.} \\
+\midrule
+POPULARITY & 27.0\% & 0.0\% & 0.0\% & 0.000 \\
+CF & 86.5\% & 84.1\% & \textbf{50.0\%} & 0.719 \\
+CB & 97.3\% & 38.9\% & 2.6\% & 0.645 \\
+HYBRID & 100.0\% & 76.1\% & 31.6\% & 0.649 \\
+HYBRID\_MMR\_LAMBDA\_0.0 & 100.0\% & 75.2\% & 31.6\% & 0.627 \\
+HYBRID\_MMR\_LAMBDA\_0.3 & 100.0\% & 75.2\% & 31.6\% & 0.627 \\
+HYBRID\_MMR\_LAMBDA\_0.5 & 100.0\% & 75.2\% & 31.6\% & 0.627 \\
+HYBRID\_MMR\_LAMBDA\_0.7 & 100.0\% & 77.0\% & 34.2\% & 0.632 \\
+HYBRID\_MMR\_LAMBDA\_1.0 & 100.0\% & 76.1\% & 31.6\% & 0.649 \\
+HYBRID\_MAB\_MMR & 100.0\% & 76.1\% & 31.6\% & 0.630 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item Coverage: Persentase item dalam segmen yang direkomendasikan minimal 1 kali
+\item Head: Top 20\% item populer, Torso: Middle 60\%, Tail: Bottom 20\%
+\item Gini Coefficient: Ukuran ketidaksetaraan (0=setara, 1=tidak setara)
+\item \textbf{Bold}: Nilai terbaik (coverage tertinggi untuk tail)
+\end{tablenotes}
+\end{table}

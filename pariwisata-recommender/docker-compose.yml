@@ -30,15 +30,28 @@ services:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  admin-dashboard:
+      build:
+        context: ./pariwisata-recommender/admin-dashboard
+        dockerfile: Dockerfile
+      ports:
+        - "3000:80"
+      volumes:
+        - ./pariwisata-recommender/admin-dashboard:/app
+        - /app/node_modules
+      depends_on:
+        - backend
+
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "5173:5173"
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 5173
 
 volumes:
   postgres_data:

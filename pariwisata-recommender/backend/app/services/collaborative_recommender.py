@@ -6,14 +6,13 @@ from scipy.sparse import csr_matrix
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from app.services.base_recommender import BaseRecommender
 from app.models.user import User
 from app.models.destinations import Destination
 from app.models.rating import Rating
 
 class CollaborativeRecommender(BaseRecommender):
-    """Collaborative Filtering menggunakan Matrix Factorization (NMF)"""
+    """Collaborative Filtering menggunakan Matrix Factorization (NMF) - DUPLICATE SAFE VERSION"""
     
     def __init__(self):
         super().__init__()
@@ -26,10 +25,12 @@ class CollaborativeRecommender(BaseRecommender):
         self.user_decoder = {}
         self.item_decoder = {}
         self.user_similarities = None
-    
+
     async def train(self, db: AsyncSession):
-        """Train collaborative filtering model using user ratings"""
+        """Train collaborative filtering model - HANDLES DUPLICATES SAFELY"""
         try:
+            print("🤖 Starting Collaborative Filtering Training...")
+            
             # Load ratings data
             result = await db.execute(select(Rating))
             ratings = result.scalars().all()
@@ -43,17 +44,69 @@ class CollaborativeRecommender(BaseRecommender):
                 ratings_data.append({
                     'user_id': rating.user_id,
                     'destination_id': rating.destination_id,
-                    'rating': rating.rating
+                    'rating': rating.rating,
+                    'created_at': rating.created_at
                 })
             
             ratings_df = pd.DataFrame(ratings_data)
+            print(f"📊 Raw ratings data: {len(ratings_df)} entries")
             
-            # Create user-item matrix
-            self.user_item_matrix = ratings_df.pivot(
-                index='user_id', 
-                columns='destination_id', 
-                values='rating'
-            ).fillna(0)
+            # === DUPLICATE DETECTION & HANDLING ===
+            duplicates = ratings_df.duplicated(subset=['user_id', 'destination_id'], keep=False)
+            if duplicates.any():
+                duplicate_count = duplicates.sum()
+                print(f"⚠️ Found {duplicate_count} duplicate (user_id, destination_id) pairs")
+                
+                # Show some examples
+                duplicate_pairs = ratings_df[duplicates].groupby(['user_id', 'destination_id']).size().head()
+                print("📋 Sample duplicates:")
+                for (user_id, dest_id), count in duplicate_pairs.items():
+                    print(f"   User {user_id} → Destination {dest_id}: {count} ratings")
+                
+                # Strategy: Keep latest rating (most recent created_at)
+                if 'created_at' in ratings_df.columns:
+                    print("📅 Resolving duplicates by keeping latest rating...")
+                    ratings_df = ratings_df.sort_values('created_at')
+                    ratings_df = ratings_df.drop_duplicates(
+                        subset=['user_id', 'destination_id'], 
+                        keep='last'
+                    )
+                    print(f"✅ After deduplication: {len(ratings_df)} entries")
+                else:
+                    print("📊 Resolving duplicates by averaging ratings...")
+                    ratings_df = ratings_df.groupby(['user_id', 'destination_id'])['rating'].mean().reset_index()
+                    print(f"✅ After deduplication: {len(ratings_df)} entries")
+            else:
+                print("✅ No duplicate ratings found")
+            
+            # === SAFETY CHECK: Verify no duplicates remain ===
+            remaining_duplicates = ratings_df.duplicated(subset=['user_id', 'destination_id'])
+            if remaining_duplicates.any():
+                print(f"❌ ERROR: {remaining_duplicates.sum()} duplicates still remain!")
+                raise ValueError("Failed to resolve all duplicates")
+            
+            # === ROBUST PIVOT: Use pivot_table instead of pivot ===
+            print("🔄 Creating user-item matrix...")
+            try:
+                self.user_item_matrix = ratings_df.pivot_table(
+                    index='user_id',
+                    columns='destination_id',
+                    values='rating',
+                    aggfunc='mean',  # Extra safety: handle any remaining duplicates
+                    fill_value=0
+                )
+                print(f"✅ User-item matrix created: {self.user_item_matrix.shape}")
+            except Exception as pivot_error:
+                print(f"❌ Pivot error: {pivot_error}")
+                # Emergency fallback: manual pivot
+                print("🚨 Attempting emergency fallback...")
+                ratings_df = ratings_df.groupby(['user_id', 'destination_id'])['rating'].first().reset_index()
+                self.user_item_matrix = ratings_df.pivot(
+                    index='user_id',
+                    columns='destination_id', 
+                    values='rating'
+                ).fillna(0)
+                print(f"🆘 Fallback successful: {self.user_item_matrix.shape}")
             
             # Create encoders/decoders
             unique_users = self.user_item_matrix.index.tolist()
@@ -64,25 +117,58 @@ class CollaborativeRecommender(BaseRecommender):
             self.user_decoder = {idx: user_id for user_id, idx in self.user_encoder.items()}
             self.item_decoder = {idx: item_id for item_id, idx in self.item_encoder.items()}
             
+            print(f"👥 Users: {len(unique_users)}, 🏖️ Destinations: {len(unique_items)}")
+            
+            # Validate matrix dimensions
+            if self.user_item_matrix.shape[0] < 2 or self.user_item_matrix.shape[1] < 2:
+                raise ValueError(f"Insufficient data for matrix factorization. Matrix shape: {self.user_item_matrix.shape}")
+            
             # Train NMF model
             matrix_values = self.user_item_matrix.values
+            
+            # Calculate sparsity
+            sparsity = (matrix_values == 0).sum() / matrix_values.size
+            print(f"📈 Matrix sparsity: {sparsity:.2%}")
+            
+            # Adjust NMF components based on data size and sparsity
+            if sparsity > 0.99:
+                print("⚠️ Very sparse matrix, reducing NMF components")
+                n_components = min(10, self.user_item_matrix.shape[0] - 1, self.user_item_matrix.shape[1] - 1)
+                self.nmf_model = NMF(n_components=n_components, random_state=42, max_iter=500)
+            elif sparsity > 0.95:
+                n_components = min(25, self.user_item_matrix.shape[0] - 1, self.user_item_matrix.shape[1] - 1)
+                self.nmf_model = NMF(n_components=n_components, random_state=42, max_iter=500)
+            
+            # Fit NMF model
+            print("🧠 Training NMF model...")
             self.user_factors = self.nmf_model.fit_transform(matrix_values)
             self.item_factors = self.nmf_model.components_.T
             
             # Calculate user-user similarities
+            print("🤝 Computing user similarities...")
             self.user_similarities = cosine_similarity(self.user_factors)
             
             self.is_trained = True
+            print("✅ Collaborative filtering training completed successfully!")
+            
             return {
-                "status": "success", 
+                "status": "success",
                 "users_count": len(unique_users),
                 "items_count": len(unique_items),
-                "ratings_count": len(ratings)
+                "ratings_count": len(ratings_df),
+                "matrix_shape": self.user_item_matrix.shape,
+                "sparsity": float(sparsity),
+                "nmf_components": self.nmf_model.n_components,
+                "duplicates_removed": duplicate_count if duplicates.any() else 0
             }
             
         except Exception as e:
+            print(f"❌ Collaborative training error: {str(e)}")
+            print("🔍 Error details:")
+            import traceback
+            traceback.print_exc()
             raise Exception(f"Collaborative training failed: {str(e)}")
-    
+
     async def predict(self, user_id: int, num_recommendations: int = 10, db: AsyncSession = None) -> List[Dict[str, Any]]:
         """Generate collaborative filtering recommendations"""
         if not self.is_trained:
@@ -135,7 +221,7 @@ class CollaborativeRecommender(BaseRecommender):
             
         except Exception as e:
             raise Exception(f"Collaborative prediction failed: {str(e)}")
-    
+
     async def explain(self, user_id: int, destination_id: int, db: AsyncSession = None) -> Dict[str, Any]:
         """Explain collaborative filtering recommendation"""
         try:
@@ -150,7 +236,6 @@ class CollaborativeRecommender(BaseRecommender):
             # Find similar users
             user_similarities_scores = self.user_similarities[user_idx]
             similar_users_idx = np.argsort(user_similarities_scores)[::-1][1:6]  # Top 5 similar users
-            
             similar_users_ids = [self.user_decoder[idx] for idx in similar_users_idx]
             similarity_scores = [user_similarities_scores[idx] for idx in similar_users_idx]
             
@@ -164,33 +249,56 @@ class CollaborativeRecommender(BaseRecommender):
                     "algorithm": "collaborative_filtering_nmf"
                 }
             }
-            
         except Exception as e:
             raise Exception(f"Collaborative explanation failed: {str(e)}")
-    
+
     async def _handle_cold_start_user(self, user_id: int, num_recommendations: int, db: AsyncSession) -> List[Dict[str, Any]]:
         """Handle new users (cold start problem)"""
-        # Return most popular destinations based on average ratings
-        result = await db.execute(
-            select(Rating.destination_id, db.func.avg(Rating.rating).label('avg_rating'))
-            .group_by(Rating.destination_id)
-            .order_by(db.func.avg(Rating.rating).desc())
-            .limit(num_recommendations)
-        )
+        try:
+            # Return most popular destinations based on average ratings
+            from sqlalchemy import func
+            result = await db.execute(
+                select(Rating.destination_id, func.avg(Rating.rating).label('avg_rating'))
+                .group_by(Rating.destination_id)
+                .order_by(func.avg(Rating.rating).desc())
+                .limit(num_recommendations)
+            )
+            
+            popular_destinations = result.all()
+            recommendations = []
+            
+            for dest_rating in popular_destinations:
+                dest = await db.get(Destination, dest_rating.destination_id)
+                if dest:
+                    recommendations.append({
+                        'destination_id': dest.id,
+                        'name': dest.name,
+                        'description': dest.description,
+                        'score': round(float(dest_rating.avg_rating), 4),
+                        'explanation': "Popular destination (new user)",
+                        'algorithm': 'collaborative_cold_start'
+                    })
+            
+            return recommendations
+            
+        except Exception as e:
+            print(f"Cold start fallback error: {str(e)}")
+            return []
+    
+    def get_training_stats(self) -> Dict[str, Any]:
+        """Get detailed training statistics"""
+        if not self.is_trained:
+            return {"status": "not_trained"}
         
-        popular_destinations = result.all()
-        
-        recommendations = []
-        for dest_rating in popular_destinations:
-            dest = await db.get(Destination, dest_rating.destination_id)
-            if dest:
-                recommendations.append({
-                    'destination_id': dest.id,
-                    'name': dest.name,
-                    'description': dest.description,
-                    'score': round(float(dest_rating.avg_rating), 4),
-                    'explanation': "Popular destination (new user)",
-                    'algorithm': 'collaborative_cold_start'
-                })
-        
-        return recommendations
+        return {
+            "status": "trained",
+            "matrix_shape": self.user_item_matrix.shape,
+            "n_users": len(self.user_encoder),
+            "n_items": len(self.item_encoder),
+            "sparsity": float((self.user_item_matrix.values == 0).sum() / self.user_item_matrix.size),
+            "nmf_components": self.nmf_model.n_components,
+            "reconstruction_error": float(self.nmf_model.reconstruction_err_) if hasattr(self.nmf_model, 'reconstruction_err_') else None,
+            "min_rating": float(self.user_item_matrix.values[self.user_item_matrix.values > 0].min()),
+            "max_rating": float(self.user_item_matrix.values.max()),
+            "avg_rating": float(self.user_item_matrix.values[self.user_item_matrix.values > 0].mean())
+        }

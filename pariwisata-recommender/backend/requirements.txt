@@ -8,8 +8,13 @@ uvicorn==0.24.0
 sqlalchemy==2.0.23
 asyncpg==0.29.0
 pydantic==2.5.0
+pydantic[email]==2.5.0
 psycopg2-binary==2.9.6
 python-dotenv==1.0.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
 lightfm==1.17
 implicit==0.7.2
 scikit-surprise==1.1.3

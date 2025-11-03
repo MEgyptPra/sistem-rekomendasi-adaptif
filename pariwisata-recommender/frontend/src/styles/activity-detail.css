@@ -1,0 +1,495 @@
+.planning-page .page-header {
+  background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/assets/images/planning-header.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.planning-content {
+  padding: 3rem 0;
+}
+
+.planning-section {
+  margin-bottom: 4rem;
+}
+
+.planning-section h2 {
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.planning-section h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: #FF6B35;
+}
+
+/* Trip Planner */
+.trip-planner {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 4rem;
+}
+
+.planner-form {
+  max-width: 800px;
+  margin: 2rem auto 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.date-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+.checkbox-group input {
+  margin-right: 0.5rem;
+  width: auto;
+}
+
+/* Accommodations */
+.accommodation-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.accommodation-card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.accommodation-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.accommodation-card h3 {
+  padding: 1.5rem 1rem 0.5rem;
+}
+
+.accommodation-card p {
+  padding: 0 1rem 1.5rem;
+  color: #666;
+}
+
+.accommodation-card button {
+  margin: 0 1rem 1.5rem;
+  width: calc(100% - 2rem);
+}
+
+/* Transportation */
+.transportation-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.transport-card {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.transport-card h3 {
+  margin-bottom: 1rem;
+}
+
+.road-conditions {
+  background-color: #e9ecef;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.road-conditions h3 {
+  margin-bottom: 0.5rem;
+}
+
+.road-conditions p {
+  margin-bottom: 1.5rem;
+}
+
+/* Visitor Centers */
+.center-map {
+  margin: 2rem 0;
+}
+
+.center-map img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Travel Alerts */
+.alert-box {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.alert-box h3 {
+  margin-bottom: 1.5rem;
+}
+
+.alerts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.alert-type {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 1rem;
+  min-width: 80px;
+  text-align: center;
+}
+
+.alert-type.warning {
+  background-color: #FFC107;
+  color: #212529;
+}
+
+.alert-type.danger {
+  background-color: #DC3545;
+  color: #fff;
+}
+
+.alert-type.info {
+  background-color: #17A2B8;
+  color: #fff;
+}
+
+@media (max-width: 992px) {
+  .accommodation-types,
+  .transportation-options {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Auth Notice */
+.auth-notice {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.auth-notice .info-icon {
+  font-size: 1.5rem;
+}
+
+.auth-notice p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.95rem;
+}
+
+/* Itinerary Result */
+.itinerary-result {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.itinerary-result h3 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.day-itinerary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary);
+}
+
+.day-itinerary h4 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.activities-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.activity-item .time {
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 50px;
+  font-size: 0.9rem;
+}
+
+.activity-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.activity-details strong {
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.activity-details .location {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+/* Itinerary Actions */
+.itinerary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.itinerary-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.itinerary-actions .btn.outline {
+  background-color: white;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.itinerary-actions .btn.outline:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .date-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .accommodation-types,
+  .transportation-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkbox-group {
+    grid-template-columns: 1fr;
+  }
+
+  .itinerary-actions {
+    flex-direction: column;
+  }
+
+  .itinerary-actions .btn {
+    width: 100%;
+  }
+
+  .activity-item {
+    flex-direction: column;
+  }
+
+  .activity-item .time {
+    min-width: auto;
+  }
+}
+
+/* Saved Itineraries Section */
+.saved-itineraries-section {
+  margin-bottom: 4rem;
+}
+
+.saved-itineraries-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.itineraries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.itinerary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.itinerary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.itinerary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.itinerary-header h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.upcoming {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-badge.ongoing {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge.completed {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-badge.draft {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.itinerary-description {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.itinerary-details {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.btn-view-detail {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-view-detail:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  color: #666;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  margin: 0;
+}

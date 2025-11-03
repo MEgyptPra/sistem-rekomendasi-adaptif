@@ -308,3 +308,72 @@ async def get_user_analytics(db: AsyncSession = Depends(get_db)):
         })
     
     return analytics
+
+
+# ============== EVALUATION CONSISTENCY ENDPOINTS ==============
+
+@router.get("/evaluation/config")
+async def get_evaluation_config():
+    """
+    Get production configuration untuk consistency check dengan evaluation notebook
+    """
+    try:
+        config = {
+            "timestamp": datetime.now().isoformat(),
+            "hybrid_recommender": {
+                "content_weight": ml_service.hybrid_recommender.content_weight,
+                "collaborative_weight": ml_service.hybrid_recommender.collaborative_weight,
+                "default_lambda": ml_service.hybrid_recommender.default_lambda
+            },
+            "mab_optimizer": {
+                "n_arms": ml_service.mab_optimizer.n_arms,
+                "exploration_param": ml_service.mab_optimizer.c,
+                "lambda_values": ml_service.mab_optimizer.arms.tolist()
+            },
+            "context_service": {
+                "weather_conditions": ml_service.context_service.weather_conditions,
+                "seasons": ml_service.context_service.seasons,
+                "kemarau_months": ml_service.context_service.kemarau_months,
+                "hujan_months": ml_service.context_service.hujan_months
+            }
+        }
+        return config
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Config retrieval failed: {str(e)}")
+
+@router.post("/evaluation/consistency-check")
+async def run_consistency_check(
+    expected_lambda: float = Query(0.7),
+    expected_cb_weight: float = Query(0.6),
+    expected_cf_weight: float = Query(0.4)
+):
+    """
+    Verify consistency antara production dan evaluation configuration
+    """
+    try:
+        actual = {
+            "lambda": ml_service.hybrid_recommender.default_lambda,
+            "cb_weight": ml_service.hybrid_recommender.content_weight,
+            "cf_weight": ml_service.hybrid_recommender.collaborative_weight
+        }
+        
+        issues = []
+        if abs(actual["lambda"] - expected_lambda) > 0.01:
+            issues.append(f"Lambda mismatch: expected {expected_lambda}, got {actual['lambda']}")
+        if abs(actual["cb_weight"] - expected_cb_weight) > 0.01:
+            issues.append(f"CB weight mismatch: expected {expected_cb_weight}, got {actual['cb_weight']}")
+        if abs(actual["cf_weight"] - expected_cf_weight) > 0.01:
+            issues.append(f"CF weight mismatch: expected {expected_cf_weight}, got {actual['cf_weight']}")
+        
+        return {
+            "consistent": len(issues) == 0,
+            "actual_values": actual,
+            "expected_values": {
+                "lambda": expected_lambda,
+                "cb_weight": expected_cb_weight,
+                "cf_weight": expected_cf_weight
+            },
+            "issues": issues if issues else ["All parameters are consistent"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Consistency check failed: {str(e)}")

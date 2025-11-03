@@ -1,3 +1,3 @@
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:rekompari@db:5432/pariwisata")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:rekompari@127.0.0.1:5432/pariwisata")

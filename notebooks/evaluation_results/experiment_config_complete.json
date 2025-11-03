@@ -1,0 +1,85 @@
+{
+  "experiment": {
+    "name": "MAB-MMR Tourism Recommender Evaluation",
+    "version": "3.0-FINAL",
+    "date": "2025-11-02 20:00:27",
+    "author": "Thesis Evaluation Framework",
+    "notebook": "evaluasi_kuantitatif_FINAL copy.ipynb"
+  },
+  "reproducibility": {
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "python_random_seed": 42,
+    "notes": "All random operations use fixed seed for reproducibility"
+  },
+  "data": {
+    "total_ratings": 36991,
+    "total_users": 27431,
+    "total_items": 224,
+    "date_range": "2013-10-06 03:57:24.361098 to 2025-10-02 03:57:24.746074",
+    "train_test_split": "80/20 temporal stratified",
+    "min_ratings_per_user": 5,
+    "train_size": 3094,
+    "test_size": 1014,
+    "eligible_users": 532
+  },
+  "models": {
+    "collaborative_filtering": {
+      "algorithm": "NMF (Non-negative Matrix Factorization)",
+      "library": "scikit-surprise",
+      "n_components": 50,
+      "max_iter": 500,
+      "random_state": 42
+    },
+    "content_based": {
+      "features": "Category-based",
+      "similarity": "Categorical matching"
+    },
+    "context_aware": {
+      "features": [
+        "time_of_day",
+        "is_weekend",
+        "weather",
+        "season"
+      ],
+      "boost_mechanism": "Score adjustment based on context rules"
+    },
+    "mab": {
+      "algorithm": "UCB1 (Upper Confidence Bound)",
+      "library": "mabwiser",
+      "arms": "Lambda values for MMR",
+      "n_arms": 5,
+      "arm_values": "[0.0, 0.25, 0.5, 0.75, 1.0]",
+      "reward_function": "Combined (NDCG + Diversity)"
+    },
+    "mmr": {
+      "algorithm": "Maximal Marginal Relevance",
+      "implementation": "Vectorized with numpy",
+      "lambda_range": "[0.0, 1.0]",
+      "k": 10
+    }
+  },
+  "evaluation": {
+    "k": 10,
+    "metrics": [
+      "Precision@10",
+      "Recall@10",
+      "NDCG@10",
+      "Diversity (Intra-List)",
+      "Novelty",
+      "Gini Coefficient",
+      "Catalog Coverage",
+      "Long-Tail Coverage"
+    ],
+    "statistical_test": "Paired t-test (two-tailed)",
+    "significance_level": 0.05,
+    "effect_size": "Cohen's d"
+  },
+  "system": {
+    "python_version": "3.9.20 (main, Oct  3 2024, 07:38:01) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26100-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "numpy_version": "1.26.4",
+    "pandas_version": "2.0.3"
+  }
+}

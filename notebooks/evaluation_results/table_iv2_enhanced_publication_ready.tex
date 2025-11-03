@@ -1,0 +1,34 @@
+\begin{table}[htbp]
+\centering
+\caption{Perbandingan Performa Model Sistem Rekomendasi dengan Uji Signifikansi}
+\label{tab:model_comparison_final}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l*{5}{c}}
+\toprule
+\textbf{Model} & \textbf{Precision@10} & \textbf{Recall@10} & \textbf{NDCG@10} & 
+               \textbf{Diversity} & \textbf{Novelty} \\
+\midrule
+popularity & \textbf{0.0481}$^{***}$ & \textbf{0.2679}$^{***}$ & \textbf{0.1497}$^{***}$ & 0.8000$^{***}$ & 0.7234$^{***}$ \\
+cf & 0.0098$^{***}$ & 0.0523$^{***}$ & 0.0270$^{***}$ & \textbf{0.8088}$^{***}$ & \textbf{3.8459}$^{***}$ \\
+cb & 0.0305$^{*}$ & 0.1686$^{**}$ & 0.1025$^{**}$ & 0.1419$^{***}$ & 1.4447$^{***}$ \\
+hybrid & 0.0248 & 0.1361 & 0.0763 & 0.3167$^{***}$ & 2.5041$^{***}$ \\
+hybrid\_mmr\_lambda\_0.0 & 0.0242 & 0.1291 & 0.0723$^{*}$ & 0.6542$^{***}$ & 2.7436$^{***}$ \\
+hybrid\_mmr\_lambda\_0.3 & 0.0242 & 0.1291 & 0.0723$^{*}$ & 0.6542$^{***}$ & 2.7436$^{***}$ \\
+hybrid\_mmr\_lambda\_0.5 & 0.0242 & 0.1291 & 0.0723$^{*}$ & 0.6542$^{***}$ & 2.7436$^{***}$ \\
+hybrid\_mmr\_lambda\_0.7 & 0.0241 & 0.1299 & 0.0751 & 0.5222$^{***}$ & 2.6557$^{***}$ \\
+hybrid\_mmr\_lambda\_1.0 & 0.0248 & 0.1361 & 0.0763 & 0.3167$^{***}$ & 2.5041$^{***}$ \\
+\rowcolor{yellow!20}
+\textbf{hybrid\_mab\_mmr} & 0.0244 & 0.1293 & 0.0744 & 0.6214 & 2.7178 \\
+\bottomrule
+\end{tabular}
+}% end resizebox
+\begin{tablenotes}
+\footnotesize
+\item \textbf{Bold}: Nilai terbaik untuk metrik tersebut
+\item Baris highlight (kuning): Model yang diusulkan (MAB-MMR)
+\item $^{***}$ $p<0.001$, $^{**}$ $p<0.01$, $^{*}$ $p<0.05$ 
+      (dibandingkan dengan MAB-MMR, paired t-test dua sisi)
+\item Model: popularity (baseline non-personalized), cf (collaborative filtering), 
+      cb (content-based), hybrid (CF+CB+Context), hybrid\_mab\_mmr (proposed)
+\end{tablenotes}
+\end{table}

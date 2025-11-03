@@ -1,0 +1,700 @@
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 80vh;
+  min-height: 500px;
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('/assets/images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-content {
+  max-width: 800px;
+  padding: 0 1.5rem;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cta-buttons .btn {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+}
+
+/* Netflix-Style Slider for Recommendations */
+.personalized-recommendations.netflix-style {
+  padding: 4rem 0;
+  background: #f8f9fa;
+}
+
+.section-header-simple {
+  margin-bottom: 2rem;
+}
+
+.section-header-simple h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.slider-container {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 0;
+}
+
+.slider-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0.5rem 0 2rem 0;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: #667eea transparent;
+}
+
+.slider-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.slider-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 1rem;
+}
+
+.slider-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.slider-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.slider-item {
+  min-width: 320px;
+  max-width: 320px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+/* Seragamkan ukuran card dalam slider */
+.slider-item .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.slider-item .card-image {
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.slider-item .card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.slider-item .card-content h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  /* Limit to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.8rem;
+}
+
+.slider-item .card-content p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  /* Limit to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.slider-item .card-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+}
+
+.slider-item:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.slider-item:first-child {
+  margin-left: 0;
+}
+
+.slider-item:last-child {
+  margin-right: 1rem;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Featured Sections */
+.featured-destinations,
+.popular-activities {
+  padding: 4rem 0;
+}
+
+/* Seragamkan card aktivitas */
+.popular-activities .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.popular-activities .card-image {
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.popular-activities .card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.popular-activities .card-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  /* Limit to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.5rem;
+}
+
+.popular-activities .card-content p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  /* Limit to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: auto;
+  flex: 1;
+}
+
+.popular-activities .card-content .btn {
+  margin-top: 1rem;
+  align-self: stretch;
+}
+
+.featured-destinations {
+  background-color: #f8f9fa;
+}
+
+.featured-destinations h2,
+.popular-activities h2 {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.featured-destinations h2:after,
+.popular-activities h2:after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: #FF6B35;
+}
+
+.view-all {
+  display: block;
+  text-align: center;
+  margin-top: 2rem;
+  font-weight: 600;
+  color: #0D6EFD;
+  font-size: 1.1rem;
+}
+
+/* Plan Trip CTA */
+.plan-trip-cta {
+  padding: 5rem 0;
+  background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/assets/images/plan-trip-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+  text-align: center;
+}
+
+.cta-content h2 {
+  color: #fff;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.cta-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================
+   NEWSLETTER SECTION - Purple Gradient Theme
+   ======================================== */
+
+.newsletter {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative background elements */
+.newsletter::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 20s infinite ease-in-out;
+}
+
+.newsletter::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 15s infinite ease-in-out reverse;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+.newsletter .container {
+  position: relative;
+  z-index: 1;
+}
+
+.newsletter h2 {
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
+}
+
+.newsletter p {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.15rem;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.newsletter-form {
+  display: flex;
+  max-width: 550px;
+  margin: 0 auto;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.newsletter-form:focus-within {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.newsletter-form input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  outline: none;
+  border-radius: 50px;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+}
+
+.newsletter-form input:focus {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.newsletter-form button {
+  background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+  color: #fff;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+  white-space: nowrap;
+}
+
+.newsletter-form button:hover {
+  background: linear-gradient(135deg, #ff8c5a 0%, #FF6B35 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 107, 53, 0.6);
+}
+
+.newsletter-form button:active {
+  transform: translateY(0);
+}
+
+/* Newsletter Icon/Badge (optional enhancement) */
+.newsletter h2::before {
+  content: '✉️';
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+  }
+  
+  .cta-content h2 {
+    font-size: 2rem;
+  }
+  
+  .newsletter h2 {
+    font-size: 2rem;
+  }
+
+  .newsletter p {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    max-width: 90%;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .newsletter-form input {
+    border-radius: 50px;
+    padding: 1rem 1.5rem;
+  }
+  
+  .newsletter-form button {
+    border-radius: 50px;
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .newsletter {
+    padding: 3rem 0;
+  }
+
+  .newsletter h2 {
+    font-size: 1.75rem;
+  }
+
+  .newsletter h2::before {
+    font-size: 2.5rem;
+  }
+
+  .newsletter-form {
+    max-width: 95%;
+  }
+}
+
+/* ========================================
+   SURPRISE ME SECTION
+   Centered with Background
+   ======================================== */
+
+.surprise-me {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%),
+              url('/assets/images/plan-trip-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.surprise-me::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.surprise-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.surprise-content h2 {
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  line-height: 1.3;
+}
+
+.surprise-content p {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.2rem;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.surprise-content .btn.primary.large {
+  background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+  color: #fff;
+  padding: 1.25rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.surprise-content .btn.primary.large:hover {
+  background: linear-gradient(135deg, #ff8c5a 0%, #FF6B35 100%);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 35px rgba(255, 107, 53, 0.7);
+}
+
+.surprise-content .btn.primary.large:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .surprise-me {
+    padding: 4rem 0;
+  }
+
+  .surprise-content {
+    padding: 0 1.5rem;
+  }
+
+  .surprise-content h2 {
+    font-size: 2rem;
+  }
+
+  .surprise-content p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .surprise-content .btn.primary.large {
+    padding: 1.1rem 2.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .surprise-me {
+    padding: 3rem 0;
+  }
+
+  .surprise-content h2 {
+    font-size: 1.75rem;
+  }
+
+  .surprise-content p {
+    font-size: 1rem;
+  }
+
+  .surprise-content .btn.primary.large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* ========================================
+   WHERE IS SUMEDANG SECTION
+   Two Column Layout (Text Left, Map Right)
+   ======================================== */
+
+.where-is-sumedang {
+  padding: 4rem 0;
+  background-color: #fff;
+}
+
+.where-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.where-text h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.where-text p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.where-map img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.guide-cta {
+  margin-top: 1.5rem;
+}
+
+.guide-cta .btn {
+  display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .where-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .where-text h2 {
+    font-size: 1.75rem;
+  }
+
+  .where-text p {
+    font-size: 0.95rem;
+  }
+}

@@ -3,7 +3,6 @@ import pandas as pd
 from typing import List, Dict, Any, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from app.services.base_recommender import BaseRecommender
 from app.services.content_based_recommender import ContentBasedRecommender
 from app.services.collaborative_recommender import CollaborativeRecommender
@@ -17,157 +16,64 @@ class HybridRecommender(BaseRecommender):
         super().__init__()
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
-        self.content_weight = 0.6
+        
+        # Weight parameters - align dengan tesis research design
+        self.content_weight = 0.6  # Sesuai tesis BAB III.4.5
         self.collaborative_weight = 0.4
-        # Simpan similarity matrix dari content_recommender untuk digunakan oleh MMR
+        
+        self.default_lambda = 0.7  # Default fallback value
         self.similarity_matrix = None
-    
-    async def train(self, db: AsyncSession):
-        """Train both recommenders"""
+
+    async def train(self, db: AsyncSession, **kwargs):
+        """Train both content-based and collaborative recommenders"""
         try:
+            print("🤖 Training Hybrid Recommender...")
+            
             results = {}
             
             # Train content-based recommender
-            try:
-                content_result = await self.content_recommender.train(db)
-                results['content_based'] = content_result
-                # Simpan similarity matrix dari content_recommender setelah training
+            print("📚 Training content-based recommender...")
+            await self.content_recommender.train(db)
+            results['content_based'] = "trained"
+            
+            # Train collaborative recommender  
+            print("🤝 Training collaborative recommender...")
+            await self.collaborative_recommender.train(db)
+            results['collaborative'] = "trained"
+            
+            # Store similarity matrix untuk MMR
+            if self.content_recommender.is_trained:
                 self.similarity_matrix = self.content_recommender.similarity_matrix
-            except Exception as e:
-                results['content_based'] = {"status": "failed", "error": str(e)}
+                print("📊 Similarity matrix stored for MMR")
             
-            # Train collaborative recommender
-            try:
-                collab_result = await self.collaborative_recommender.train(db)
-                results['collaborative'] = collab_result
-            except Exception as e:
-                results['collaborative'] = {"status": "failed", "error": str(e)}
-            
-            # Model is trained if at least one component is trained
-            self.is_trained = (
-                self.content_recommender.is_trained or 
-                self.collaborative_recommender.is_trained
-            )
+            self.is_trained = True
+            print("✅ Hybrid recommender training completed!")
             
             return results
             
         except Exception as e:
+            print(f"❌ Hybrid training failed: {str(e)}")
             raise Exception(f"Hybrid training failed: {str(e)}")
-    
-    def _rerank_with_mmr(self, recommendations: List[Dict[str, Any]], lambda_val: float, num_final_recs: int) -> List[Dict[str, Any]]:
-        """
-        Melakukan re-ranking pada daftar rekomendasi menggunakan algoritma MMR.
 
-        Args:
-            recommendations (List[Dict]): List rekomendasi awal dengan 'destination_id' dan 'score'.
-            lambda_val (float): Parameter untuk menyeimbangkan relevansi dan keberagaman (antara 0 dan 1).
-            num_final_recs (int): Jumlah rekomendasi final yang diinginkan.
-
-        Returns:
-            List[Dict]: List rekomendasi yang sudah di-rerank.
-        """
-        if not recommendations or self.similarity_matrix is None:
-            return recommendations[:num_final_recs]
-
-        # Convert ke DataFrame untuk memudahkan manipulasi
-        candidates_df = pd.DataFrame(recommendations)
-        
-        # Pastikan ada kolom yang diperlukan
-        if 'destination_id' not in candidates_df.columns or 'score' not in candidates_df.columns:
-            return recommendations[:num_final_recs]
-        
-        # Inisialisasi daftar rekomendasi final
-        reranked_recs = []
-        remaining_candidates = candidates_df.copy()
-        
-        # Pilih item pertama dengan skor relevansi tertinggi
-        if not remaining_candidates.empty:
-            first_idx = remaining_candidates['score'].idxmax()
-            first_rec = remaining_candidates.loc[first_idx].to_dict()
-            reranked_recs.append(first_rec)
-            remaining_candidates = remaining_candidates.drop(first_idx)
-
-        # Lakukan proses iteratif untuk memilih sisa item
-        while len(reranked_recs) < num_final_recs and not remaining_candidates.empty:
-            best_item = None
-            best_mmr_score = -float('inf')
-            best_idx = None
-
-            for idx, candidate_row in remaining_candidates.iterrows():
-                candidate_id = candidate_row['destination_id']
-                relevance_score = candidate_row['score']
-                
-                # Hitung similarity dengan item yang sudah terpilih
-                similarity_scores = []
-                for selected_item in reranked_recs:
-                    selected_id = selected_item['destination_id']
-                    try:
-                        # Cari index destination di destinations_df
-                        if (self.content_recommender.destinations_df is not None and 
-                            'id' in self.content_recommender.destinations_df.columns):
-                            
-                            candidate_df_idx = self.content_recommender.destinations_df[
-                                self.content_recommender.destinations_df['id'] == candidate_id
-                            ].index
-                            selected_df_idx = self.content_recommender.destinations_df[
-                                self.content_recommender.destinations_df['id'] == selected_id
-                            ].index
-                            
-                            if len(candidate_df_idx) > 0 and len(selected_df_idx) > 0:
-                                candidate_matrix_idx = candidate_df_idx[0]
-                                selected_matrix_idx = selected_df_idx[0]
-                                sim = self.similarity_matrix[candidate_matrix_idx, selected_matrix_idx]
-                                similarity_scores.append(sim)
-                            else:
-                                similarity_scores.append(0)
-                        else:
-                            similarity_scores.append(0)
-                    except (KeyError, IndexError, TypeError):
-                        # Jika salah satu ID tidak ada di matriks, anggap similarity 0
-                        similarity_scores.append(0)
-
-                max_similarity = max(similarity_scores) if similarity_scores else 0
-
-                # Hitung MMR Score
-                mmr_score = lambda_val * relevance_score - (1 - lambda_val) * max_similarity
-                
-                if mmr_score > best_mmr_score:
-                    best_mmr_score = mmr_score
-                    best_item = candidate_row.to_dict()
-                    best_idx = idx
-            
-            if best_item is not None:
-                reranked_recs.append(best_item)
-                remaining_candidates = remaining_candidates.drop(best_idx)
-            else:
-                # Jika tidak ada item lagi yang bisa dipilih, hentikan
-                break
-                
-        return reranked_recs
-    
-    async def predict(self, user_id: int, num_recommendations: int = 10, db: AsyncSession = None, lambda_mmr: float = 0.7, mab_optimizer=None, context: Dict[str, Any] = None) -> Tuple[List[Dict[str, Any]], Optional[int]]:
+    async def predict(self, user_id: int, num_recommendations: int = 10, 
+                 db: AsyncSession = None, lambda_mmr: float = None, 
+                 mab_optimizer=None, context: Dict[str, Any] = None) -> Tuple[List[Dict[str, Any]], Optional[int]]:
         """
         Generate hybrid recommendations with contextual MMR diversification
-        
-        Args:
-            user_id: ID pengguna
-            num_recommendations: Jumlah rekomendasi yang diinginkan
-            db: Database session
-            lambda_mmr: Parameter MMR untuk menyeimbangkan relevansi (0-1) - used as fallback
-            mab_optimizer: MAB optimizer instance untuk dynamic lambda selection
-            context: Real-time context data dari RealTimeContextService
-                       
-        Returns:
-            Tuple: (recommendations, arm_index) where arm_index is the selected MAB arm
+        IMPROVED: Consistent dengan research methodology di tesis
         """
+        
+        # 🔍 DEBUG: Print context type immediately
+        print(f"🔍 DEBUG predict() - context type: {type(context)}, value: {context}")
+        
         if not self.is_trained:
-            raise ValueError("Model belum di-train. Jalankan train() terlebih dahulu.")
+            raise ValueError("Model belum di-train. Jalankan train terlebih dahulu.")
         
         try:
+            # Get base recommendations dari components
             content_recs = []
             collab_recs = []
             
-            # Get content-based recommendations (ambil lebih banyak kandidat untuk MMR)
             if self.content_recommender.is_trained:
                 try:
                     content_recs = await self.content_recommender.predict(
@@ -176,20 +82,18 @@ class HybridRecommender(BaseRecommender):
                 except Exception as e:
                     print(f"Content-based prediction failed: {e}")
             
-            # Get collaborative recommendations (ambil lebih banyak kandidat untuk MMR)
             if self.collaborative_recommender.is_trained:
                 try:
                     collab_recs = await self.collaborative_recommender.predict(
-                        user_id, num_recommendations * 3, db  # Get more candidates for MMR
+                        user_id, num_recommendations * 3, db
                     )
                 except Exception as e:
                     print(f"Collaborative prediction failed: {e}")
             
-            # Combine recommendations
             if not content_recs and not collab_recs:
                 raise ValueError("Both recommenders failed to generate recommendations")
             
-            # Create hybrid scores
+            # Combine recommendations dengan weighted scoring
             hybrid_scores = {}
             
             # Add content-based scores
@@ -201,7 +105,7 @@ class HybridRecommender(BaseRecommender):
                     'destination': rec
                 }
             
-            # Add collaborative scores
+            # Add collaborative scores  
             for rec in collab_recs:
                 dest_id = rec['destination_id']
                 if dest_id in hybrid_scores:
@@ -220,50 +124,138 @@ class HybridRecommender(BaseRecommender):
                 rec = scores['destination'].copy()
                 rec['score'] = round(final_score, 4)
                 rec['algorithm'] = 'hybrid'
-                rec['explanation'] = f"Hybrid: Content({scores['content_score']:.3f}) + Collaborative({scores['collab_score']:.3f})"
+                rec['explanation'] = f"Hybrid: Content={scores['content_score']:.3f} + Collaborative={scores['collab_score']:.3f}"
                 candidate_recommendations.append(rec)
             
             # Sort candidates by relevance score
             candidate_recommendations.sort(key=lambda x: x['score'], reverse=True)
             
-            # Determine lambda value using Contextual MAB or fallback
+            # IMPROVED: Determine lambda value using MAB or fallback
             selected_arm_index = None
+
+            # 🌍 Create safe context wrapper
+            safe_context = SafeContext(context)
+
             if mab_optimizer is not None:
-                # Contextual MAB selects the optimal arm based on current context
+                # Use MAB untuk contextual lambda selection
                 selected_arm_index = mab_optimizer.select_arm(context)
                 dynamic_lambda = mab_optimizer.get_lambda_value(selected_arm_index)
                 
-                # Log contextual decision
-                if context:
-                    print(f"🤖 Contextual MAB Decision: λ={dynamic_lambda:.2f} "
-                          f"for weather={context.get('weather', 'unknown')}, "
-                          f"weekend={context.get('is_weekend', 'unknown')}")
+                # ✅ Context-aware print with safe access
+                if safe_context.is_valid:
+                    weather = safe_context.get('weather', 'unknown')
+                    season = safe_context.get('season', 'unknown')
+                    temp = safe_context.get('temperature_category', 'unknown')
+                    weekend = safe_context.get('is_weekend', False)
+                    print(f"🌍 Contextual MAB: λ={dynamic_lambda:.2f} [Indonesia: {season}, {weather}, {temp}°, weekend={weekend}]")
+                else:
+                    print(f"🎰 MAB Decision: λ={dynamic_lambda:.2f}")
+                
             else:
-                # Fallback to provided lambda_mmr if MAB not available
-                dynamic_lambda = lambda_mmr
-                print(f"⚠️ Fallback to static λ={dynamic_lambda:.2f} (no MAB/context)")
+                # Fallback to provided lambda_mmr or default
+                dynamic_lambda = lambda_mmr if lambda_mmr is not None else self.default_lambda
+                print(f"📊 Static λ={dynamic_lambda:.2f}")
             
-            # Apply MMR re-ranking for diversification using contextual lambda
+            # IMPROVED: Apply MMR re-ranking dengan dynamic lambda
             if self.similarity_matrix is not None and len(candidate_recommendations) > num_recommendations:
-                # Apply MMR only if we have similarity matrix and enough candidates
-                final_recommendations = self._rerank_with_mmr(
+                final_recommendations = self.rerank_with_mmr(
                     recommendations=candidate_recommendations,
-                    lambda_val=dynamic_lambda,
+                    lambda_val=dynamic_lambda,  # Use dynamic lambda dari MAB
                     num_final_recs=num_recommendations
                 )
-                
-                print(f"✅ MMR applied with λ={dynamic_lambda:.2f}: "
-                      f"{len(candidate_recommendations)} candidates → {len(final_recommendations)} final")
+                print(f"MMR applied with λ={dynamic_lambda:.2f} "
+                     f"({len(candidate_recommendations)} candidates → {len(final_recommendations)} final)")
             else:
-                # Fallback to traditional top-N if MMR cannot be applied
+                # Fallback to top-N by relevance only
                 final_recommendations = candidate_recommendations[:num_recommendations]
-                print(f"⚠️ MMR skipped: using top-{num_recommendations} by relevance only")
+                print(f"MMR skipped: using top-{num_recommendations} by relevance only")
             
             return final_recommendations, selected_arm_index
             
         except Exception as e:
             raise Exception(f"Hybrid prediction failed: {str(e)}")
-    
+
+    def rerank_with_mmr(self, recommendations: List[Dict[str, Any]], lambda_val: float, 
+                       num_final_recs: int) -> List[Dict[str, Any]]:
+        """
+        IMPROVED: MMR implementation selaras dengan tesis methodology
+        Menggunakan Maximal Marginal Relevance untuk diversification
+        """
+        if not recommendations or self.similarity_matrix is None:
+            return recommendations[:num_final_recs]
+        
+        # Convert ke DataFrame for easier manipulation
+        candidates_df = pd.DataFrame(recommendations)
+        
+        if 'destination_id' not in candidates_df.columns or 'score' not in candidates_df.columns:
+            return recommendations[:num_final_recs]
+        
+        reranked_recs = []
+        remaining_candidates = candidates_df.copy()
+        
+        # Select first item (highest relevance score)
+        if not remaining_candidates.empty:
+            first_idx = remaining_candidates['score'].idxmax()
+            first_rec = remaining_candidates.loc[first_idx].to_dict()
+            reranked_recs.append(first_rec)
+            remaining_candidates = remaining_candidates.drop(first_idx)
+        
+        # Iteratively select remaining items using MMR
+        while len(reranked_recs) < num_final_recs and not remaining_candidates.empty:
+            best_mmr_score = -float('inf')
+            best_item = None
+            best_idx = None
+            
+            for idx, candidate_row in remaining_candidates.iterrows():
+                candidate_id = candidate_row['destination_id']
+                relevance_score = candidate_row['score']
+                
+                # Calculate max similarity to already selected items
+                max_similarity = 0
+                if len(reranked_recs) > 0:
+                    for selected_item in reranked_recs:
+                        selected_id = selected_item['destination_id']
+                        
+                        try:
+                            # Get similarity from matrix if available
+                            if (self.content_recommender.destinations_df is not None and 
+                                'id' in self.content_recommender.destinations_df.columns):
+                                
+                                candidate_df_idx = self.content_recommender.destinations_df[
+                                    self.content_recommender.destinations_df['id'] == candidate_id
+                                ].index
+                                selected_df_idx = self.content_recommender.destinations_df[
+                                    self.content_recommender.destinations_df['id'] == selected_id
+                                ].index
+                                
+                                if len(candidate_df_idx) > 0 and len(selected_df_idx) > 0:
+                                    candidate_matrix_idx = candidate_df_idx[0]
+                                    selected_matrix_idx = selected_df_idx[0]
+                                    sim = self.similarity_matrix[candidate_matrix_idx, selected_matrix_idx]
+                                    max_similarity = max(max_similarity, sim)
+                                else:
+                                    max_similarity = max(max_similarity, 0)
+                            else:
+                                max_similarity = max(max_similarity, 0)
+                        except (KeyError, IndexError, TypeError):
+                            max_similarity = max(max_similarity, 0)
+                
+                # Calculate MMR Score: λ * relevance - (1-λ) * max_similarity
+                mmr_score = lambda_val * relevance_score - (1 - lambda_val) * max_similarity
+                
+                if mmr_score > best_mmr_score:
+                    best_mmr_score = mmr_score
+                    best_item = candidate_row.to_dict()
+                    best_idx = idx
+            
+            if best_item is not None:
+                reranked_recs.append(best_item)
+                remaining_candidates = remaining_candidates.drop(best_idx)
+            else:
+                break
+        
+        return reranked_recs
+
     async def explain(self, user_id: int, destination_id: int, db: AsyncSession = None) -> Dict[str, Any]:
         """Explain hybrid recommendation"""
         try:
@@ -275,7 +267,7 @@ class HybridRecommender(BaseRecommender):
                     content_exp = await self.content_recommender.explain(user_id, destination_id, db)
                     explanations['content_based'] = content_exp
                 except Exception as e:
-                    explanations['content_based'] = {"error": str(e)}
+                    explanations['content_based'] = f"error: {str(e)}"
             
             # Get collaborative explanation
             if self.collaborative_recommender.is_trained:
@@ -283,7 +275,7 @@ class HybridRecommender(BaseRecommender):
                     collab_exp = await self.collaborative_recommender.explain(user_id, destination_id, db)
                     explanations['collaborative'] = collab_exp
                 except Exception as e:
-                    explanations['collaborative'] = {"error": str(e)}
+                    explanations['collaborative'] = f"error: {str(e)}"
             
             return {
                 "explanation": "Hybrid recommendation combining multiple algorithms",
@@ -296,15 +288,16 @@ class HybridRecommender(BaseRecommender):
             
         except Exception as e:
             raise Exception(f"Hybrid explanation failed: {str(e)}")
-    
+
     async def get_user_profile(self, user_id: int, db: AsyncSession) -> Dict[str, Any]:
         """Get comprehensive user profile for recommendations"""
         try:
+            # Get user
             user = await db.get(User, user_id)
             if not user:
                 raise ValueError(f"User {user_id} not found")
             
-            # Get user rating statistics
+            # Get rating statistics
             from sqlalchemy import func
             rating_stats = await db.execute(
                 select(
@@ -335,3 +328,17 @@ class HybridRecommender(BaseRecommender):
             
         except Exception as e:
             raise Exception(f"Get user profile failed: {str(e)}")
+        
+class SafeContext:
+    def __init__(self, context_input):
+        if isinstance(context_input, dict):
+            self.context = context_input
+            self.is_valid = True
+        else:
+            self.context = {}
+            self.is_valid = False
+    
+    def get(self, key, default=None):
+        if self.is_valid:
+            return self.context.get(key, default)
+        return default
