@@ -606,6 +606,14 @@ async def add_favorite(
         db.add(new_favorite)
         await db.commit()
         
+        # 🚀 AUTO LEARNING: Track favorite (only for destinations)
+        if favorite_data.entity_type == 'destination':
+            from app.middleware.learning_middleware import track_favorite_added
+            import asyncio
+            asyncio.create_task(
+                track_favorite_added(favorite_data.entity_id, current_user.id, db)
+            )
+        
         return {
             "message": "Added to favorites",
             "action": "added",

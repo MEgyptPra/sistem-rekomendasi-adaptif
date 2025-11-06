@@ -6,12 +6,11 @@ import DestinationCard from '../components/destinations/DestinationCard';
 const Destinations = () => {
   const [allDestinations, setAllDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [regions, setRegions] = useState(['Semua Wilayah']);
   const [categories, setCategories] = useState(['Semua Kategori']);
   
-  const [selectedRegion, setSelectedRegion] = useState('Semua Wilayah');
   const [selectedCategory, setSelectedCategory] = useState('Semua Kategori');
   const [searchQuery, setSearchQuery] = useState('');
+  const [displayCount, setDisplayCount] = useState(12); // Menampilkan 12 destinasi pertama
 
   // Fetch destinations from API
   useEffect(() => {
@@ -21,11 +20,8 @@ const Destinations = () => {
         const destinations = response.data.destinations || [];
         setAllDestinations(destinations);
 
-        // Extract unique regions and categories
-        const uniqueRegions = ['Semua Wilayah', ...new Set(destinations.map(d => d.region).filter(Boolean))];
+        // Extract unique categories
         const uniqueCategories = ['Semua Kategori', ...new Set(destinations.map(d => d.category).filter(Boolean))];
-        
-        setRegions(uniqueRegions);
         setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching destinations:', error);
@@ -38,12 +34,22 @@ const Destinations = () => {
   }, []);
 
   const filteredDestinations = allDestinations.filter(dest => {
-    const matchesRegion = selectedRegion === 'Semua Wilayah' || dest.region === selectedRegion;
     const matchesCategory = selectedCategory === 'Semua Kategori' || dest.category === selectedCategory;
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (dest.description && dest.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesRegion && matchesCategory && matchesSearch;
+    return matchesCategory && matchesSearch;
   });
+
+  // Destinasi yang ditampilkan (limit jika tidak ada pencarian)
+  const displayedDestinations = searchQuery 
+    ? filteredDestinations // Tampilkan semua hasil jika sedang search
+    : filteredDestinations.slice(0, displayCount); // Batasi jumlah jika tidak search
+
+  const hasMore = !searchQuery && filteredDestinations.length > displayCount;
+
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + 12); // Tambah 12 destinasi setiap klik
+  };
 
   return (
     <div className="destinations-page">
@@ -65,18 +71,6 @@ const Destinations = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
-            
-            <div className="region-filter">
-              <label>Filter Wilayah:</label>
-              <select 
-                value={selectedRegion} 
-                onChange={(e) => setSelectedRegion(e.target.value)}
-              >
-                {regions.map(region => (
-                  <option key={region} value={region}>{region}</option>
-                ))}
-              </select>
             </div>
 
             <div className="category-filter">
@@ -101,20 +95,32 @@ const Destinations = () => {
             <>
               {/* Destinations Grid */}
               <h2>
-                {selectedRegion !== 'Semua Wilayah' ? selectedRegion : 
-                 selectedCategory !== 'Semua Kategori' ? selectedCategory : 
-                 'Semua Destinasi'}
+                {selectedCategory !== 'Semua Kategori' ? selectedCategory : 'Semua Destinasi'}
               </h2>
               {filteredDestinations.length === 0 ? (
                 <p className="no-results">Tidak ada destinasi yang cocok dengan filter Anda. Coba sesuaikan filter.</p>
               ) : (
                 <>
-                  <p className="result-count">{filteredDestinations.length} destinasi ditemukan</p>
+                  <p className="result-count">
+                    {searchQuery 
+                      ? `${filteredDestinations.length} destinasi ditemukan` 
+                      : `Menampilkan ${displayedDestinations.length} dari ${filteredDestinations.length} destinasi`
+                    }
+                  </p>
                   <div className="destinations-grid">
-                    {filteredDestinations.map(destination => (
+                    {displayedDestinations.map(destination => (
                       <DestinationCard key={destination.id} destination={destination} />
                     ))}
                   </div>
+                  
+                  {/* Load More Button */}
+                  {hasMore && (
+                    <div className="load-more-container">
+                      <button onClick={handleLoadMore} className="btn-load-more">
+                        Tampilkan Lebih Banyak
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
             </>

@@ -116,10 +116,12 @@ async def get_destinations_list(
 @router.get("/destinations/{destination_id}")
 async def get_destination_detail(
     destination_id: int,
+    user_id: Optional[int] = None,
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Get detailed information for a specific destination
+    Get detailed information for a specific destination.
+    Automatically tracks view for incremental learning.
     """
     try:
         # Fetch destination with categories
@@ -132,6 +134,13 @@ async def get_destination_detail(
         
         if not destination:
             raise HTTPException(status_code=404, detail="Destination not found")
+        
+        # 🚀 AUTO LEARNING: Track view (non-blocking)
+        from app.middleware.learning_middleware import track_destination_view
+        import asyncio
+        asyncio.create_task(
+            track_destination_view(destination_id, user_id, db)
+        )
         
         # Get review statistics
         review_stats_query = select(
@@ -238,6 +247,16 @@ async def create_destination_review(
         db.add(new_review)
         await db.commit()
         await db.refresh(new_review)
+        
+        # 🚀 AUTO LEARNING: Track rating + review
+        from app.middleware.learning_middleware import track_rating_added, track_review_added
+        import asyncio
+        asyncio.create_task(
+            track_rating_added(destination_id, user_id, review.rating, db)
+        )
+        asyncio.create_task(
+            track_review_added(destination_id, user_id, db)
+        )
         
         return {
             "message": "Review submitted successfully",
@@ -548,39 +567,148 @@ async def get_personalized_recommendations(
     user_id: Optional[int] = None,
     session_id: Optional[str] = None,
     limit: int = 6,
+    algorithm: str = "auto",  # auto, incremental, hybrid, mab
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Get personalized recommendations for Home page
-    Falls back to popular destinations if user not found or no ML model available
+    Get personalized recommendations for Home page.
+    
+    HYBRID APPROACH - Combines research (notebook) + production (incremental):
+    - "auto": Smart selection (incremental for speed, MAB if trained)
+    - "incremental": Real-time learning from interactions (FAST, no training)
+    - "hybrid": Full ML from research notebook (ACCURATE, needs training)
+    - "mab": Multi-Armed Bandit with context awareness (BEST, needs training)
+    
+    Learning happens automatically for incremental mode:
+    - Every view, click, rating → updates scores in real-time
+    - Trending destinations calculated from recent interactions
+    - NO MANUAL TRAINING NEEDED for day-to-day operations!
     """
     try:
-        # If we have user_id, try to get personalized recommendations
-        # For now, return popular destinations as fallback
+        from app.services.incremental_learner import incremental_learner
+        from app.services.ml_service import ml_service
         
-        # Get destinations with highest ratings
-        query = select(
-            Destination.id,
-            Destination.name,
-            Destination.description,
-            Destination.address,
-            func.avg(DestinationReview.rating).label('avg_rating'),
-            func.count(DestinationReview.id).label('review_count')
-        ).outerjoin(DestinationReview).group_by(
-            Destination.id,
-            Destination.name,
-            Destination.description,
-            Destination.address
-        ).order_by(
-            desc('avg_rating'),
-            desc('review_count')
-        ).limit(limit)
+        # AUTO MODE: Choose best available algorithm
+        if algorithm == "auto":
+            # Check if ML model is trained
+            model_status = ml_service.get_model_status()
+            if model_status.get('is_trained') and user_id:
+                algorithm = "hybrid"  # Use research model if available
+                print(f"🎯 AUTO: Using Hybrid MAB (trained model available)")
+            else:
+                algorithm = "incremental"  # Fallback to incremental
+                print(f"⚡ AUTO: Using Incremental Learning (fast mode)")
         
-        result = await db.execute(query)
-        destinations = result.all()
+        # STRATEGY 1: INCREMENTAL LEARNING (from new implementation)
+        # Fast, real-time, no training needed
+        if algorithm == "incremental":
+            trending = await incremental_learner.get_trending_destinations(
+                limit=limit * 2,
+                time_window_hours=24,
+                db=db
+            )
+            
+            if user_id and trending:
+                # Apply simple personalization boost
+                for item in trending:
+                    boost = await incremental_learner.get_personalized_boost(
+                        user_id=user_id,
+                        destination_id=item['destination_id'],
+                        db=db
+                    )
+                    item['popularity_score'] += boost
+                
+                # Re-sort after personalization
+                trending.sort(key=lambda x: x['popularity_score'], reverse=True)
+            
+            algorithm_used = "incremental_learning"
+            
+        # STRATEGY 2: HYBRID MAB (from notebook research)
+        # Accurate, uses trained ML model
+        elif algorithm in ["hybrid", "mab"] and user_id:
+            try:
+                # Use ML service from research (ml_service.py)
+                ml_recommendations = await ml_service.get_recommendations(
+                    user_id=user_id,
+                    algorithm="hybrid",  # From notebook: CB + CF + MAB
+                    limit=limit,
+                    db=db
+                )
+                
+                # Apply incremental boost on top of ML recommendations
+                trending = await incremental_learner.get_recommendations_with_incremental_boost(
+                    user_id=user_id,
+                    base_recommendations=ml_recommendations,
+                    db=db
+                )
+                
+                algorithm_used = "hybrid_mab_with_incremental"
+                print(f"✅ Using Hybrid MAB + Incremental boost")
+                
+            except Exception as e:
+                print(f"⚠️ ML model failed, falling back to incremental: {e}")
+                # Fallback to incremental
+                trending = await incremental_learner.get_trending_destinations(
+                    limit=limit * 2,
+                    time_window_hours=24,
+                    db=db
+                )
+                algorithm_used = "incremental_fallback"
         
+        else:
+            # Default: Use incremental for anonymous users
+            trending = await incremental_learner.get_trending_destinations(
+                limit=limit * 2,
+                time_window_hours=24,
+                db=db
+            )
+            algorithm_used = "incremental_default"
+        
+        # Fallback: If no trending data yet, use popular destinations
+        if not trending:
+            query = select(
+                Destination.id,
+                Destination.name,
+                Destination.description,
+                Destination.address,
+                func.avg(DestinationReview.rating).label('avg_rating'),
+                func.count(DestinationReview.id).label('review_count')
+            ).outerjoin(DestinationReview).group_by(
+                Destination.id,
+                Destination.name,
+                Destination.description,
+                Destination.address
+            ).order_by(
+                desc('avg_rating'),
+                desc('review_count')
+            ).limit(limit)
+            
+            result = await db.execute(query)
+            destinations_data = result.all()
+            
+            # Convert to trending format
+            trending = [
+                {
+                    'destination_id': d.id,
+                    'popularity_score': float(d.avg_rating or 0) * (d.review_count or 0),
+                    'avg_rating': float(d.avg_rating or 0),
+                    'interaction_count': d.review_count or 0
+                }
+                for d in destinations_data
+            ]
+        
+        # Get full destination details
         recommendations = []
-        for dest in destinations:
+        for item in trending[:limit]:
+            dest_query = select(Destination).where(
+                Destination.id == item['destination_id']
+            )
+            dest_result = await db.execute(dest_query)
+            dest = dest_result.scalar_one_or_none()
+            
+            if not dest:
+                continue
+            
             # Get category
             cat_query = select(Category).join(
                 Destination.categories
@@ -595,14 +723,34 @@ async def get_personalized_recommendations(
                 "description": dest.description or "Destinasi wisata menarik di Sumedang",
                 "region": dest.address or "Sumedang",
                 "category": category.name if category else "Alam",
-                "rating": round(float(dest.avg_rating or 0), 1),
-                "reviewCount": dest.review_count or 0
+                "rating": round(item.get('avg_rating', 0), 1),
+                "reviewCount": item.get('interaction_count', 0),
+                "trending_score": round(item.get('popularity_score', 0), 2)
             })
+        
+        if not algorithm_used:
+            algorithm_used = "incremental_default" if trending else "popular_fallback"
+        
+        # Build response message based on algorithm
+        messages = {
+            "incremental_learning": "Real-time learning - updates automatically!",
+            "hybrid_mab_with_incremental": "Research-grade ML + Real-time boost!",
+            "incremental_fallback": "Incremental learning (ML unavailable)",
+            "incremental_default": "Trending destinations",
+            "popular_fallback": "Popular destinations"
+        }
         
         return {
             "recommendations": recommendations,
-            "algorithm": "popular",  # Will be "mab" when ML is integrated
-            "message": "Showing popular destinations"
+            "algorithm": algorithm_used,
+            "message": messages.get(algorithm_used, "Personalized recommendations"),
+            "info": {
+                "mode": algorithm,
+                "uses_ml_model": "hybrid" in algorithm_used or "mab" in algorithm_used,
+                "uses_incremental": "incremental" in algorithm_used,
+                "auto_learning": True,
+                "update_frequency": "real-time"
+            }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get recommendations: {str(e)}")

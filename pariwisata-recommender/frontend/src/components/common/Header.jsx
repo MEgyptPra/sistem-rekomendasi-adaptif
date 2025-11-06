@@ -37,7 +37,10 @@ const Header = () => {
             <li><Link to="/destinations">Destinasi</Link></li>
             <li><Link to="/activities">Aktivitas</Link></li>
             <li><Link to="/planning">Perencanaan</Link></li>
-            <li><Link to="/favorites">Favorit</Link></li>
+            <li><Link to="/resources">Panduan & Sumber Informasi</Link></li>
+            {isAuthenticated && (
+              <li><Link to="/favorites">Favorit</Link></li>
+            )}
           </ul>
         </nav>
         

@@ -15,3 +15,7 @@ class User(Base):
     # Relationships
     ratings = relationship("Rating", back_populates="user")
     reviews = relationship("Review", back_populates="user")
+    activity_reviews = relationship("ActivityReview", back_populates="user")
+    destination_reviews = relationship("DestinationReview", back_populates="user")
+    interactions = relationship("UserInteraction", back_populates="user")
+    itineraries = relationship("Itinerary", back_populates="user")
