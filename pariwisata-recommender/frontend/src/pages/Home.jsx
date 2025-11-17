@@ -17,35 +17,57 @@ const Home = () => {
   // State untuk Surprise Modal
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
 
-  // Fetch rekomendasi dari backend (MAB-based)
-  // Anonymous: Context-based (cuaca, traffic, waktu, musim)
-  // Logged-in: Context + Personalized (preferences, history)
+  // ✅ Fetch rekomendasi dari ML MODEL (Hybrid CF+CB + MAB + MMR)
+  // - Algorithm: AUTO (smart selection based on user data availability)
+  // - Anonymous: Incremental (context-aware: weather, time, traffic, trending)
+  // - Logged-in: Hybrid/MAB (personalized + context-aware)
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         if (isAuthenticated) {
-          // Logged-in user: Try Personalized + Context first
+          // ✅ Logged-in user: Gunakan ML Model dengan algorithm=auto
           try {
-            const response = await recommendationsAPI.getPersonalized();
+            const response = await recommendationsAPI.getPersonalized({
+              algorithm: 'auto', // Smart: hybrid jika trained, incremental jika belum
+              num_recommendations: 6
+            });
             setPersonalizedDestinations(response.data.recommendations || []);
+            console.log('✅ ML Model used:', response.data.metadata?.algorithm_used);
           } catch (personalErr) {
-            console.warn('Personalized recommendations failed, using fallback:', personalErr);
-            await loadFallbackDestinations();
+            console.warn('ML recommendations failed, using incremental:', personalErr);
+            await loadIncrementalRecommendations();
           }
         } else {
-          // Anonymous user: Skip API call, go straight to fallback
-          // (Model not trained, so API will always fail with 400)
-          console.log('Anonymous user: Using random destinations from database');
-          await loadFallbackDestinations();
+          // ✅ Anonymous user: Gunakan Incremental Learning (context-aware tanpa user data)
+          // - Sudah include: weather, traffic, time-of-day, trending destinations
+          console.log('Anonymous user: Using context-aware incremental learning');
+          await loadIncrementalRecommendations();
         }
       } catch (error) {
         console.error('Error fetching recommendations:', error);
-        await loadFallbackDestinations();
+        await loadFallbackDestinations(); // Last resort: random
       } finally {
         setLoading(false);
       }
     };
 
+    // ✅ Load Incremental Learning Recommendations
+    // Context-aware: weather, traffic, time-of-day, trending destinations
+    const loadIncrementalRecommendations = async () => {
+      try {
+        const response = await recommendationsAPI.getPersonalized({
+          algorithm: 'incremental', // Context-aware tanpa perlu model training
+          num_recommendations: 6
+        });
+        setPersonalizedDestinations(response.data.recommendations || []);
+        console.log('✅ Incremental learning loaded (context + trending)');
+      } catch (incrementalErr) {
+        console.error('Incremental failed, using random fallback:', incrementalErr);
+        await loadFallbackDestinations();
+      }
+    };
+
+    // Last resort fallback: Random destinations
     const loadFallbackDestinations = async () => {
       try {
         const allDestResponse = await recommendationsAPI.getAllDestinations({ limit: 20 });
@@ -65,13 +87,13 @@ const Home = () => {
           category: dest.category,
           image: dest.image,
           score: 0.75,
-          explanation: `Rekomendasi ${dest.category} di ${dest.region}`
+          explanation: `Destinasi populer di ${dest.region}`
         }));
         
         setPersonalizedDestinations(transformedData);
+        console.log('⚠️ Using random fallback');
       } catch (fallbackErr) {
         console.error('Fallback destinations also failed:', fallbackErr);
-        // Last resort: empty array
         setPersonalizedDestinations([]);
       }
     };

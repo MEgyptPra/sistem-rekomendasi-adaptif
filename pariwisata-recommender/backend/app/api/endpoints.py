@@ -29,6 +29,46 @@ async def get_ml_status():
     """Get status of all ML models"""
     return ml_service.get_models_status()
 
+@router.get("/ml/context")
+async def get_current_context():
+    """Get current real-time context (weather, traffic, etc)"""
+    try:
+        context = await ml_service.context_service.get_current_context()
+        return {
+            "status": "success",
+            "context": context,
+            "mode": "production" if context["data_source"]["weather"] != "simulation" else "simulation"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get context: {str(e)}")
+
+@router.get("/ml/context/status")
+async def get_context_service_status():
+    """Get status of real-time context service (API configuration)"""
+    import os
+    
+    has_weather_api = bool(os.getenv("OPENWEATHER_API_KEY"))
+    has_traffic_api = bool(os.getenv("GOOGLE_MAPS_API_KEY")) or bool(os.getenv("TOMTOM_API_KEY"))
+    
+    return {
+        "weather_api": {
+            "configured": has_weather_api,
+            "provider": "OpenWeatherMap" if has_weather_api else None,
+            "status": "active" if has_weather_api else "using_simulation"
+        },
+        "traffic_api": {
+            "configured": has_traffic_api,
+            "provider": "Google Maps" if os.getenv("GOOGLE_MAPS_API_KEY") else "TomTom" if os.getenv("TOMTOM_API_KEY") else None,
+            "status": "active" if has_traffic_api else "using_simulation"
+        },
+        "mode": "production" if (has_weather_api or has_traffic_api) else "simulation",
+        "location": {
+            "latitude": float(os.getenv("DEFAULT_LATITUDE", "-6.8568")),
+            "longitude": float(os.getenv("DEFAULT_LONGITUDE", "107.9214")),
+            "name": "Sumedang, Indonesia"
+        }
+    }
+
 # ============== RECOMMENDATION ENDPOINTS ==============
 
 @router.get("/recommendations/{user_id}")

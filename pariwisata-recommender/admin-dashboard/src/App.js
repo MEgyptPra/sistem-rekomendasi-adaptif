@@ -10,7 +10,9 @@ import Destinations from './pages/Destinations';
 import Activities from './pages/Activities';
 import Users from './pages/Users';
 import Analytics from './pages/Analytics';
+import ModelManagement from './pages/ModelManagement';
 import Settings from './pages/Settings';
+import RealTimeStats from './pages/RealTimeStats';
 
 // Import components
 import Layout from './components/Layout';
@@ -85,10 +87,26 @@ function AppContent() {
           </ProtectedRoute>
         } />
         
+        <Route path="/model-management" element={
+          <ProtectedRoute>
+            <Layout>
+              <ModelManagement />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
         <Route path="/settings" element={
           <ProtectedRoute>
             <Layout>
               <Settings />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/realtime-stats" element={
+          <ProtectedRoute>
+            <Layout>
+              <RealTimeStats />
             </Layout>
           </ProtectedRoute>
         } />

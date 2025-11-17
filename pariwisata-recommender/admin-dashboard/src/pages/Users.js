@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Delete as DeleteIcon, Block as BlockIcon } from '@mui/icons-material';
-import axios from 'axios';
+import apiService from '../services/api';
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -27,10 +27,12 @@ function Users() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/admin/users');
+      const response = await apiService.getUsers();
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+      // Set empty array as fallback
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -39,22 +41,22 @@ function Users() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:8000/admin/users/${id}`);
+        await apiService.deleteUser(id);
         fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
+        alert('Failed to delete user');
       }
     }
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/admin/users/${id}/status`, {
-        is_active: !currentStatus,
-      });
+      await apiService.updateUser(id, { is_active: !currentStatus });
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
+      alert('Failed to update user status');
     }
   };
 

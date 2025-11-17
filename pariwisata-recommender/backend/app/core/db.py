@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import DATABASE_URL
 
 # Create engine with pool_pre_ping to handle connection issues
@@ -11,6 +11,8 @@ engine = create_async_engine(
     max_overflow=10
 )
 AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+Base = declarative_base()
 
 async def get_db():
     async with AsyncSessionLocal() as session:

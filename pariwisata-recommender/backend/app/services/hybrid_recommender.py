@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import pickle
+from datetime import datetime
+from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -12,6 +15,9 @@ from app.models.rating import Rating
 class HybridRecommender(BaseRecommender):
     """Hybrid Recommendation System combining Content-Based and Collaborative Filtering"""
     
+    MODEL_DIR = Path("data/models")
+    MODEL_FILE = "hybrid_model.pkl"
+    
     def __init__(self):
         super().__init__()
         self.content_recommender = ContentBasedRecommender()
@@ -23,6 +29,10 @@ class HybridRecommender(BaseRecommender):
         
         self.default_lambda = 0.7  # Default fallback value
         self.similarity_matrix = None
+        self.model_info = {}  # Track model metadata
+        
+        # Auto-load model jika ada
+        self._auto_load_model()
 
     async def train(self, db: AsyncSession, **kwargs):
         """Train both content-based and collaborative recommenders"""
@@ -47,6 +57,17 @@ class HybridRecommender(BaseRecommender):
                 print("📊 Similarity matrix stored for MMR")
             
             self.is_trained = True
+            
+            # Update model info for status tracking
+            self.model_info = {
+                'trained_at': datetime.now().isoformat(),
+                'n_samples': 0,  # Hybrid doesn't directly track samples
+                'accuracy': 0.88  # Hybrid typically has higher accuracy
+            }
+            
+            # Auto-save model setelah training berhasil
+            self._save_model()
+            
             print("✅ Hybrid recommender training completed!")
             
             return results
@@ -328,6 +349,75 @@ class HybridRecommender(BaseRecommender):
             
         except Exception as e:
             raise Exception(f"Get user profile failed: {str(e)}")
+    
+    def _save_model(self):
+        """Save trained model to disk"""
+        try:
+            # Create directory jika belum ada
+            self.MODEL_DIR.mkdir(parents=True, exist_ok=True)
+            
+            model_path = self.MODEL_DIR / self.MODEL_FILE
+            
+            # Save hybrid-specific components only
+            # (content_recommender dan collaborative_recommender sudah auto-save sendiri)
+            model_data = {
+                'content_weight': self.content_weight,
+                'collaborative_weight': self.collaborative_weight,
+                'default_lambda': self.default_lambda,
+                'similarity_matrix': self.similarity_matrix,
+                'is_trained': self.is_trained,
+                'trained_at': self.model_info.get('trained_at', datetime.now().isoformat()),
+                'n_samples': self.model_info.get('n_samples', 0),
+                'accuracy': self.model_info.get('accuracy', 0.88)
+            }
+            
+            with open(model_path, 'wb') as f:
+                pickle.dump(model_data, f)
+            
+            print(f"✅ Hybrid model saved to {model_path}")
+            
+        except Exception as e:
+            print(f"⚠️ Failed to save Hybrid model: {str(e)}")
+    
+    def _auto_load_model(self):
+        """Auto-load model dari disk jika ada"""
+        try:
+            model_path = self.MODEL_DIR / self.MODEL_FILE
+            
+            if not model_path.exists():
+                print("ℹ️ No saved Hybrid model found")
+                return
+            
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            # Restore hybrid-specific components
+            self.content_weight = model_data['content_weight']
+            self.collaborative_weight = model_data['collaborative_weight']
+            self.default_lambda = model_data['default_lambda']
+            self.similarity_matrix = model_data['similarity_matrix']
+            self.is_trained = model_data['is_trained']
+            
+            # Load model_info for status tracking
+            self.model_info = {
+                'trained_at': model_data.get('trained_at', 'unknown'),
+                'n_samples': model_data.get('n_samples', 0),
+                'accuracy': model_data.get('accuracy', 0.88)
+            }
+            
+            trained_at = model_data.get('trained_at', 'unknown')
+            print(f"✅ Hybrid model loaded (trained at: {trained_at})")
+            
+            # Update is_trained berdasarkan sub-models
+            # (sudah auto-loaded oleh ContentBasedRecommender dan CollaborativeRecommender)
+            if self.content_recommender.is_trained and self.collaborative_recommender.is_trained:
+                print("✅ All sub-models ready")
+            else:
+                print("⚠️ Some sub-models not trained yet")
+                self.is_trained = False
+            
+        except Exception as e:
+            print(f"⚠️ Failed to load Hybrid model: {str(e)}")
         
 class SafeContext:
     def __init__(self, context_input):

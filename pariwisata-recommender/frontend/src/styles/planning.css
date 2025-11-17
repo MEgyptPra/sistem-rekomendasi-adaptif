@@ -294,10 +294,51 @@
   color: #fff;
 }
 
+/* ML Recommendations Section */
+.ml-recommendations-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 12px;
+  border: 2px solid #667eea;
+}
+
+.ml-recommendations-section h2 {
+  font-size: 1.8rem;
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.ml-info {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 4px solid #667eea;
+  font-size: 0.95rem;
+}
+
+.ml-info strong {
+  color: #667eea;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 992px) {
   .accommodation-types,
   .transportation-options {
     grid-template-columns: 1fr 1fr;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
 }
 
@@ -312,6 +353,10 @@
   }
   
   .checkbox-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .recommendations-grid {
     grid-template-columns: 1fr;
   }
 }

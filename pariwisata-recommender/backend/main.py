@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from admin_routes import admin_router
+from model_routes import model_router
 from app.api.endpoints import router as ml_router
 from app.api.frontend_endpoints import router as frontend_router
 from app.api.medium_priority_endpoints import router as medium_router
@@ -34,10 +35,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001", 
-        "http://localhost:5173",
-        "http://localhost:8000"
+        "http://localhost:3000",  # Admin dashboard & future frontend
+        "http://localhost:5173",  # Frontend (Vite dev server)
+        "http://localhost:8000"   # API itself (for docs)
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -46,6 +46,7 @@ app.add_middleware(
 
 # Include all routers
 app.include_router(admin_router)  # Admin dashboard routes
+app.include_router(model_router)  # Model management routes
 app.include_router(frontend_router, prefix="/api", tags=["Frontend"])  # High priority frontend routes
 app.include_router(ml_router, prefix="/api", tags=["ML & Recommendations"])  # ML endpoints
 app.include_router(medium_router, prefix="/api", tags=["User & Auth"])  # Medium priority (auth, etc)

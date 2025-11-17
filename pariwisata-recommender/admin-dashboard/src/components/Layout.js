@@ -29,6 +29,7 @@ import {
   Settings as SettingsIcon,
   Person as PersonIcon,
   ExitToApp as LogoutIcon,
+  ModelTraining as ModelTrainingIcon,
 } from '@mui/icons-material';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -85,6 +86,8 @@ const menuItems = [
   { text: 'Activities', icon: <ActivityIcon />, path: '/activities' },
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
   { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
+  { text: 'Model Management', icon: <ModelTrainingIcon />, path: '/model-management' },
+  { text: 'Real-time Stats', icon: <AnalyticsIcon />, path: '/realtime-stats' },
   { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 

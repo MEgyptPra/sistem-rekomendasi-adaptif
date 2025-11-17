@@ -14,7 +14,7 @@ import {
   Star as StarIcon,
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import apiService from '../services/api';
 
 function Analytics() {
   const [stats, setStats] = useState({
@@ -32,7 +32,7 @@ function Analytics() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/admin/analytics');
+      const response = await apiService.getAnalytics();
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);

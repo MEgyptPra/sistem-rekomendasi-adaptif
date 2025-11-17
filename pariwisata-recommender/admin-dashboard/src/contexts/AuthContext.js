@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
+import apiService from '../services/api';
 
 const AuthContext = createContext();
 
@@ -25,8 +25,6 @@ export function AuthProvider({ children }) {
         const currentTime = Date.now() / 1000;
         
         if (decodedToken.exp > currentTime) {
-          // Set up axios default header
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           setCurrentUser(decodedToken);
           setIsAuthenticated(true);
         } else {
@@ -45,15 +43,11 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     try {
       setError('');
-      const response = await axios.post('http://localhost:8000/admin/login', {
-        email,
-        password
-      });
+      const response = await apiService.login(email, password);
       
       const { access_token } = response.data;
       
       localStorage.setItem('adminToken', access_token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
       const decodedToken = jwt_decode(access_token);
       setCurrentUser(decodedToken);
@@ -61,14 +55,14 @@ export function AuthProvider({ children }) {
       
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed');
+      console.error('Login error:', err);
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
       return false;
     }
   }
 
   function logout() {
     localStorage.removeItem('adminToken');
-    delete axios.defaults.headers.common['Authorization'];
     setCurrentUser(null);
     setIsAuthenticated(false);
   }

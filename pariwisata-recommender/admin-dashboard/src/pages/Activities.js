@@ -19,7 +19,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
-import axios from 'axios';
+import apiService from '../services/api';
 
 function Activities() {
   const [activities, setActivities] = useState([]);
@@ -39,10 +39,14 @@ function Activities() {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/admin/activities');
+      const response = await apiService.getActivities();
+      console.log('Activities API response:', response);
+      console.log('Activities data:', response.data);
+      console.log('Activities count:', response.data?.length);
       setActivities(response.data);
     } catch (error) {
       console.error('Error fetching activities:', error);
+      setActivities([]);
     } finally {
       setLoading(false);
     }
@@ -72,24 +76,26 @@ function Activities() {
   const handleSubmit = async () => {
     try {
       if (editingActivity) {
-        await axios.put(`http://localhost:8000/admin/activities/${editingActivity.id}`, formData);
+        await apiService.updateActivity(editingActivity.id, formData);
       } else {
-        await axios.post('http://localhost:8000/admin/activities', formData);
+        await apiService.createActivity(formData);
       }
       fetchActivities();
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving activity:', error);
+      alert('Failed to save activity');
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this activity?')) {
       try {
-        await axios.delete(`http://localhost:8000/admin/activities/${id}`);
+        await apiService.deleteActivity(id);
         fetchActivities();
       } catch (error) {
         console.error('Error deleting activity:', error);
+        alert('Failed to delete activity');
       }
     }
   };

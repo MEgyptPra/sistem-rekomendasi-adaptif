@@ -1,33 +1,39 @@
 """
-Real-Time Context Service - INDONESIA CLIMATE VERSION
+Real-Time Context Service - INDONESIA CLIMATE VERSION (SIMULATION)
 Mensimulasikan pengambilan data real-time untuk sistem rekomendasi adaptif.
 Disesuaikan dengan iklim tropis Indonesia (2 musim: Kemarau dan Hujan)
+Includes: Weather, Traffic, Social Trends, Temporal (Penanggalan)
 """
 
 import random
 from datetime import datetime
 from typing import Dict, Any
+from app.services.social_trend_service import SocialTrendService
 
 class RealTimeContextService:
     """
     Mensimulasikan pengambilan data real-time.
-    ✅ DISESUAIKAN DENGAN IKLIM INDONESIA
+    ✅ DISESUAIKAN DENGAN IKLIM INDONESIA + SOCIAL TRENDS
     """
     
     def __init__(self):
         # Weather conditions untuk iklim tropis Indonesia
         self.weather_conditions = ["cerah", "berawan", "hujan_ringan", "hujan_lebat"]
         self.traffic_conditions = ["lancar", "sedang", "padat", "macet"]
-        self.social_trends = ["normal", "sedang_tren", "viral"]
+        self.social_trends = ["normal", "trending", "viral"]
         
         # ✅ INDONESIA: 2 musim system
         self.seasons = ["kemarau", "hujan"]
         self.kemarau_months = [5, 6, 7, 8, 9, 10]  # Mei - Oktober
         self.hujan_months = [11, 12, 1, 2, 3, 4]    # November - April
+        
+        # Initialize Social Trend Service
+        self.trend_service = SocialTrendService()
 
     async def get_current_context(self) -> Dict[str, Any]:
         """
         ✅ ASYNC VERSION - Menghasilkan konteks real-time Indonesia
+        Includes: Weather, Traffic, Social Trends, Temporal/Calendar
         """
         now = datetime.now()
         
@@ -40,20 +46,36 @@ class RealTimeContextService:
         # Simulasi lalu lintas 
         current_traffic = self._simulate_traffic(now)
         
-        # Context untuk Indonesia
+        # Get social trends (trending/viral destinations)
+        trending_info = self.trend_service.get_trending_destinations()
+        
+        # Context untuk Indonesia with ALL 4 COMPONENTS
         context = {
+            # 1. ✅ CUACA (Weather)
             "weather": current_weather,
-            "traffic": current_traffic,
-            "social_trend": random.choice(self.social_trends),
-            "is_weekend": now.weekday() >= 5,  # True jika Sabtu atau Minggu
-            "hour_of_day": now.hour,
-            "season": current_season,  # ✅ "kemarau" atau "hujan"
-            "is_holiday_season": self._is_holiday_season(now),
             "temperature_category": self._get_temperature_category(current_weather),
-            "humidity_level": self._get_humidity_level(current_season)
+            "humidity_level": self._get_humidity_level(current_season),
+            
+            # 2. ✅ TRAFFIC (Lalu Lintas)
+            "traffic": current_traffic,
+            
+            # 3. ✅ PENANGGALAN/TEMPORAL (Calendar/Time)
+            "is_weekend": now.weekday() >= 5,
+            "day_of_week": ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"][now.weekday()],
+            "hour_of_day": now.hour,
+            "time_period": self._get_time_period(now.hour),  # pagi, siang, sore, malam
+            "season": current_season,
+            "month": now.month,
+            "date": now.day,
+            "is_holiday_season": self._is_holiday_season(now),
+            
+            # 4. ✅ SOCIAL TRENDS (Trending/Viral)
+            "social_trend": trending_info["overall_trend"],
+            "trending_destinations": trending_info["trending"],
+            "viral_destinations": trending_info["viral"]
         }
         
-        print(f"🌍 CONTEXT GENERATED (Indonesia): {context}")
+        print(f"🌍 CONTEXT GENERATED (Indonesia) - SIMULATION MODE: {context}")
         return context
 
     def _get_season(self, month: int) -> str:
@@ -149,6 +171,20 @@ class RealTimeContextService:
         else:  # kemarau
             return random.choice(["sedang", "tinggi"])  # 65-80%
 
+    def _get_time_period(self, hour: int) -> str:
+        """
+        ✅ Kategorikan waktu berdasarkan jam (Indonesia)
+        """
+        if 5 <= hour < 10:
+            return "pagi"       # 05:00 - 09:59
+        elif 10 <= hour < 15:
+            return "siang"      # 10:00 - 14:59
+        elif 15 <= hour < 18:
+            return "sore"       # 15:00 - 17:59
+        elif 18 <= hour < 21:
+            return "malam"      # 18:00 - 20:59
+        else:
+            return "malam_larut"  # 21:00 - 04:59
 
     async def get_mock_context_for_evaluation(self, user_id: int) -> Dict[str, Any]:
         """

@@ -30,7 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import apiService from '../services/api';
 
 export default function Destinations() {
   const [destinations, setDestinations] = useState([]);
@@ -66,21 +66,10 @@ export default function Destinations() {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        // Get token from localStorage
-        const token = localStorage.getItem('adminToken');
+        setLoading(true);
         
-        if (!token) {
-          setError('Not authenticated');
-          setLoading(false);
-          return;
-        }
-        
-        // Fetch from FastAPI backend admin endpoint
-        const response = await axios.get('http://localhost:8000/admin/destinations', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        // Fetch from backend API
+        const response = await apiService.getDestinations();
         
         // Transform data to match component expectations  
         const transformedData = response.data.map(dest => ({
@@ -88,7 +77,7 @@ export default function Destinations() {
           name: dest.name,
           description: dest.description,
           location: dest.location,
-          region: dest.location || 'N/A', // Use location as region for now
+          region: dest.location || 'N/A',
           image: dest.image_url || null,
           price: dest.price || 0,
           created_at: dest.created_at
@@ -96,19 +85,19 @@ export default function Destinations() {
         
         setDestinations(transformedData);
         setError('');
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching destinations:', err);
-        setError('Failed to load destinations from database');
-        setLoading(false);
+        setError('Failed to load destinations from backend. Showing demo data.');
         
-        // Mock data for demonstration
+        // Mock data as fallback
         setDestinations([
-          { id: 1, name: 'Mount Hood', description: 'Majestic mountain with year-round activities.', region: 'Mt. Hood & Columbia River Gorge', image: '/assets/images/mt-hood.jpg' },
-          { id: 2, name: 'Cannon Beach', description: 'Beautiful coastline with iconic Haystack Rock.', region: 'Oregon Coast', image: '/assets/images/cannon-beach.jpg' },
-          { id: 3, name: 'Portland', description: 'Vibrant city known for food, culture and outdoor spaces.', region: 'Portland Region', image: '/assets/images/portland.jpg' },
-          { id: 4, name: 'Crater Lake', description: 'Deepest lake in the USA with stunning blue waters.', region: 'Southern Oregon', image: '/assets/images/crater-lake.jpg' },
+          { id: 1, name: 'Candi Borobudur', description: 'Candi Buddha terbesar di dunia', region: 'Magelang', image: null },
+          { id: 2, name: 'Pantai Parangtritis', description: 'Pantai dengan legenda Ratu Kidul', region: 'Bantul', image: null },
+          { id: 3, name: 'Keraton Yogyakarta', description: 'Istana Sultan Yogyakarta', region: 'Yogyakarta', image: null },
+          { id: 4, name: 'Candi Prambanan', description: 'Candi Hindu terbesar di Indonesia', region: 'Sleman', image: null },
         ]);
+      } finally {
+        setLoading(false);
       }
     };
 

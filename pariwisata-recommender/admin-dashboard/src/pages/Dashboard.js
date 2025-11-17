@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Paper, Typography, Box, CircularProgress, Card, CardContent } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import axios from 'axios';
+import apiService from '../services/api';
 
 // Custom styled components
 const Item = styled(Paper)(({ theme }) => ({
@@ -43,27 +43,30 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // In a real app, you would make actual API calls to your backend
-        const [statsResponse, activityResponse] = await Promise.all([
-          axios.get('http://localhost:8000/admin/stats'),
-          axios.get('http://localhost:8000/admin/activity-stats')
-        ]);
-        
-        setStats(statsResponse.data);
-        setActivityData(activityResponse.data);
-        setLoading(false);
+        setLoading(true);
+        setError('');
+        // Fetch stats from backend API
+        const statsResponse = await apiService.getStats();
+        setStats({
+          destinations: statsResponse.data.totalDestinations || 0,
+          activities: statsResponse.data.totalActivities || 0,
+          users: statsResponse.data.totalUsers || 0,
+          recommendations: statsResponse.data.totalRatings || 0,
+          averageRating: statsResponse.data.averageRating || null,
+        });
+        // Fetch activity stats from backend
+        const activityRes = await apiService.getActivityStats();
+        setActivityData(activityRes.data);
       } catch (err) {
-        setError('Failed to load dashboard data');
-        setLoading(false);
-        
-        // Mock data for demonstration
+        console.error('Dashboard API Error:', err);
+        setError('Failed to load dashboard data from backend. Showing demo data.');
         setStats({
           destinations: 45,
           activities: 78,
           users: 1243,
-          recommendations: 8732
+          recommendations: 8732,
+          averageRating: 4.2,
         });
-        
         setActivityData([
           { name: 'Jan', users: 400, recommendations: 240 },
           { name: 'Feb', users: 300, recommendations: 139 },
@@ -73,9 +76,10 @@ export default function Dashboard() {
           { name: 'Jun', users: 239, recommendations: 380 },
           { name: 'Jul', users: 349, recommendations: 430 },
         ]);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchDashboardData();
   }, []);
 
@@ -99,9 +103,9 @@ export default function Dashboard() {
         </Typography>
       )}
       
-      <Grid container spacing={4}>
+      <Grid container columns={12} spacing={4}>
         {/* Stats cards */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid gridColumn="span 3">
           <StatCard>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -111,8 +115,7 @@ export default function Dashboard() {
             </CardContent>
           </StatCard>
         </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid gridColumn="span 3">
           <StatCard>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -122,8 +125,7 @@ export default function Dashboard() {
             </CardContent>
           </StatCard>
         </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid gridColumn="span 3">
           <StatCard>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -133,20 +135,23 @@ export default function Dashboard() {
             </CardContent>
           </StatCard>
         </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid gridColumn="span 3">
           <StatCard>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
                 Recommendations Made
               </Typography>
               <StatValue>{stats.recommendations}</StatValue>
+              {stats.averageRating && (
+                <Typography variant="body2" color="text.secondary">
+                  Avg. Rating: {stats.averageRating}
+                </Typography>
+              )}
             </CardContent>
           </StatCard>
         </Grid>
-        
         {/* Charts */}
-        <Grid item xs={12}>
+        <Grid gridColumn="span 12">
           <Item>
             <Typography variant="h6" component="h2" gutterBottom>
               User Activity

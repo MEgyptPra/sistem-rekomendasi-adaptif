@@ -32,7 +32,7 @@ echo.
 
 echo Step 3/5: Starting Backend API Server (Port 8000)...
 cd /d "%ROOT_DIR%backend"
-start "Backend API Server" cmd /k "python -m uvicorn main:app --host 0.0.0.0 --port 8000"
+start "Backend API Server" cmd /k "python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
 timeout /t 3 /nobreak 1>nul
 echo SUCCESS: Backend server started
 echo.
@@ -57,7 +57,7 @@ echo ============================================================
 echo.
 echo Backend API:       http://localhost:8000
 echo API Docs:          http://localhost:8000/docs
-echo Admin Dashboard:   http://localhost:3000
+echo Admin Dashboard:   http://localhost:3000 (Login: admin@example.com)
 echo Frontend Website:  http://localhost:5173
 echo.
 echo Admin Login credentials:

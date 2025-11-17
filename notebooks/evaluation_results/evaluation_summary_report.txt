@@ -1,0 +1,220 @@
+================================================================================
+EVALUATION SUMMARY REPORT
+================================================================================
+Generated: 2025-11-15 08:56:28
+
+================================================================================
+1. MODEL PERFORMANCE SUMMARY
+================================================================================
+
+Model: popularity
+  Precision@10: 0.0288
+  Recall@10:    0.2410
+  NDCG@10:      0.1327
+  Diversity:    0.9111
+  Novelty:      0.3794
+
+Model: cf
+  Precision@10: 0.0045
+  Recall@10:    0.0365
+  NDCG@10:      0.0169
+  Diversity:    0.8911
+  Novelty:      0.8625
+
+Model: cb
+  Precision@10: 0.0116
+  Recall@10:    0.0954
+  NDCG@10:      0.0461
+  Diversity:    0.0565
+  Novelty:      0.7402
+
+Model: hybrid
+  Precision@10: 0.0067
+  Recall@10:    0.0536
+  NDCG@10:      0.0244
+  Diversity:    0.5801
+  Novelty:      0.8793
+
+Model: hybrid_no_context
+  Precision@10: 0.0064
+  Recall@10:    0.0536
+  NDCG@10:      0.0241
+  Diversity:    0.5411
+  Novelty:      0.8573
+
+Model: hybrid_mmr_lambda_0.0
+  Precision@10: 0.0067
+  Recall@10:    0.0536
+  NDCG@10:      0.0244
+  Diversity:    0.5801
+  Novelty:      0.8793
+
+Model: hybrid_mmr_lambda_0.3
+  Precision@10: 0.0062
+  Recall@10:    0.0495
+  NDCG@10:      0.0229
+  Diversity:    0.6569
+  Novelty:      0.8883
+
+Model: hybrid_mmr_lambda_0.5
+  Precision@10: 0.0052
+  Recall@10:    0.0427
+  NDCG@10:      0.0201
+  Diversity:    0.7468
+  Novelty:      0.8988
+
+Model: hybrid_mmr_lambda_0.7
+  Precision@10: 0.0050
+  Recall@10:    0.0402
+  NDCG@10:      0.0188
+  Diversity:    0.9265
+  Novelty:      0.9144
+
+Model: hybrid_mmr_lambda_1.0
+  Precision@10: 0.0048
+  Recall@10:    0.0414
+  NDCG@10:      0.0155
+  Diversity:    0.9776
+  Novelty:      0.8826
+
+Model: hybrid_mab_mmr
+  Precision@10: 0.0065
+  Recall@10:    0.0516
+  NDCG@10:      0.0237
+  Diversity:    0.6003
+  Novelty:      0.8818
+
+================================================================================
+2. DISTRIBUTION METRICS
+================================================================================
+
+Model: popularity
+  Gini Coefficient:  0.7924
+  Coverage:          0.2777
+  Head 20% Mean:     0.5613
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: cf
+  Gini Coefficient:  0.9659
+  Coverage:          0.0449
+  Head 20% Mean:     0.0845
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: cb
+  Gini Coefficient:  0.9106
+  Coverage:          0.1161
+  Head 20% Mean:     0.2310
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid
+  Gini Coefficient:  0.9512
+  Coverage:          0.0648
+  Head 20% Mean:     0.1224
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_no_context
+  Gini Coefficient:  0.9530
+  Coverage:          0.0636
+  Head 20% Mean:     0.1208
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mmr_lambda_0.0
+  Gini Coefficient:  0.9512
+  Coverage:          0.0648
+  Head 20% Mean:     0.1224
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mmr_lambda_0.3
+  Gini Coefficient:  0.9547
+  Coverage:          0.0607
+  Head 20% Mean:     0.1150
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mmr_lambda_0.5
+  Gini Coefficient:  0.9613
+  Coverage:          0.0513
+  Head 20% Mean:     0.1010
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mmr_lambda_0.7
+  Gini Coefficient:  0.9638
+  Coverage:          0.0490
+  Head 20% Mean:     0.0943
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mmr_lambda_1.0
+  Gini Coefficient:  0.9629
+  Coverage:          0.0484
+  Head 20% Mean:     0.0779
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+Model: hybrid_mab_mmr
+  Gini Coefficient:  0.9528
+  Coverage:          0.0630
+  Head 20% Mean:     0.1190
+  Tail 20% Mean:     0.0000
+  Head/Tail Ratio:   0.0000
+
+================================================================================
+3. MAB FINAL STATE (CONTEXTUAL)
+================================================================================
+MAB Type: ContextualMAB
+Total Contexts: 1342
+Total Selections (All Contexts): 1764
+Most Common Best Lambda: 0.00
+
+Aggregated Arm Statistics:
+  lambda=0.00: 1342 total selections, avg reward=0.2444
+  lambda=0.30: 349 total selections, avg reward=0.2439
+  lambda=0.50: 61 total selections, avg reward=0.2266
+  lambda=0.70: 11 total selections, avg reward=0.2540
+  lambda=1.00: 1 total selections, avg reward=0.0000
+
+Top 10 Contexts:
+  hujan_weekend_musim_kemarau_malam_sedang_festival_kuliner_notviral:
+    Selections: 2
+    Best Lambda: 0.00
+  mendung_weekend_musim_kemarau_siang_ramai_festival_budaya_notviral:
+    Selections: 2
+    Best Lambda: 0.00
+  hujan_weekend_musim_kemarau_malam_sedang_None_notviral:
+    Selections: 3
+    Best Lambda: 0.00
+  hujan_weekend_musim_hujan_siang_ramai_festival_budaya_viral:
+    Selections: 2
+    Best Lambda: 0.00
+  mendung_libur_lebaran_musim_hujan_pagi_puncak_kepadatan_festival_budaya_viral:
+    Selections: 2
+    Best Lambda: 0.00
+  mendung_libur_lebaran_musim_kemarau_pagi_ramai_festival_budaya_notviral:
+    Selections: 2
+    Best Lambda: 0.00
+  hujan_weekend_musim_hujan_sore_sedang_festival_budaya_viral:
+    Selections: 2
+    Best Lambda: 0.00
+  cerah_libur_lebaran_musim_hujan_pagi_sangat_ramai_festival_budaya_viral:
+    Selections: 4
+    Best Lambda: 0.50
+  cerah_libur_lebaran_musim_hujan_pagi_ramai_festival_budaya_notviral:
+    Selections: 4
+    Best Lambda: 0.50
+  hujan_weekend_musim_kemarau_malam_sepi_None_viral:
+    Selections: 2
+    Best Lambda: 0.00
+
+================================================================================
+4. STATISTICAL SIGNIFICANCE (vs. hybrid_mab_mmr)
+================================================================================
+
+  (Statistical test results format not recognized)
+================================================================================

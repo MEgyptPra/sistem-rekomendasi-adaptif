@@ -20,34 +20,70 @@ const SurpriseModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      // Langsung ambil random destinations karena model belum trained
-      const allDestResponse = await recommendationsAPI.getAllDestinations({ limit: 50 });
-      const allDest = allDestResponse.data.destinations || [];
+      // ✅ GUNAKAN ML MODEL - Algorithm: Auto (smart selection based on data availability)
+      // - Jika ada user_id & preferences: Hybrid (CF+CB) 
+      // - Jika user baru tapi ada ratings: Collaborative
+      // - Jika tidak ada data: Incremental (trending + context-aware)
+      const userId = localStorage.getItem('userId');
       
-      // Shuffle and take 5 random
-      const shuffled = allDest.sort(() => 0.5 - Math.random());
-      const randomDest = shuffled.slice(0, 5);
+      if (userId) {
+        // User logged-in: Gunakan personalized recommendations dengan algorithm=auto
+        try {
+          const response = await recommendationsAPI.getPersonalized({
+            algorithm: 'auto', // Smart selection (hybrid/incremental/mab)
+            num_recommendations: 5
+          });
+          
+          if (response.data.recommendations && response.data.recommendations.length > 0) {
+            setSurpriseDestinations(response.data.recommendations);
+            console.log('✅ ML Recommendations loaded:', response.data.metadata?.algorithm_used);
+            return;
+          }
+        } catch (mlErr) {
+          console.warn('ML recommendations failed, trying incremental:', mlErr);
+        }
+      }
       
-      // Transform to match recommendation format
-      const transformedData = randomDest.map((dest) => ({
-        destination_id: dest.id,
-        id: dest.id,
-        name: dest.name,
-        description: dest.description,
-        region: dest.region,
-        category: dest.category,
-        image: dest.image,
-        score: 0.8,
-        explanation: `Rekomendasi ${dest.category} di ${dest.region}`
-      }));
-      
-      setSurpriseDestinations(transformedData);
+      // Fallback: Gunakan incremental learning (context-aware + trending)
+      try {
+        const response = await recommendationsAPI.getPersonalized({
+          algorithm: 'incremental', // Context-aware tanpa perlu model training
+          num_recommendations: 5
+        });
+        setSurpriseDestinations(response.data.recommendations || []);
+        console.log('✅ Incremental Recommendations loaded (context-aware)');
+      } catch (incrementalErr) {
+        console.error('Incremental failed, using random fallback:', incrementalErr);
+        // Last resort: Random
+        await loadRandomFallback();
+      }
     } catch (err) {
       console.error('Error fetching surprise recommendations:', err);
       setError('Gagal memuat rekomendasi. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
+  };
+  
+  const loadRandomFallback = async () => {
+    const allDestResponse = await recommendationsAPI.getAllDestinations({ limit: 50 });
+    const allDest = allDestResponse.data.destinations || [];
+    const shuffled = allDest.sort(() => 0.5 - Math.random());
+    const randomDest = shuffled.slice(0, 5);
+    
+    const transformedData = randomDest.map((dest) => ({
+      destination_id: dest.id,
+      id: dest.id,
+      name: dest.name,
+      description: dest.description,
+      region: dest.region,
+      category: dest.category,
+      image: dest.image,
+      score: 0.8,
+      explanation: `Rekomendasi ${dest.category} di ${dest.region}`
+    }));
+    
+    setSurpriseDestinations(transformedData);
   };
 
   const handleCreateItinerary = () => {

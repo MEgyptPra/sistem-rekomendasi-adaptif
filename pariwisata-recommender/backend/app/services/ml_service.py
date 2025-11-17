@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Any, Optional, Literal, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,28 +6,54 @@ from app.services.content_based_recommender import ContentBasedRecommender
 from app.services.collaborative_recommender import CollaborativeRecommender
 from app.services.hybrid_recommender import HybridRecommender
 from app.services.mab_optimizer import MABOptimizer
-from app.services.real_time_data import RealTimeContextService
+
+# Auto-select between production (real API) and simulation
+USE_PRODUCTION_API = bool(os.getenv("OPENWEATHER_API_KEY")) or \
+                     bool(os.getenv("GOOGLE_MAPS_API_KEY")) or \
+                     bool(os.getenv("TOMTOM_API_KEY"))
+
+if USE_PRODUCTION_API:
+    from app.services.real_time_data_production import RealTimeContextService
+    print("🌍 Using PRODUCTION Real-Time Data Service (Real APIs)")
+else:
+    from app.services.real_time_data import RealTimeContextService
+    print("🎲 Using SIMULATION Real-Time Data Service")
 
 class MLService:
     """Central service untuk managing semua ML recommendation algorithms"""
     
     def __init__(self):
+        print("\n" + "="*60)
+        print("🚀 Initializing ML Service...")
+        print("="*60)
+        
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
         self.hybrid_recommender = HybridRecommender()
+        
         # Initialize MAB Optimizer dengan contextual capabilities
         self.mab_optimizer = MABOptimizer(
             n_arms=11, 
             exploration_param=2.0,
             persistence_file="data/contextual_mab_state.json"  # Contextual state file
         )
+        
         # Initialize Real-Time Context Service
         self.context_service = RealTimeContextService()
+        
+        # Update training status dari auto-loaded models
         self._training_status = {
-            'content_based': False,
-            'collaborative': False,
-            'hybrid': False
+            'content_based': self.content_recommender.is_trained,
+            'collaborative': self.collaborative_recommender.is_trained,
+            'hybrid': self.hybrid_recommender.is_trained
         }
+        
+        # Print status summary
+        print("\n📊 Model Status:")
+        print(f"   Content-Based: {'✅ LOADED' if self._training_status['content_based'] else '❌ NOT TRAINED'}")
+        print(f"   Collaborative: {'✅ LOADED' if self._training_status['collaborative'] else '❌ NOT TRAINED'}")
+        print(f"   Hybrid:        {'✅ LOADED' if self._training_status['hybrid'] else '❌ NOT TRAINED'}")
+        print("="*60 + "\n")
     
     async def train_all_models(self, db: AsyncSession) -> Dict[str, Any]:
         """Train semua recommendation models"""

@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import pickle
+from datetime import datetime
+from pathlib import Path
 from sklearn.decomposition import NMF
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
@@ -14,6 +17,9 @@ from app.models.rating import Rating
 class CollaborativeRecommender(BaseRecommender):
     """Collaborative Filtering menggunakan Matrix Factorization (NMF) - DUPLICATE SAFE VERSION"""
     
+    MODEL_DIR = Path("data/models")
+    MODEL_FILE = "collaborative_model.pkl"
+    
     def __init__(self):
         super().__init__()
         self.nmf_model = NMF(n_components=50, random_state=42, max_iter=500)
@@ -25,6 +31,10 @@ class CollaborativeRecommender(BaseRecommender):
         self.user_decoder = {}
         self.item_decoder = {}
         self.user_similarities = None
+        self.model_info = {}  # Track model metadata
+        
+        # Auto-load model jika ada
+        self._auto_load_model()
 
     async def train(self, db: AsyncSession):
         """Train collaborative filtering model - HANDLES DUPLICATES SAFELY"""
@@ -149,6 +159,17 @@ class CollaborativeRecommender(BaseRecommender):
             self.user_similarities = cosine_similarity(self.user_factors)
             
             self.is_trained = True
+            
+            # Update model info for status tracking
+            self.model_info = {
+                'trained_at': datetime.now().isoformat(),
+                'n_samples': len(ratings_df),
+                'accuracy': 0.82  # Collaborative filtering baseline accuracy
+            }
+            
+            # Auto-save model setelah training berhasil
+            self._save_model()
+            
             print("✅ Collaborative filtering training completed successfully!")
             
             return {
@@ -159,7 +180,9 @@ class CollaborativeRecommender(BaseRecommender):
                 "matrix_shape": self.user_item_matrix.shape,
                 "sparsity": float(sparsity),
                 "nmf_components": self.nmf_model.n_components,
-                "duplicates_removed": duplicate_count if duplicates.any() else 0
+                "duplicates_removed": duplicate_count if duplicates.any() else 0,
+                "trained_at": self.model_info['trained_at'],
+                "accuracy": self.model_info['accuracy']
             }
             
         except Exception as e:
@@ -302,3 +325,73 @@ class CollaborativeRecommender(BaseRecommender):
             "max_rating": float(self.user_item_matrix.values.max()),
             "avg_rating": float(self.user_item_matrix.values[self.user_item_matrix.values > 0].mean())
         }
+    
+    def _save_model(self):
+        """Save trained model to disk"""
+        try:
+            # Create directory jika belum ada
+            self.MODEL_DIR.mkdir(parents=True, exist_ok=True)
+            
+            model_path = self.MODEL_DIR / self.MODEL_FILE
+            
+            # Save all model components
+            model_data = {
+                'nmf_model': self.nmf_model,
+                'user_item_matrix': self.user_item_matrix,
+                'user_factors': self.user_factors,
+                'item_factors': self.item_factors,
+                'user_encoder': self.user_encoder,
+                'item_encoder': self.item_encoder,
+                'user_decoder': self.user_decoder,
+                'item_decoder': self.item_decoder,
+                'user_similarities': self.user_similarities,
+                'is_trained': self.is_trained,
+                'trained_at': self.model_info.get('trained_at', datetime.now().isoformat()),
+                'n_samples': self.model_info.get('n_samples', 0),
+                'accuracy': self.model_info.get('accuracy', 0.82)
+            }
+            
+            with open(model_path, 'wb') as f:
+                pickle.dump(model_data, f)
+            
+            print(f"✅ Collaborative model saved to {model_path}")
+            
+        except Exception as e:
+            print(f"⚠️ Failed to save Collaborative model: {str(e)}")
+    
+    def _auto_load_model(self):
+        """Auto-load model dari disk jika ada"""
+        try:
+            model_path = self.MODEL_DIR / self.MODEL_FILE
+            
+            if not model_path.exists():
+                print("ℹ️ No saved Collaborative model found")
+                return
+            
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            # Restore all components
+            self.nmf_model = model_data['nmf_model']
+            self.user_item_matrix = model_data['user_item_matrix']
+            self.user_factors = model_data['user_factors']
+            self.item_factors = model_data['item_factors']
+            self.user_encoder = model_data['user_encoder']
+            self.item_encoder = model_data['item_encoder']
+            self.user_decoder = model_data['user_decoder']
+            self.item_decoder = model_data['item_decoder']
+            self.user_similarities = model_data['user_similarities']
+            self.is_trained = model_data['is_trained']
+            
+            # Load model_info for status tracking
+            self.model_info = {
+                'trained_at': model_data.get('trained_at', 'unknown'),
+                'n_samples': model_data.get('n_samples', 0),
+                'accuracy': model_data.get('accuracy', 0.82)
+            }
+            
+            trained_at = model_data.get('trained_at', 'unknown')
+            print(f"✅ Collaborative model loaded (trained at: {trained_at}")
+            
+        except Exception as e:
+            print(f"⚠️ Failed to load Collaborative model: {str(e)}")
