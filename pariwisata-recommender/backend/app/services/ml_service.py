@@ -12,12 +12,8 @@ USE_PRODUCTION_API = bool(os.getenv("OPENWEATHER_API_KEY")) or \
                      bool(os.getenv("GOOGLE_MAPS_API_KEY")) or \
                      bool(os.getenv("TOMTOM_API_KEY"))
 
-if USE_PRODUCTION_API:
-    from app.services.real_time_data_production import RealTimeContextService
-    print("🌍 Using PRODUCTION Real-Time Data Service (Real APIs)")
-else:
-    from app.services.real_time_data import RealTimeContextService
-    print("🎲 Using SIMULATION Real-Time Data Service")
+from app.services.context_aware_component import ContextAwareComponent
+print("🧠 Using ContextAwareComponent for context orchestration")
 
 class MLService:
     """Central service untuk managing semua ML recommendation algorithms"""
@@ -38,8 +34,8 @@ class MLService:
             persistence_file="data/contextual_mab_state.json"  # Contextual state file
         )
         
-        # Initialize Real-Time Context Service
-        self.context_service = RealTimeContextService()
+        # Initialize Context-Aware Component
+        self.context_service = ContextAwareComponent()
         
         # Update training status dari auto-loaded models
         self._training_status = {
@@ -122,8 +118,8 @@ class MLService:
             if not self.hybrid_recommender.is_trained:
                 raise ValueError("Hybrid model belum di-train")
             
-            # 1. Get current context from real-time service
-            current_context = self.context_service.get_current_context()
+            # 1. Get current context from context-aware component
+            current_context = await self.context_service.get_current_context()
             
             # 2. Use Contextual MAB to select optimal lambda for this context
             recommendations, arm_index = await self.hybrid_recommender.predict(

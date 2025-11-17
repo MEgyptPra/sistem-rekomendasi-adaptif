@@ -1,5 +1,7 @@
-import numpy as np
 import logging
+import os
+import asyncio
+from app.services.real_time_data_production import RealTimeContextService
 
 logger = logging.getLogger(__name__)
 
@@ -11,56 +13,120 @@ class ContextAwareComponent:
     """
     
     def __init__(self):
+        self.context_service = RealTimeContextService()
         self.context_rules = {
-            # --- Tipe Hari ---
-            'weekend': {
-                'Wisata Alam': 1.5, 'Wisata Keluarga': 1.6, 'Wisata Buatan/Rekreasi': 1.6,
-                'Wisata Kuliner': 1.4, 'Wisata Petualangan': 1.4, 'Wisata Budaya & Sejarah': 1.1
-            },
-            'weekday': {
-                'Wisata Budaya & Sejarah': 1.4, 'Wisata Religi': 1.3, 'Wisata Kuliner': 1.2,
-                'Wisata Kesehatan & Wellness': 1.4, 'Wisata Alam': 1.1, 'Wisata Keluarga': 0.8,
-            },
-            'libur_nasional': {
-                'Wisata Buatan/Rekreasi': 1.8, 'Wisata Keluarga': 1.8, 'Wisata Kuliner': 1.6,
-                'Wisata Alam': 1.7, 'Wisata Petualangan': 1.5
-            },
-             'libur_lebaran': {
-                'Wisata Keluarga': 2.0, 'Wisata Buatan/Rekreasi': 1.9, 'Wisata Kuliner': 1.7,
-                'Wisata Alam': 1.5
-            },
+    # --- Tipe Hari ---
+    'weekend': {
+        'Wisata Alam': 1.5, 'Wisata Keluarga': 1.6, 'Wisata Buatan/Rekreasi': 1.6,
+        'Wisata Kuliner': 1.4, 'Wisata Petualangan': 1.4, 'Wisata Budaya & Sejarah': 1.1
+    },
+    'weekday': {
+        'Wisata Budaya & Sejarah': 1.4, 'Wisata Religi': 1.3, 'Wisata Kuliner': 1.2,
+        'Wisata Kesehatan & Wellness': 1.4, 'Wisata Alam': 1.1, 'Wisata Keluarga': 0.8
+    },
+    'libur_nasional': {
+        'Wisata Buatan/Rekreasi': 1.8, 'Wisata Keluarga': 1.8, 'Wisata Kuliner': 1.6,
+        'Wisata Alam': 1.7, 'Wisata Petualangan': 1.5
+    },
+    'libur_lebaran': {
+        'Wisata Keluarga': 2.0, 'Wisata Buatan/Rekreasi': 1.9, 'Wisata Kuliner': 1.7,
+        'Wisata Alam': 1.5
+    },
+    # --- Cuaca ---
+    'cerah': {
+        'Wisata Alam': 1.7, 'Wisata Petualangan': 1.6, 'Wisata Olahraga': 1.5,
+        'Wisata Buatan/Rekreasi': 1.4, 'Wisata Keluarga': 1.4,
+        'Wisata Kuliner': 1.0, 'Wisata Budaya & Sejarah': 0.9
+    },
+    'mendung': {
+        'Wisata Budaya & Sejarah': 1.4, 'Wisata Kuliner': 1.3, 'Wisata Keluarga': 1.2,
+        'Wisata Alam': 1.2, 'Wisata Buatan/Rekreasi': 1.2
+    },
+    'hujan': {
+        'Wisata Kuliner': 1.8, 'Wisata Budaya & Sejarah': 1.7,
+        'Wisata Kesehatan & Wellness': 1.6, 'Wisata Buatan/Rekreasi': 1.2,
+        'Wisata Alam': 0.5, 'Wisata Petualangan': 0.4, 'Wisata Olahraga': 0.3
+    },
+    # --- Musim ---
+    'musim_kemarau': {
+        'Wisata Alam': 1.4, 'Wisata Petualangan': 1.3
+    },
+    'musim_hujan': {
+        'Wisata Budaya & Sejarah': 1.3, 'Wisata Kuliner': 1.2, 'Wisata Alam': 0.8
+    },
+    # --- Waktu ---
+    'pagi': {
+        'Wisata Alam': 1.3, 'Wisata Olahraga': 1.4, 'Wisata Budaya & Sejarah': 1.1
+    },
+    'siang': {
+        'Wisata Kuliner': 1.3, 'Wisata Buatan/Rekreasi': 1.2, 'Wisata Budaya & Sejarah': 1.2
+    },
+    'sore': {
+        'Wisata Kuliner': 1.4, 'Wisata Alam': 1.1
+    },
+    'malam': {
+        'Wisata Kuliner': 1.7, 'Wisata Buatan/Rekreasi': 1.3
+    },
+    # --- Tren & Event ---
+    'viral_trend': {
+        'all_categories': 2.0
+    },
+    'festival_kuliner': {
+        'Wisata Kuliner': 2.2, 'Wisata Keluarga': 1.5
+    },
+    'festival_budaya': {
+        'Wisata Budaya & Sejarah': 2.2, 'Wisata Keluarga': 1.4
+    }
+}
 
-            # --- Cuaca ---
-            'cerah': {
-                'Wisata Alam': 1.7, 'Wisata Petualangan': 1.6, 'Wisata Olahraga': 1.5,
-                'Wisata Buatan/Rekreasi': 1.4, 'Wisata Keluarga': 1.4,
-                'Wisata Kuliner': 1.0, 'Wisata Budaya & Sejarah': 0.9
-            },
-            'mendung': {
-                'Wisata Budaya & Sejarah': 1.4, 'Wisata Kuliner': 1.3, 'Wisata Keluarga': 1.2,
-                'Wisata Alam': 1.2, 'Wisata Buatan/Rekreasi': 1.2
-            },
-            'hujan': {
-                'Wisata Kuliner': 1.8, 'Wisata Budaya & Sejarah': 1.7,
-                'Wisata Kesehatan & Wellness': 1.6, 'Wisata Buatan/Rekreasi': 1.2,
-                'Wisata Alam': 0.5, 'Wisata Petualangan': 0.4, 'Wisata Olahraga': 0.3
-            },
+    async def get_current_context(self):
+        """
+        Mengambil context real-time:
+        - Cuaca & Kalender: OpenWeatherMap & Google Calendar API (via real_time_data_production)
+        - Traffic & Media Sosial: Dummy/simulasi
+        """
+        # 1. Cuaca & Kalender (REAL API jika tersedia)
+        real_context = await self.context_service.get_current_context()
 
-            # --- Musim ---
-            'musim_kemarau': { 'Wisata Alam': 1.4, 'Wisata Petualangan': 1.3 },
-            'musim_hujan': { 'Wisata Budaya & Sejarah': 1.3, 'Wisata Kuliner': 1.2, 'Wisata Alam': 0.8 },
-
-            # --- Waktu ---
-            'pagi': {'Wisata Alam': 1.3, 'Wisata Olahraga': 1.4, 'Wisata Budaya & Sejarah': 1.1},
-            'siang': {'Wisata Kuliner': 1.3, 'Wisata Buatan/Rekreasi': 1.2, 'Wisata Budaya & Sejarah': 1.2},
-            'sore': {'Wisata Kuliner': 1.4, 'Wisata Alam': 1.1},
-            'malam': {'Wisata Kuliner': 1.7, 'Wisata Buatan/Rekreasi': 1.3},
-
-            # --- Tren & Event ---
-            'viral_trend': {'all_categories': 2.0},
-            'festival_kuliner': {'Wisata Kuliner': 2.2, 'Wisata Keluarga': 1.5},
-            'festival_budaya': {'Wisata Budaya & Sejarah': 2.2, 'Wisata Keluarga': 1.4}
+        # 2. Traffic (dummy logic)
+        traffic_context = {
+            "traffic": real_context.get("traffic", "lancar"),
+            "traffic_speed": real_context.get("traffic_speed", 40)
         }
+
+        # 3. Media Sosial (dummy logic)
+        social_context = {
+            "social_trend": real_context.get("social_trend", "normal"),
+            "trending_destinations": real_context.get("trending_destinations", []),
+            "viral_destinations": real_context.get("viral_destinations", [])
+        }
+
+        # 4. Kalender/Event (from API)
+        calendar_context = {
+            "is_holiday": real_context.get("is_holiday", False),
+            "holiday_name": real_context.get("holiday_name"),
+            "holiday_type": real_context.get("holiday_type")
+        }
+
+        # 5. Temporal
+        temporal_context = {
+            "is_weekend": real_context.get("is_weekend", False),
+            "day_of_week": real_context.get("day_of_week", "senin"),
+            "hour_of_day": real_context.get("hour_of_day", 12),
+            "time_period": real_context.get("time_period", "siang"),
+            "season": real_context.get("season", "kemarau"),
+            "month": real_context.get("month", 1),
+            "date": real_context.get("date", "2025-01-01")
+        }
+
+        # Gabungkan semua context
+        context = {}
+        context.update(real_context)
+        context.update(traffic_context)
+        context.update(social_context)
+        context.update(calendar_context)
+        context.update(temporal_context)
+        return context
 
     def get_contextual_boost(self, recommendations, user_context, item_categories):
         """
