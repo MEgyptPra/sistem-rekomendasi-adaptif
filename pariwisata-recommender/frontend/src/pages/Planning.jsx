@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { recommendationsAPI } from '../services/api';
+import { itineraryAPI } from '../services/api';
 import DestinationCard from '../components/destinations/DestinationCard';
 import '../styles/planning.css';
 
@@ -12,6 +13,33 @@ const Planning = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
+
+  // State for user itineraries
+  const [userItineraries, setUserItineraries] = useState([]);
+  const [itineraryLoading, setItineraryLoading] = useState(true);
+  const [itineraryError, setItineraryError] = useState('');
+
+  useEffect(() => {
+    const fetchItineraries = async () => {
+      setItineraryLoading(true);
+      setItineraryError('');
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          setItineraryError('Anda harus login untuk melihat itinerary yang disimpan.');
+          setItineraryLoading(false);
+          return;
+        }
+        const res = await itineraryAPI.list();
+        setUserItineraries(res.data);
+      } catch (err) {
+        setItineraryError('Gagal mengambil data itinerary.');
+      } finally {
+        setItineraryLoading(false);
+      }
+    };
+    fetchItineraries();
+  }, []);
 
   const handleRegionChange = (region) => {
     setSelectedRegions(prev => 
@@ -70,6 +98,42 @@ const Planning = () => {
 
   return (
     <div className="planning-page">
+      {/* User's Saved Itineraries Section */}
+      <section className="user-itineraries-section">
+        <div className="container">
+          <h2>🗺️ Itinerary Saya</h2>
+          {itineraryLoading && <p>Loading...</p>}
+          {itineraryError && <p style={{ color: 'red' }}>{itineraryError}</p>}
+          {!itineraryLoading && !itineraryError && (
+            <div>
+              {userItineraries.length === 0 ? (
+                <p>Belum ada itinerary yang disimpan.</p>
+              ) : (
+                <ul>
+                  {userItineraries.map((it, idx) => (
+                    <li key={it.id || idx} style={{marginBottom: '1em'}}>
+                      <strong>{it.title}</strong> ({it.start_date} - {it.end_date})<br />
+                      <span>{it.description}</span>
+                      <ul>
+                        {it.days && it.days.map((day, i) => (
+                          <li key={i}>
+                            <strong>Hari {day.day_number} ({day.date})</strong>
+                            <ul>
+                              {day.items && day.items.map((item, j) => (
+                                <li key={j}>{item.title} - {item.location}</li>
+                              ))}
+                            </ul>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
       <section className="page-header">
         <div className="container">
           <h1>Rencanakan Perjalanan Anda</h1>

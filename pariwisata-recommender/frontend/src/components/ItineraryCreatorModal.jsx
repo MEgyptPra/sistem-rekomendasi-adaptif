@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
 import { useNavigate } from 'react-router-dom';
 import { itineraryAPI } from '../services/api';
 import '../styles/itinerary-creator-modal.css';
@@ -15,6 +16,30 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
   const [notes, setNotes] = useState('Trip otomatis dari rekomendasi Kejutkan Saya');
 
   const handleCreateItinerary = async () => {
+      const downloadItineraryAsPDF = () => {
+        // Simple PDF generator
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text(tripName, 10, 20);
+        doc.setFontSize(12);
+        doc.text(`Tanggal: ${startDate} - ${duration} hari`, 10, 30);
+        doc.text(`Catatan: ${notes}`, 10, 40);
+        let y = 50;
+        for (let i = 0; i < duration; i++) {
+          doc.text(`Hari ${i + 1}:`, 10, y);
+          y += 8;
+          const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
+          const dayStart = i * destinationsPerDay;
+          const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
+          const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
+          dayDestinations.forEach((dest, idx) => {
+            doc.text(`- ${dest.name}`, 15, y);
+            y += 7;
+          });
+          y += 4;
+        }
+        doc.save(`${tripName.replace(/\s+/g, '_')}.pdf`);
+      };
     setLoading(true);
     setError(null);
 
@@ -224,13 +249,23 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
             <button className="btn secondary" onClick={onClose} disabled={loading}>
               Batal
             </button>
-            <button 
-              className="btn primary" 
-              onClick={handleCreateItinerary}
-              disabled={loading || !tripName || !startDate}
-            >
-              {loading ? '⏳ Membuat...' : '✅ Buat Itinerary'}
-            </button>
+            {localStorage.getItem('access_token') ? (
+              <button 
+                className="btn primary" 
+                onClick={handleCreateItinerary}
+                disabled={loading || !tripName || !startDate}
+              >
+                {loading ? '⏳ Membuat...' : '✅ Buat Itinerary'}
+              </button>
+            ) : (
+              <button 
+                className="btn primary" 
+                onClick={downloadItineraryAsPDF}
+                disabled={loading || !tripName || !startDate}
+              >
+                {'⬇️ Download PDF'}
+              </button>
+            )}
           </div>
         </div>
       </div>
