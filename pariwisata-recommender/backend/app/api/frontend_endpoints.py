@@ -566,7 +566,7 @@ async def get_activity_reviews(
 async def get_personalized_recommendations(
     user_id: Optional[int] = None,
     session_id: Optional[str] = None,
-    limit: int = 6,
+    limit: int = Query(6, alias="num_recommendations"),
     algorithm: str = "auto",  # auto, incremental, hybrid, mab
     db: AsyncSession = Depends(get_db)
 ):

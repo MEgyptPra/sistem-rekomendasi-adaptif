@@ -35,13 +35,13 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
       end.setDate(end.getDate() + duration - 1);
 
       // Distribute destinations across days
-      const destinationsPerDay = Math.ceil(recommendations.length / duration);
+      const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
       const days = [];
       
       for (let i = 0; i < duration; i++) {
         const dayStart = i * destinationsPerDay;
-        const dayEnd = Math.min((i + 1) * destinationsPerDay, recommendations.length);
-        const dayDestinations = recommendations.slice(dayStart, dayEnd);
+        const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
+        const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
         
         const currentDate = new Date(start);
         currentDate.setDate(currentDate.getDate() + i);
@@ -133,7 +133,7 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
 
         <div className="modal-body">
           <p className="modal-intro">
-            Ubah {recommendations.length} rekomendasi ini menjadi rencana perjalanan Anda!
+            Ubah {(Array.isArray(recommendations) ? recommendations.length : 0)} rekomendasi ini menjadi rencana perjalanan Anda!
           </p>
 
           <div className="form-group">
@@ -192,10 +192,10 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
           <div className="distribution-preview">
             <h4>📅 Distribusi Destinasi:</h4>
             {Array.from({ length: duration }, (_, i) => {
-              const destinationsPerDay = Math.ceil(recommendations.length / duration);
+              const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
               const dayStart = i * destinationsPerDay;
-              const dayEnd = Math.min((i + 1) * destinationsPerDay, recommendations.length);
-              const dayDestinations = recommendations.slice(dayStart, dayEnd);
+              const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
+              const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
               
               const date = new Date(startDate);
               date.setDate(date.getDate() + i);
