@@ -1,4 +1,5 @@
 import numpy as np
+from app.services.context_aware_component import ContextAwareComponent
 import pandas as pd
 import pickle
 from datetime import datetime
@@ -20,6 +21,7 @@ class HybridRecommender(BaseRecommender):
     
     def __init__(self):
         super().__init__()
+        self.context_component = ContextAwareComponent()
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
         
@@ -94,7 +96,6 @@ class HybridRecommender(BaseRecommender):
             # Get base recommendations dari components
             content_recs = []
             collab_recs = []
-            
             if self.content_recommender.is_trained:
                 try:
                     content_recs = await self.content_recommender.predict(
@@ -148,7 +149,28 @@ class HybridRecommender(BaseRecommender):
                 rec['explanation'] = f"Hybrid: Content={scores['content_score']:.3f} + Collaborative={scores['collab_score']:.3f}"
                 candidate_recommendations.append(rec)
             
-            # Sort candidates by relevance score
+            # [BARU] APPLY CONTEXT AWARE BOOSTING (Sesuai Evaluasi RM2)
+            if context and self.content_recommender.is_trained:
+                item_categories = {}
+                for rec in candidate_recommendations:
+                    item_categories[rec['destination_id']] = rec.get('category_str', 'Other')
+                safe_ctx = context if isinstance(context, dict) else {}
+                mapped_context = safe_ctx.copy()
+                h = safe_ctx.get('hour_of_day', 12)
+                if 5 <= h < 10: mapped_context['time_of_day'] = 'pagi'
+                elif 10 <= h < 15: mapped_context['time_of_day'] = 'siang'
+                elif 15 <= h < 19: mapped_context['time_of_day'] = 'sore'
+                else: mapped_context['time_of_day'] = 'malam'
+                if safe_ctx.get('is_holiday'): mapped_context['day_type'] = 'libur_nasional'
+                elif safe_ctx.get('is_weekend'): mapped_context['day_type'] = 'weekend'
+                else: mapped_context['day_type'] = 'weekday'
+                candidate_recommendations = self.context_component.get_contextual_boost(
+                    candidate_recommendations,
+                    mapped_context,
+                    item_categories
+                )
+                print(f"✅ Context Boost Applied for {len(candidate_recommendations)} items")
+            # Sort candidates by NEW boosted score
             candidate_recommendations.sort(key=lambda x: x['score'], reverse=True)
             
             # IMPROVED: Determine lambda value using MAB or fallback

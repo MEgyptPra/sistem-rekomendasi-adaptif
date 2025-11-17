@@ -11,6 +11,7 @@ import DestinationDetail from './pages/DestinationDetail';
 import Activities from './pages/Activities';
 import ActivityDetail from './pages/ActivityDetail';
 import Planning from './pages/Planning';
+import ProfileItinerary from './pages/ProfileItinerary';
 import PlanningDetail from './pages/PlanningDetail';
 import Favorites from './pages/Favorites';
 import Resources from './pages/Resources';
@@ -38,6 +39,7 @@ function App() {
             <Route path="/planning/:id" element={<PlanningDetail />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/profile/itinerary" element={<ProfileItinerary />} />
           </Routes>
         </main>
         <Footer />

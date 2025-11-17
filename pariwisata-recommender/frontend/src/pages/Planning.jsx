@@ -98,42 +98,6 @@ const Planning = () => {
 
   return (
     <div className="planning-page">
-      {/* User's Saved Itineraries Section */}
-      <section className="user-itineraries-section">
-        <div className="container">
-          <h2>🗺️ Itinerary Saya</h2>
-          {itineraryLoading && <p>Loading...</p>}
-          {itineraryError && <p style={{ color: 'red' }}>{itineraryError}</p>}
-          {!itineraryLoading && !itineraryError && (
-            <div>
-              {userItineraries.length === 0 ? (
-                <p>Belum ada itinerary yang disimpan.</p>
-              ) : (
-                <ul>
-                  {userItineraries.map((it, idx) => (
-                    <li key={it.id || idx} style={{marginBottom: '1em'}}>
-                      <strong>{it.title}</strong> ({it.start_date} - {it.end_date})<br />
-                      <span>{it.description}</span>
-                      <ul>
-                        {it.days && it.days.map((day, i) => (
-                          <li key={i}>
-                            <strong>Hari {day.day_number} ({day.date})</strong>
-                            <ul>
-                              {day.items && day.items.map((item, j) => (
-                                <li key={j}>{item.title} - {item.location}</li>
-                              ))}
-                            </ul>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
       <section className="page-header">
         <div className="container">
           <h1>Rencanakan Perjalanan Anda</h1>

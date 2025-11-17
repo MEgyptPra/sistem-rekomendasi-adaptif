@@ -11,13 +11,13 @@ import os
 import hashlib
 
 class MABOptimizer:
-    def __init__(self, n_arms: int = 11, exploration_param: float = 2.0, persistence_file: str = None):
+    def __init__(self, n_arms: int = 5, exploration_param: float = 2.0, persistence_file: str = None):
         """
-        IMPROVED: Selaras dengan tesis research design
+        SINKRONISASI DENGAN NOTEBOOK EVALUASI (5 Arms)
         """
-        # Arms as lambda values - consistent dengan tesis methodology
-        self.arms = np.linspace(0, 1, n_arms)  # [0.0, 0.1, 0.2, ..., 1.0]
-        self.n_arms = n_arms
+        # Arms as lambda values: [0.0, 0.3, 0.5, 0.7, 1.0]
+        self.arms = [0.0, 0.3, 0.5, 0.7, 1.0]
+        self.n_arms = len(self.arms)
         self.c = exploration_param
         self.persistence_file = persistence_file
         
@@ -39,37 +39,22 @@ class MABOptimizer:
 
     
     def get_context_key(self, context: Dict[str, Any]) -> str:
-        """
-        Mengubah dictionary konteks menjadi string hash yang unik.
-        🛡️ SAFE VERSION: Handles dict/string/None gracefully
-        """
-        # 🛡️ Type check and conversion
-        if context is None:
-            return "default"
-        
-        if isinstance(context, str):
-            # Already a context key string
-            return context
-        
-        if not isinstance(context, dict):
-            # Unexpected type, use string representation
-            return f"unknown_{str(context)}"
-        
-        # Normal dict processing
-        try:
-            hour_category = self.categorize_hour(context.get('hour_of_day', 12))
-            key_components = [
-                f"weather={context.get('weather', 'unknown')}",
-                f"weekend={context.get('is_weekend', False)}",
-                f"hour_cat={hour_category}",
-                f"season={context.get('season', 'unknown')}"
-            ]
-            key_str = "_".join(key_components)
-            return key_str
-        except Exception as e:
-            # Fallback if any error
-            print(f"⚠️ get_context_key error: {e}, using default")
-            return "default"
+        if not isinstance(context, dict): return "default"
+        # Mapping jam ke kategori waktu sesuai notebook
+        hour = context.get('hour_of_day', 12)
+        if 5 <= hour < 10: time_cat = 'pagi'
+        elif 10 <= hour < 15: time_cat = 'siang'
+        elif 15 <= hour < 19: time_cat = 'sore'
+        else: time_cat = 'malam'
+        # Pastikan key format sinkron: weather_day_season_time_crowd_event_viral
+        weather = context.get('weather', 'cerah')
+        day = 'weekend' if context.get('is_weekend') else 'weekday'
+        if context.get('is_holiday'): day = 'libur_nasional'
+        season = context.get('season', 'musim_kemarau')
+        crowd = context.get('crowd_density', 'sedang')
+        event = context.get('special_event', 'noevent')
+        viral = 'viral' if context.get('viral_trend') else 'notviral'
+        return f"{weather}_{day}_{season}_{time_cat}_{crowd}_{event}_{viral}"
         
 
     def categorize_hour(self, hour: int) -> str:  # ← ADD THIS METHOD HERE
