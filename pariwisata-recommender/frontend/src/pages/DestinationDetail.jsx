@@ -385,7 +385,7 @@ const DestinationDetail = () => {
             <div className="photo-gallery">
               {destination.gallery.map((photo, index) => (
                 <div key={index} className="gallery-item">
-                  <img src={photo} alt={`${destination.name} ${index + 1}`} onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
+                  <img src={photo} alt={`${destination.name} ${index + 1}`} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
                 </div>
               ))}
             </div>

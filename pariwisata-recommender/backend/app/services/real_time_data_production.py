@@ -17,6 +17,47 @@ from pathlib import Path
 from app.services.social_trend_service import SocialTrendService
 
 class RealTimeContextService:
+        async def get_current_context(self, lat: float = None, lon: float = None) -> Dict[str, Any]:
+            """
+            Mengambil context real-time (weather, traffic, social trends, temporal)
+            """
+            lat = lat if lat is not None else self.DEFAULT_LAT
+            lon = lon if lon is not None else self.DEFAULT_LON
+
+            # Get weather
+            weather_data = await self._get_weather(lat, lon)
+            weather = weather_data.get("main", "cerah")
+            weather_desc = weather_data.get("desc", "")
+
+            # Get traffic
+            traffic_data = await self._get_traffic(lat, lon)
+            traffic = traffic_data.get("main", "lancar")
+            traffic_speed = traffic_data.get("speed", 40)
+
+            # Get social trends
+            trending_info = self.trend_service.get_trending_destinations()
+
+            now = datetime.now()
+            season = self._get_season(now.month)
+            is_weekend = now.weekday() >= 5
+            time_period = self._get_time_period(now.hour)
+
+            context = {
+                "weather": weather,
+                "weather_description": weather_desc,
+                "traffic": traffic,
+                "traffic_speed": traffic_speed,
+                "social_trend": trending_info.get("trend", "normal"),
+                "trending_destinations": trending_info.get("trending_destinations", []),
+                "viral_destinations": trending_info.get("viral_destinations", []),
+                "is_weekend": is_weekend,
+                "season": season,
+                "month": now.month,
+                "date": now.date().isoformat(),
+                "hour_of_day": now.hour,
+                "time_period": time_period
+            }
+            return context
     """
     Production-ready Real-Time Data Service
     - Fetches from real APIs (OpenWeatherMap, Google Maps, TomTom)

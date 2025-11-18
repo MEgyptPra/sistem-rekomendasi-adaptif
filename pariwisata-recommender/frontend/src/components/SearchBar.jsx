@@ -90,7 +90,7 @@ const SearchBar = ({ onClose }) => {
                       onClick={() => handleResultClick('destinations', destination.id)}
                     >
                       <div className="result-image">
-                        <img src={destination.image || '/assets/images/placeholder.webp'} alt={destination.name} onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
+                        <img src={destination.image || '/assets/placeholder.webp'} alt={destination.name} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
                       </div>
                       <div className="result-info">
                         <h5>{destination.name}</h5>
@@ -112,7 +112,7 @@ const SearchBar = ({ onClose }) => {
                       onClick={() => handleResultClick('activities', activity.id)}
                     >
                       <div className="result-image">
-                        <img src={activity.image || '/assets/images/placeholder.webp'} alt={activity.name} onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
+                        <img src={activity.image || '/assets/placeholder.webp'} alt={activity.name} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
                       </div>
                       <div className="result-info">
                         <h5>{activity.name}</h5>

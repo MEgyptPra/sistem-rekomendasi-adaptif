@@ -140,7 +140,7 @@ class MLService:
                 raise ValueError("Hybrid requires user_id for personalized recommendations")
             
             # 1. Get current context from context-aware component
-            current_context = await self.context_service.get_current_context()
+            current_context = await self.context_service.context_service.get_current_context()
             
             # 2. Use Contextual MAB to select optimal lambda for this context
             recommendations, arm_index = await self.hybrid_recommender.predict(
@@ -164,7 +164,7 @@ class MLService:
                 raise ValueError("Content-based model belum di-train for context-only recommendations")
             
             # 1. Get current context
-            current_context = await self.context_service.get_current_context()
+            current_context = await self.context_service.context_service.get_current_context()
             
             # 2. Get popular destinations as base
             base_recommendations = await self.content_recommender._get_popular_destinations(num_recommendations * 2, db)

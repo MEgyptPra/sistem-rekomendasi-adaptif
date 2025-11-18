@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="footer-content">
           <div className="footer-logo">
             <Link to="/">
-              <img src="/assets/logo-white.png" alt="Logo Wisata Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
+              <img src="/assets/logo-white.png" alt="Logo Wisata Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
             </Link>
             <p>Jelajahi Keindahan Sumedang</p>
           </div>

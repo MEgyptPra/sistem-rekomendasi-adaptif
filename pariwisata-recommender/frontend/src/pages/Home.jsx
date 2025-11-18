@@ -211,7 +211,7 @@ const Home = () => {
               </div>
             </div>
             <div className="where-map">
-              <img src="/assets/images/peta-sumedang-jawa-barat.jpg" alt="Peta Sumedang di Jawa Barat" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
+              <img src="/assets/images/peta-sumedang-jawa-barat.jpg" alt="Peta Sumedang di Jawa Barat" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
             </div>
           </div>
         </div>

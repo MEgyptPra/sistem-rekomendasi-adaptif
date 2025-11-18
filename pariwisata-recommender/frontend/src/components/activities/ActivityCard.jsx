@@ -5,7 +5,7 @@ import '../../styles/cards.css';
 const ActivityCard = ({ activity }) => {
   const handleImgError = (e) => {
     e.target.onerror = null;
-    e.target.src = '/assets/images/placeholder.webp';
+    e.target.src = '/assets/placeholder.webp';
   };
   return (
     <div className="card activity-card">

@@ -21,9 +21,9 @@ const Header = () => {
         <div className="logo">
           <Link to="/">
             <img 
-              src="/assets/logo.png" 
-              alt="Travel Logo" 
-              onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}}
+              src="/assets/favicon.png" 
+              alt="Hayu Ka Sumedang" 
+              onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}}
             />
           </Link>
         </div>

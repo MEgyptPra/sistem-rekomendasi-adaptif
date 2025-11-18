@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.admin_routes import admin_router
-from app.model_routes import model_router
+from admin_routes import admin_router
+from model_routes import model_router
 from app.api.endpoints import router as ml_router
 from app.api.frontend_endpoints import router as frontend_router
 from app.api.medium_priority_endpoints import router as medium_router
@@ -14,22 +14,11 @@ from contextlib import asynccontextmanager
 # Load environment variables
 load_dotenv()
 
-
 app = FastAPI(
     title="Pariwisata Recommendation API",
     description="API untuk Sistem Rekomendasi Pariwisata Adaptif dengan Incremental Learning",
     version="2.0.0"
 )
-
-# TODO: Enable scheduler when database module is fixed
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     from app.scheduler.learning_scheduler import start_scheduler, stop_scheduler
-#     print("� Starting Incremental Learning Scheduler...")
-#     start_scheduler()
-#     yield
-#     print("🛑 Stopping Incremental Learning Scheduler...")
-#     stop_scheduler()
 
 # Configure CORS for frontend applications
 app.add_middleware(
