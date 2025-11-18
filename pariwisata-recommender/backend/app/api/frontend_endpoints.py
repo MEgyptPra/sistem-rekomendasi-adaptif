@@ -790,6 +790,10 @@ async def get_personalized_recommendations(
             "popular_fallback": "Popular destinations"
         }
         
+        context = None
+        # Coba ambil context dari ML result jika tersedia
+        if 'ml_result' in locals() and isinstance(ml_result, tuple) and len(ml_result) > 2:
+            context = ml_result[2]
         return {
             "recommendations": recommendations,
             "algorithm": algorithm_used,
@@ -800,7 +804,8 @@ async def get_personalized_recommendations(
                 "uses_incremental": "incremental" in algorithm_used,
                 "auto_learning": True,
                 "update_frequency": "real-time"
-            }
+            },
+            "context": context
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get recommendations: {str(e)}")

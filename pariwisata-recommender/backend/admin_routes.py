@@ -4,8 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import httpx
 
+from app.services.calendarific_service import CalendarificService
+from fastapi.responses import JSONResponse
+
 # Konsolidasikan: hanya satu definisi router dengan prefix '/admin'
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
+@admin_router.get("/calendar/holidays", tags=["calendar"])
+async def get_holidays(year: int = None, country: str = "ID"):
+    service = CalendarificService()
+    holidays = await service.get_holidays(country=country, year=year)
+    return JSONResponse(content={"status": "OK", "holidays": holidays})
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="admin/login")
 
