@@ -330,7 +330,7 @@ const ActivityDetail = () => {
               <div className="photo-gallery">
                 {activity.gallery.map((photo, index) => (
                   <div key={index} className="gallery-item">
-                    <img src={photo} alt={`Gallery ${index + 1}`} />
+                    <img src={photo} alt={`Gallery ${index + 1}`} onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
                   </div>
                 ))}
               </div>

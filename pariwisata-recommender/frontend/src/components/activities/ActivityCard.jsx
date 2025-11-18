@@ -3,10 +3,18 @@ import { Link } from 'react-router-dom';
 import '../../styles/cards.css';
 
 const ActivityCard = ({ activity }) => {
+  const handleImgError = (e) => {
+    e.target.onerror = null;
+    e.target.src = '/assets/images/placeholder.webp';
+  };
   return (
     <div className="card activity-card">
       <div className="card-image">
-        <img src={activity.image} alt={activity.name} />
+        <img
+          src={activity.image}
+          alt={activity.name}
+          onError={handleImgError}
+        />
         {activity.category && (
           <div className="card-badge">{activity.category}</div>
         )}

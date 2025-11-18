@@ -20,7 +20,11 @@ const Header = () => {
       <div className="container">
         <div className="logo">
           <Link to="/">
-            <img src="/assets/logo.png" alt="Travel Logo" />
+            <img 
+              src="/assets/logo.png" 
+              alt="Travel Logo" 
+              onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}}
+            />
           </Link>
         </div>
         

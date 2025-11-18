@@ -3,10 +3,18 @@ import { Link } from 'react-router-dom';
 import '../../styles/cards.css';
 
 const DestinationCard = ({ destination }) => {
+  const handleImgError = (e) => {
+    e.target.onerror = null;
+    e.target.src = '/assets/images/placeholder.webp';
+  };
   return (
     <div className="card destination-card">
       <div className="card-image">
-        <img src={destination.image} alt={destination.name} />
+        <img
+          src={destination.image}
+          alt={destination.name}
+          onError={handleImgError}
+        />
         {destination.region && (
           <div className="card-badge">{destination.region}</div>
         )}

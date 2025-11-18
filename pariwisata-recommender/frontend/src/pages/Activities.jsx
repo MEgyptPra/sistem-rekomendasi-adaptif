@@ -88,7 +88,7 @@ const Activities = () => {
                   <button className="btn primary">Jelajahi Petualangan Outdoor</button>
                 </div>
                 <div className="featured-image">
-                  <img src="/assets/images/outdoor-adventure.jpg" alt="Petualangan outdoor Sumedang" />
+                  <img src="/assets/images/outdoor-adventure.jpg" alt="Petualangan outdoor Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
                 </div>
               </div>
 
@@ -117,22 +117,22 @@ const Activities = () => {
           <h2>Aktivitas Musiman</h2>
           <div className="seasons-container">
             <div className="season-card">
-              <img src="/assets/images/spring.jpg" alt="Musim Hujan di Sumedang" />
+              <img src="/assets/images/spring.jpg" alt="Musim Hujan di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
               <h3>Musim Hujan</h3>
               <p>Air terjun penuh, pemandangan hijau, dan udara sejuk pegunungan</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/summer.jpg" alt="Musim Kemarau di Sumedang" />
+              <img src="/assets/images/summer.jpg" alt="Musim Kemarau di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
               <h3>Musim Kemarau</h3>
               <p>Wisata alam, hiking, dan festival budaya lokal</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/fall.jpg" alt="Musim Panen di Sumedang" />
+              <img src="/assets/images/fall.jpg" alt="Musim Panen di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
               <h3>Musim Panen</h3>
               <p>Festival panen, wisata agro, dan kuliner khas Sumedang</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/winter.jpg" alt="Akhir Tahun di Sumedang" />
+              <img src="/assets/images/winter.jpg" alt="Akhir Tahun di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/images/placeholder.webp';}} />
               <h3>Akhir Tahun</h3>
               <p>Liburan keluarga, wisata religi, dan perayaan tahun baru</p>
             </div>
