@@ -103,7 +103,7 @@ class RealTimeContextService:
         cached = self._load_cache(self.WEATHER_CACHE_FILE, self.WEATHER_CACHE_DURATION)
         
         # Try real API if key is configured
-        openweather_api_key = await self.get_api_key("weather")
+        openweather_api_key = os.getenv("OPENWEATHER_API_KEY")
         if openweather_api_key:
             try:
                 real_data = await self._fetch_openweather(lat, lon, openweather_api_key)
