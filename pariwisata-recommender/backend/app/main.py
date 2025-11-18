@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from admin_routes import admin_router
-from model_routes import model_router
+from ..admin_routes import admin_router
+from ..model_routes import model_router
 from app.api.endpoints import router as ml_router
 from app.api.frontend_endpoints import router as frontend_router
 from app.api.medium_priority_endpoints import router as medium_router
