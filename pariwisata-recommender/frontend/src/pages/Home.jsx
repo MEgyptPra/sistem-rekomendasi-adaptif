@@ -18,31 +18,20 @@ const Home = () => {
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
 
   // ✅ Fetch rekomendasi dari ML MODEL (Hybrid CF+CB + MAB + MMR)
-  // - Algorithm: AUTO (smart selection based on user data availability)
-  // - Anonymous: Incremental (context-aware: weather, time, traffic, trending)
-  // - Logged-in: Hybrid/MAB (personalized + context-aware)
+  // - Algorithm: AUTO (smart selection based on user status)
+  // - Anonymous: Context-Only + Context (berdasarkan hari/context hari)
+  // - Logged-in: Hybrid + Context + Preferensi User
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        if (isAuthenticated) {
-          // ✅ Logged-in user: Gunakan ML Model dengan algorithm=auto
-          try {
-            const response = await recommendationsAPI.getPersonalized({
-              algorithm: 'auto', // Smart: hybrid jika trained, incremental jika belum
-              num_recommendations: 6
-            });
-            setPersonalizedDestinations(response.data.recommendations || []);
-            console.log('✅ ML Model used:', response.data.metadata?.algorithm_used);
-          } catch (personalErr) {
-            console.warn('ML recommendations failed, using incremental:', personalErr);
-            await loadIncrementalRecommendations();
-          }
-        } else {
-          // ✅ Anonymous user: Gunakan Incremental Learning (context-aware tanpa user data)
-          // - Sudah include: weather, traffic, time-of-day, trending destinations
-          console.log('Anonymous user: Using context-aware incremental learning');
-          await loadIncrementalRecommendations();
-        }
+        // ✅ Use AUTO algorithm for both anonymous and logged-in users
+        // Backend will smart-select: context_only for anonymous, hybrid for logged-in
+        const response = await recommendationsAPI.getPersonalized({
+          algorithm: 'auto', // Smart selection based on user status
+          num_recommendations: 6
+        });
+        setPersonalizedDestinations(response.data.recommendations || []);
+        console.log('✅ Algorithm used:', response.data.algorithm, '| Message:', response.data.message);
       } catch (error) {
         console.error('Error fetching recommendations:', error);
         await loadFallbackDestinations(); // Last resort: random
@@ -51,55 +40,39 @@ const Home = () => {
       }
     };
 
-    // ✅ Load Incremental Learning Recommendations
-    // Context-aware: weather, traffic, time-of-day, trending destinations
-    const loadIncrementalRecommendations = async () => {
-      try {
-        const response = await recommendationsAPI.getPersonalized({
-          algorithm: 'incremental', // Context-aware tanpa perlu model training
-          num_recommendations: 6
-        });
-        setPersonalizedDestinations(response.data.recommendations || []);
-        console.log('✅ Incremental learning loaded (context + trending)');
-      } catch (incrementalErr) {
-        console.error('Incremental failed, using random fallback:', incrementalErr);
-        await loadFallbackDestinations();
-      }
-    };
-
-    // Last resort fallback: Random destinations
-    const loadFallbackDestinations = async () => {
-      try {
-        const allDestResponse = await recommendationsAPI.getAllDestinations({ limit: 20 });
-        const allDest = allDestResponse.data.destinations || [];
-        
-        // Shuffle and take 6 random
-        const shuffled = allDest.sort(() => 0.5 - Math.random());
-        const randomDest = shuffled.slice(0, 6);
-        
-        // Transform to match recommendation format
-        const transformedData = randomDest.map((dest) => ({
-          destination_id: dest.id,
-          id: dest.id,
-          name: dest.name,
-          description: dest.description,
-          region: dest.region,
-          category: dest.category,
-          image: dest.image,
-          score: 0.75,
-          explanation: `Destinasi populer di ${dest.region}`
-        }));
-        
-        setPersonalizedDestinations(transformedData);
-        console.log('⚠️ Using random fallback');
-      } catch (fallbackErr) {
-        console.error('Fallback destinations also failed:', fallbackErr);
-        setPersonalizedDestinations([]);
-      }
-    };
-
     fetchRecommendations();
   }, [isAuthenticated]);
+
+  // Last resort fallback: Random destinations
+  const loadFallbackDestinations = async () => {
+    try {
+      const allDestResponse = await recommendationsAPI.getAllDestinations({ limit: 20 });
+      const allDest = allDestResponse.data.destinations || [];
+      
+      // Shuffle and take 6 random
+      const shuffled = allDest.sort(() => 0.5 - Math.random());
+      const randomDest = shuffled.slice(0, 6);
+      
+      // Transform to match recommendation format
+      const transformedData = randomDest.map((dest) => ({
+        destination_id: dest.id,
+        id: dest.id,
+        name: dest.name,
+        description: dest.description,
+        region: dest.region,
+        category: dest.category,
+        image: dest.image,
+        score: 0.75,
+        explanation: `Destinasi populer di ${dest.region}`
+      }));
+      
+      setPersonalizedDestinations(transformedData);
+      console.log('⚠️ Using random fallback');
+    } catch (fallbackErr) {
+      console.error('Fallback destinations also failed:', fallbackErr);
+      setPersonalizedDestinations([]);
+    }
+  };
 
   // Fetch popular activities
   useEffect(() => {

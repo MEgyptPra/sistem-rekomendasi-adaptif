@@ -47,13 +47,13 @@ const SurpriseModal = ({ isOpen, onClose }) => {
       // Fallback: Gunakan incremental learning (context-aware + trending)
       try {
         const response = await recommendationsAPI.getPersonalized({
-          algorithm: 'incremental', // Context-aware tanpa perlu model training
+          algorithm: 'incremental', // Context-aware incremental sesuai penelitian
           num_recommendations: 5
         });
         setSurpriseDestinations(response.data.recommendations || []);
         console.log('✅ Incremental Recommendations loaded (context-aware)');
-      } catch (incrementalErr) {
-        console.error('Incremental failed, using random fallback:', incrementalErr);
+      } catch (hybridErr) {
+        console.error('Incremental failed, using random fallback:', hybridErr);
         // Last resort: Random
         await loadRandomFallback();
       }

@@ -19,45 +19,34 @@ if %errorlevel% neq 0 (
 echo SUCCESS: Docker Desktop is ready
 echo.
 
-echo Step 2/5: Starting PostgreSQL Database (Docker)...
+echo Step 2/5: Starting ALL Services with Docker Compose...
 cd /d "%ROOT_DIR%"
-docker-compose up -d db
+docker-compose up -d
 if %errorlevel% neq 0 (
-    echo ERROR: Failed to start database. Make sure Docker Desktop is running.
+    echo ERROR: Failed to start services with Docker Compose.
     pause
     exit /b 1
 )
-echo SUCCESS: Database started successfully
+echo SUCCESS: All services started with Docker Compose
 echo.
 
-echo Step 3/5: Starting Backend API Server (Port 8000)...
-cd /d "%ROOT_DIR%backend"
-start "Backend API Server" cmd /k "python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-timeout /t 3 /nobreak 1>nul
-echo SUCCESS: Backend server started
+echo Step 3/5: Waiting for services to be ready...
+timeout /t 15 /nobreak 1>nul
+echo SUCCESS: Services initialization complete
 echo.
 
-echo Step 4/5: Starting Admin Dashboard (Port 3000)...
-cd /d "%ROOT_DIR%admin-dashboard"
-start "Admin Dashboard" cmd /k "npm start"
-timeout /t 3 /nobreak 1>nul
-echo SUCCESS: Admin dashboard started
+echo Step 4/5: Checking service health...
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo.
 
-echo Step 5/5: Starting Frontend Website (Port 5173)...
-cd /d "%ROOT_DIR%frontend"
-start "Frontend Website" cmd /k "npm run dev"
-timeout /t 3 /nobreak 1>nul
-echo SUCCESS: Frontend website started
-echo.
-
+echo Step 5/5: Opening services in browser...
 echo ============================================================
-echo    ALL SERVICES STARTED SUCCESSFULLY!
+echo    ALL SERVICES STARTED SUCCESSFULLY WITH DOCKER!
 echo ============================================================
 echo.
 echo Backend API:       http://localhost:8000
 echo API Docs:          http://localhost:8000/docs
-echo Admin Dashboard:   http://localhost:3000 (Login: admin@example.com)
+echo Admin Dashboard:   http://localhost:3000
 echo Frontend Website:  http://localhost:5173
 echo.
 echo Admin Login credentials:
@@ -68,7 +57,6 @@ echo Press any key to open Frontend Website in browser...
 pause 1>nul
 start http://localhost:5173
 echo.
-echo Services are running in separate windows.
-echo Close those windows to stop the services.
+echo All services are running in Docker containers.
+echo Use 'docker-compose down' to stop all services.
 echo.
-pause

@@ -28,16 +28,16 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   admin-dashboard:
       build:
-        context: ./pariwisata-recommender/admin-dashboard
+        context: ./admin-dashboard
         dockerfile: Dockerfile
       ports:
         - "3000:80"
       volumes:
-        - ./pariwisata-recommender/admin-dashboard:/app
+        - ./admin-dashboard:/app
         - /app/node_modules
       depends_on:
         - backend

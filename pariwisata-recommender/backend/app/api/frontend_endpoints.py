@@ -567,16 +567,17 @@ async def get_personalized_recommendations(
     user_id: Optional[int] = None,
     session_id: Optional[str] = None,
     limit: int = Query(6, alias="num_recommendations"),
-    algorithm: str = "auto",  # auto, incremental, hybrid, mab
+    algorithm: str = "auto",  # auto, incremental, hybrid, context_only
     db: AsyncSession = Depends(get_db)
 ):
     """
     Get personalized recommendations for Home page.
     
     HYBRID APPROACH - Combines research (notebook) + production (incremental):
-    - "auto": Smart selection (incremental for speed, MAB if trained)
+    - "auto": Smart selection based on user status
     - "incremental": Real-time learning from interactions (FAST, no training)
-    - "hybrid": Full ML from research notebook (ACCURATE, needs training)
+    - "hybrid": Full ML from research notebook (ACCURATE, needs training + user_id)
+    - "context_only": Context-aware recommendations for anonymous users
     - "mab": Multi-Armed Bandit with context awareness (BEST, needs training)
     
     Learning happens automatically for incremental mode:
@@ -588,16 +589,26 @@ async def get_personalized_recommendations(
         from app.services.incremental_learner import incremental_learner
         from app.services.ml_service import ml_service
         
-        # AUTO MODE: Choose best available algorithm
+        # AUTO MODE: Choose best available algorithm based on user status
         if algorithm == "auto":
-            # Check if ML model is trained
-            model_status = ml_service.get_model_status()
-            if model_status.get('is_trained') and user_id:
-                algorithm = "hybrid"  # Use research model if available
-                print(f"🎯 AUTO: Using Hybrid MAB (trained model available)")
+            if user_id is not None:
+                # Logged-in user: Try hybrid if trained, fallback to incremental
+                model_status = ml_service.get_models_status()
+                if model_status.get('training_status', {}).get('hybrid'):
+                    algorithm = "hybrid"  # Use research model if available
+                    print(f"🎯 AUTO (logged-in): Using Hybrid MAB")
+                else:
+                    algorithm = "incremental"  # Fallback to incremental
+                    print(f"⚡ AUTO (logged-in): Using Incremental Learning")
             else:
-                algorithm = "incremental"  # Fallback to incremental
-                print(f"⚡ AUTO: Using Incremental Learning (fast mode)")
+                # Anonymous user: Use context-only if available, fallback to incremental
+                model_status = ml_service.get_models_status()
+                if model_status.get('training_status', {}).get('content_based'):
+                    algorithm = "context_only"  # Context-aware for anonymous
+                    print(f"🌍 AUTO (anonymous): Using Context-Only recommendations")
+                else:
+                    algorithm = "incremental"  # Fallback to incremental
+                    print(f"⚡ AUTO (anonymous): Using Incremental Learning")
         
         # STRATEGY 1: INCREMENTAL LEARNING (from new implementation)
         # Fast, real-time, no training needed
@@ -623,17 +634,55 @@ async def get_personalized_recommendations(
             
             algorithm_used = "incremental_learning"
             
-        # STRATEGY 2: HYBRID MAB (from notebook research)
-        # Accurate, uses trained ML model
-        elif algorithm in ["hybrid", "mab"] and user_id:
+        # STRATEGY 2: CONTEXT-ONLY (for anonymous users)
+        # Context-aware recommendations without user personalization
+        elif algorithm == "context_only" and user_id is None:
             try:
-                # Use ML service from research (ml_service.py)
-                ml_recommendations = await ml_service.get_recommendations(
-                    user_id=user_id,
-                    algorithm="hybrid",  # From notebook: CB + CF + MAB
-                    limit=limit,
+                # Use ML service context-only mode
+                ml_result = await ml_service.get_recommendations(
+                    user_id=None,
+                    algorithm="context_only",
+                    num_recommendations=limit,
                     db=db
                 )
+                
+                # Extract recommendations from tuple
+                ml_recommendations = ml_result[0]
+                
+                # Apply incremental boost on top
+                trending = await incremental_learner.get_recommendations_with_incremental_boost(
+                    user_id=None,  # No user for anonymous
+                    base_recommendations=ml_recommendations,
+                    db=db
+                )
+                
+                algorithm_used = "context_only_with_incremental"
+                print(f"🌍 Using Context-Only + Incremental boost")
+                
+            except Exception as e:
+                print(f"⚠️ Context-only failed, falling back to incremental: {e}")
+                # Fallback to incremental
+                trending = await incremental_learner.get_trending_destinations(
+                    limit=limit * 2,
+                    time_window_hours=24,
+                    db=db
+                )
+                algorithm_used = "incremental_fallback"
+        
+        # STRATEGY 3: HYBRID MAB (from notebook research)
+        # Accurate, uses trained ML model
+        elif algorithm in ["hybrid", "mab"] and user_id is not None:
+            try:
+                # Use ML service from research (ml_service.py)
+                ml_result = await ml_service.get_recommendations(
+                    user_id=user_id,
+                    algorithm="hybrid",  # From notebook: CB + CF + MAB
+                    num_recommendations=limit,
+                    db=db
+                )
+                
+                # Extract recommendations from tuple (recommendations, arm_index, context)
+                ml_recommendations = ml_result[0]
                 
                 # Apply incremental boost on top of ML recommendations
                 trending = await incremental_learner.get_recommendations_with_incremental_boost(
@@ -656,7 +705,7 @@ async def get_personalized_recommendations(
                 algorithm_used = "incremental_fallback"
         
         else:
-            # Default: Use incremental for anonymous users
+            # Default: Use incremental for any other case
             trending = await incremental_learner.get_trending_destinations(
                 limit=limit * 2,
                 time_window_hours=24,
@@ -734,6 +783,7 @@ async def get_personalized_recommendations(
         # Build response message based on algorithm
         messages = {
             "incremental_learning": "Real-time learning - updates automatically!",
+            "context_only_with_incremental": "Context-aware recommendations for today!",
             "hybrid_mab_with_incremental": "Research-grade ML + Real-time boost!",
             "incremental_fallback": "Incremental learning (ML unavailable)",
             "incremental_default": "Trending destinations",

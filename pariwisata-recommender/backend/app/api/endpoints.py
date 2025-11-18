@@ -113,6 +113,50 @@ async def get_recommendations(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
 
+@router.get("/recommendations/personalized")
+async def get_personalized_recommendations(
+    algorithm: Literal['content_based', 'collaborative', 'hybrid'] = Query('hybrid'),
+    num_recommendations: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get personalized recommendations for anonymous user with contextual awareness"""
+    # Use anonymous user ID (0)
+    user_id = 0
+    
+    try:
+        recommendations, arm_index, context = await ml_service.get_recommendations(
+            user_id=user_id,
+            algorithm=algorithm,
+            num_recommendations=num_recommendations,
+            db=db
+        )
+        
+        response = {
+            "user_id": user_id,
+            "algorithm": algorithm,
+            "recommendations": recommendations,
+            "count": len(recommendations)
+        }
+        
+        # Add contextual MAB info for hybrid algorithm
+        if algorithm == 'hybrid' and arm_index is not None and context is not None:
+            lambda_value = ml_service.mab_optimizer.get_lambda_value(arm_index)
+            response["contextual_info"] = {
+                "context": context,
+                "mab_decision": {
+                    "arm_index": arm_index,
+                    "lambda_value": lambda_value,
+                    "strategy": f"λ={lambda_value:.1f} selected for current context"
+                },
+                "total_contexts_learned": len(ml_service.mab_optimizer.context_data)
+            }
+        
+        return response
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
+
 @router.get("/recommendations/{user_id}/explain/{destination_id}")
 async def explain_recommendation(
     user_id: int,

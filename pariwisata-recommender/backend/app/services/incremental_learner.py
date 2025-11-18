@@ -139,7 +139,7 @@ class IncrementalLearner:
             last_updated = datetime.fromisoformat(score_data['last_updated'])
             if last_updated >= cutoff_time:
                 trending.append({
-                    'destination_id': dest_id,
+                    'destination_id': int(dest_id),  # Convert string key back to int
                     'popularity_score': score_data.get('popularity_score', 0),
                     'avg_rating': score_data.get('avg_rating', 0),
                     'interaction_count': score_data.get('interaction_count', 0),
@@ -268,7 +268,7 @@ class IncrementalLearner:
         for rec in base_recommendations:
             dest_id = rec.get('destination_id') or rec.get('id')
             
-            # Get incremental score
+            # Get incremental score - convert to string for JSON lookup
             if str(dest_id) in scores:
                 dest_score = scores[str(dest_id)]
                 popularity_boost = dest_score.get('popularity_score', 0) / 100  # Normalize

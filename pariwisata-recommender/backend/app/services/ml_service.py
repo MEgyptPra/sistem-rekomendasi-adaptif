@@ -24,8 +24,17 @@ class MLService:
         print("="*60)
         
         self.content_recommender = ContentBasedRecommender()
-        self.collaborative_recommender = CollaborativeRecommender()
-        self.hybrid_recommender = HybridRecommender()
+        try:
+            self.collaborative_recommender = CollaborativeRecommender()
+        except Exception as e:
+            print(f"⚠️ Collaborative recommender failed to load: {e}")
+            self.collaborative_recommender = None
+        
+        try:
+            self.hybrid_recommender = HybridRecommender()
+        except Exception as e:
+            print(f"⚠️ Hybrid recommender failed to load: {e}")
+            self.hybrid_recommender = None
         
         # Initialize MAB Optimizer dengan contextual capabilities
         self.mab_optimizer = MABOptimizer(
@@ -39,9 +48,9 @@ class MLService:
         
         # Update training status dari auto-loaded models
         self._training_status = {
-            'content_based': self.content_recommender.is_trained,
-            'collaborative': self.collaborative_recommender.is_trained,
-            'hybrid': self.hybrid_recommender.is_trained
+            'content_based': self.content_recommender.is_trained if self.content_recommender else False,
+            'collaborative': self.collaborative_recommender.is_trained if self.collaborative_recommender else False,
+            'hybrid': self.hybrid_recommender.is_trained if self.hybrid_recommender else False
         }
         
         # Print status summary
@@ -90,14 +99,20 @@ class MLService:
     
     async def get_recommendations(
         self, 
-        user_id: int, 
-        algorithm: Literal['content_based', 'collaborative', 'hybrid'] = 'hybrid',
+        user_id: Optional[int], 
+        algorithm: Literal['content_based', 'collaborative', 'hybrid', 'context_only'] = 'hybrid',
         num_recommendations: int = 10,
         db: AsyncSession = None
     ) -> Tuple[List[Dict[str, Any]], Optional[int], Optional[Dict[str, Any]]]:
         """
         Get recommendations menggunakan algorithm yang dipilih dengan context awareness
         
+        Args:
+            user_id: Optional user ID (None for anonymous users)
+            algorithm: Algorithm to use
+            num_recommendations: Number of recommendations to return
+            db: Database session
+            
         Returns:
             Tuple: (recommendations, arm_index, context) where context and arm_index are None for non-hybrid algorithms
         """
@@ -105,18 +120,24 @@ class MLService:
         if algorithm == 'content_based':
             if not self.content_recommender.is_trained:
                 raise ValueError("Content-based model belum di-train")
+            if user_id is None:
+                raise ValueError("Content-based requires user_id")
             recommendations = await self.content_recommender.predict(user_id, num_recommendations, db)
             return recommendations, None, None
         
         elif algorithm == 'collaborative':
-            if not self.collaborative_recommender.is_trained:
+            if not self.collaborative_recommender or not self.collaborative_recommender.is_trained:
                 raise ValueError("Collaborative model belum di-train")
+            if user_id is None:
+                raise ValueError("Collaborative requires user_id")
             recommendations = await self.collaborative_recommender.predict(user_id, num_recommendations, db)
             return recommendations, None, None
         
         elif algorithm == 'hybrid':
-            if not self.hybrid_recommender.is_trained:
+            if not self.hybrid_recommender or not self.hybrid_recommender.is_trained:
                 raise ValueError("Hybrid model belum di-train")
+            if user_id is None:
+                raise ValueError("Hybrid requires user_id for personalized recommendations")
             
             # 1. Get current context from context-aware component
             current_context = await self.context_service.get_current_context()
@@ -136,6 +157,56 @@ class MLService:
                   f"for user {user_id} in context: {current_context}")
             
             return recommendations, arm_index, current_context
+        
+        elif algorithm == 'context_only':
+            # Context-only recommendations for anonymous users
+            if not self.content_recommender.is_trained:
+                raise ValueError("Content-based model belum di-train for context-only recommendations")
+            
+            # 1. Get current context
+            current_context = await self.context_service.get_current_context()
+            
+            # 2. Get popular destinations as base
+            base_recommendations = await self.content_recommender._get_popular_destinations(num_recommendations * 2, db)
+            
+            # 3. Apply context boosting
+            if current_context and base_recommendations:
+                item_categories = {}
+                for rec in base_recommendations:
+                    # Get destination category from destinations_df
+                    if self.content_recommender.destinations_df is not None:
+                        dest_row = self.content_recommender.destinations_df[
+                            self.content_recommender.destinations_df['id'] == rec['destination_id']
+                        ]
+                        if not dest_row.empty:
+                            item_categories[rec['destination_id']] = dest_row['categories'].iloc[0] if dest_row['categories'].iloc[0] else 'Other'
+                        else:
+                            item_categories[rec['destination_id']] = 'Other'
+                    else:
+                        item_categories[rec['destination_id']] = 'Other'
+                
+                # Map context for boosting
+                safe_ctx = current_context if isinstance(current_context, dict) else {}
+                mapped_context = safe_ctx.copy()
+                h = safe_ctx.get('hour_of_day', 12)
+                if 5 <= h < 10: mapped_context['time_of_day'] = 'pagi'
+                elif 10 <= h < 15: mapped_context['time_of_day'] = 'siang'
+                elif 15 <= h < 19: mapped_context['time_of_day'] = 'sore'
+                else: mapped_context['time_of_day'] = 'malam'
+                if safe_ctx.get('is_holiday'): mapped_context['day_type'] = 'libur_nasional'
+                elif safe_ctx.get('is_weekend'): mapped_context['day_type'] = 'weekend'
+                else: mapped_context['day_type'] = 'weekday'
+                
+                boosted_recommendations = self.context_service.get_contextual_boost(
+                    base_recommendations,
+                    mapped_context,
+                    item_categories
+                )
+                
+                print(f"✅ Context-only boost applied for {len(boosted_recommendations)} items")
+                return boosted_recommendations[:num_recommendations], None, current_context
+            
+            return base_recommendations[:num_recommendations], None, current_context
         
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")

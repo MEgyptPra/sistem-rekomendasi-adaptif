@@ -34,7 +34,7 @@ class RealtimeAPIConfigSchema(BaseModel):
     last_checked: datetime | None = None
     notes: str | None = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Real-time API config (simple file-based for demo)
 REALTIME_CONFIG_PATH = "data/cache/realtime_config.json"
