@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import httpx
 
-admin_router = APIRouter()
+# Konsolidasikan: hanya satu definisi router dengan prefix '/admin'
+admin_router = APIRouter(prefix="/admin", tags=["admin"])
 
-# OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="admin/login")
 
 # Dependency for protected routes
@@ -142,7 +142,6 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)):
     return admin_user
 
 from app.services.real_time_data_production import RealTimeContextService
-admin_router = APIRouter(prefix="/admin", tags=["admin"])
 # Endpoint: GET /admin/model/realtime-stats?source=...
 @admin_router.get("/model/realtime-stats")
 async def get_realtime_stats(source: str, current_admin: dict = Depends(get_current_admin)):
