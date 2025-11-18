@@ -20,44 +20,35 @@ class MLService:
     
     def __init__(self):
         print("\n" + "="*60)
-        print("🚀 Initializing ML Service...")
+        print("🚀 Initializing ML Service (minimal mode)...")
         print("="*60)
-        
-        self.content_recommender = ContentBasedRecommender()
-        try:
-            self.collaborative_recommender = CollaborativeRecommender()
-        except Exception as e:
-            print(f"⚠️ Collaborative recommender failed to load: {e}")
-            self.collaborative_recommender = None
-        
-        try:
-            self.hybrid_recommender = HybridRecommender()
-        except Exception as e:
-            print(f"⚠️ Hybrid recommender failed to load: {e}")
-            self.hybrid_recommender = None
-        
+
+        # LAZY LOAD: Model hanya di-load jika diperlukan
+        self.content_recommender = None
+        self.collaborative_recommender = None
+        self.hybrid_recommender = None
+
         # Initialize MAB Optimizer dengan contextual capabilities
         self.mab_optimizer = MABOptimizer(
-            n_arms=11, 
+            n_arms=11,
             exploration_param=2.0,
             persistence_file="data/contextual_mab_state.json"  # Contextual state file
         )
-        
+
         # Initialize Context-Aware Component
         self.context_service = ContextAwareComponent()
-        
-        # Update training status dari auto-loaded models
+
+        # Training status default
         self._training_status = {
-            'content_based': self.content_recommender.is_trained if self.content_recommender else False,
-            'collaborative': self.collaborative_recommender.is_trained if self.collaborative_recommender else False,
-            'hybrid': self.hybrid_recommender.is_trained if self.hybrid_recommender else False
+            'content_based': False,
+            'collaborative': False,
+            'hybrid': False
         }
-        
-        # Print status summary
+
         print("\n📊 Model Status:")
-        print(f"   Content-Based: {'✅ LOADED' if self._training_status['content_based'] else '❌ NOT TRAINED'}")
-        print(f"   Collaborative: {'✅ LOADED' if self._training_status['collaborative'] else '❌ NOT TRAINED'}")
-        print(f"   Hybrid:        {'✅ LOADED' if self._training_status['hybrid'] else '❌ NOT TRAINED'}")
+        print(f"   Content-Based: {'❌ NOT LOADED'}")
+        print(f"   Collaborative: {'❌ NOT LOADED'}")
+        print(f"   Hybrid:        {'❌ NOT LOADED'}")
         print("="*60 + "\n")
     
     async def train_all_models(self, db: AsyncSession) -> Dict[str, Any]:

@@ -17,108 +17,79 @@ from pathlib import Path
 from app.services.social_trend_service import SocialTrendService
 
 class RealTimeContextService:
-        async def get_current_context(self, lat: float = None, lon: float = None) -> Dict[str, Any]:
-            """
-            Mengambil context real-time (weather, traffic, social trends, temporal)
-            """
-            lat = lat if lat is not None else self.DEFAULT_LAT
-            lon = lon if lon is not None else self.DEFAULT_LON
-
-            # Get weather
-            weather_data = await self._get_weather(lat, lon)
-            weather = weather_data.get("main", "cerah")
-            weather_desc = weather_data.get("desc", "")
-
-            # Get traffic
-            traffic_data = await self._get_traffic(lat, lon)
-            traffic = traffic_data.get("main", "lancar")
-            traffic_speed = traffic_data.get("speed", 40)
-
-            # Get social trends
-            trending_info = self.trend_service.get_trending_destinations()
-
-            now = datetime.now()
-            season = self._get_season(now.month)
-            is_weekend = now.weekday() >= 5
-            time_period = self._get_time_period(now.hour)
-
-            context = {
-                "weather": weather,
-                "weather_description": weather_desc,
-                "traffic": traffic,
-                "traffic_speed": traffic_speed,
-                "social_trend": trending_info.get("trend", "normal"),
-                "trending_destinations": trending_info.get("trending_destinations", []),
-                "viral_destinations": trending_info.get("viral_destinations", []),
-                "is_weekend": is_weekend,
-                "season": season,
-                "month": now.month,
-                "date": now.date().isoformat(),
-                "hour_of_day": now.hour,
-                "time_period": time_period
-            }
-            return context
     """
     Production-ready Real-Time Data Service
     - Fetches from real APIs (OpenWeatherMap, Google Maps, TomTom)
     - Caches responses to avoid rate limits
     - Falls back to simulation if API fails
     """
-    
-    # API Configuration (will be loaded from DB)
-    _api_config_cache = None
-    _api_config_cache_time = None
-    _api_config_cache_duration = 300  # seconds
-    
-    # Default location: Sumedang, Indonesia
-    DEFAULT_LAT = float(os.getenv("DEFAULT_LATITUDE", "-6.8568"))
-    DEFAULT_LON = float(os.getenv("DEFAULT_LONGITUDE", "107.9214"))
-    
-    # Cache settings
-    CACHE_DIR = Path("data/cache")
-    WEATHER_CACHE_FILE = CACHE_DIR / "weather_cache.json"
-    TRAFFIC_CACHE_FILE = CACHE_DIR / "traffic_cache.json"
-    
-    WEATHER_CACHE_DURATION = int(os.getenv("WEATHER_CACHE_DURATION", "1800"))  # 30 min
-    TRAFFIC_CACHE_DURATION = int(os.getenv("REALTIME_CACHE_DURATION", "300"))  # 5 min
-    
-    async def _load_api_config(self):
-        """Load API config from DB, cache for short period"""
-        now = datetime.now()
-        if self._api_config_cache and self._api_config_cache_time:
-            age = (now - self._api_config_cache_time).total_seconds()
-            if age < self._api_config_cache_duration:
-                return self._api_config_cache
-        async with AsyncSessionLocal() as session:
-            result = await session.execute(select(RealtimeAPIConfig).where(RealtimeAPIConfig.status == "active"))
-            configs = result.scalars().all()
-            config_dict = {c.source_name: c for c in configs}
-            self._api_config_cache = config_dict
-            self._api_config_cache_time = now
-            return config_dict
-
-    async def get_api_key(self, source_name):
-        configs = await self._load_api_config()
-        config = configs.get(source_name)
-        return config.api_key if config else None
-
-    async def get_api_url(self, source_name):
-        configs = await self._load_api_config()
-        config = configs.get(source_name)
-        return config.api_url if config else None
 
     def __init__(self):
+        # Define cache directory
+        self.CACHE_DIR = Path("data/cache")
         # Create cache directory
         self.CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        
+
+        # Default coordinates (Jakarta)
+        self.DEFAULT_LAT = -6.200000
+        self.DEFAULT_LON = 106.816666
+
+        # Cache file paths
+        self.WEATHER_CACHE_FILE = self.CACHE_DIR / "weather_cache.json"
+        self.WEATHER_CACHE_DURATION = 600  # seconds (10 minutes)
+        self.TRAFFIC_CACHE_FILE = self.CACHE_DIR / "traffic_cache.json"
+        self.TRAFFIC_CACHE_DURATION = 600  # seconds (10 minutes)
+
         # Indonesia seasons
         self.kemarau_months = [5, 6, 7, 8, 9, 10]  # Mei - Oktober
         self.hujan_months = [11, 12, 1, 2, 3, 4]    # November - April
-        
+
         # Initialize Social Trend Service
         self.trend_service = SocialTrendService()
-        
+
         print(f"🌍 RealTimeContextService initialized (DB-driven API config)")
+
+    async def get_current_context(self, lat: float = None, lon: float = None) -> Dict[str, Any]:
+        """
+        Mengambil context real-time (weather, traffic, social trends, temporal)
+        """
+        lat = lat if lat is not None else self.DEFAULT_LAT
+        lon = lon if lon is not None else self.DEFAULT_LON
+
+        # Get weather
+        weather_data = await self._get_weather(lat, lon)
+        weather = weather_data.get("main", "cerah")
+        weather_desc = weather_data.get("desc", "")
+
+        # Get traffic
+        traffic_data = await self._get_traffic(lat, lon)
+        traffic = traffic_data.get("main", "lancar")
+        traffic_speed = traffic_data.get("speed", 40)
+
+        # Get social trends
+        trending_info = self.trend_service.get_trending_destinations()
+
+        now = datetime.now()
+        season = self._get_season(now.month)
+        is_weekend = now.weekday() >= 5
+        time_period = self._get_time_period(now.hour)
+
+        context = {
+            "weather": weather,
+            "weather_description": weather_desc,
+            "traffic": traffic,
+            "traffic_speed": traffic_speed,
+            "social_trend": trending_info.get("trend", "normal"),
+            "trending_destinations": trending_info.get("trending_destinations", []),
+            "viral_destinations": trending_info.get("viral_destinations", []),
+            "is_weekend": is_weekend,
+            "season": season,
+            "month": now.month,
+            "date": now.date().isoformat(),
+            "hour_of_day": now.hour,
+            "time_period": time_period
+        }
+        return context
 
 
     async def _get_weather(self, lat: float, lon: float) -> Dict[str, Any]:
@@ -461,12 +432,3 @@ class RealTimeContextService:
             'timestamp': datetime.now().isoformat()
         }
 
-# Legacy compatibility
-async def get_weather(lat, lon):
-    """Legacy function"""
-    service = RealTimeContextService()
-    context = await service.get_current_context(lat, lon)
-    return {
-        "main": context["weather"].replace("_", " ").title(),
-        "desc": context["weather_description"]
-    }
