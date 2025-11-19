@@ -44,25 +44,6 @@ class CollaborativeRecommender(BaseRecommender):
         # Auto-load model jika ada
         self._auto_load_model()
 
-    def _auto_load_model(self):
-        try:
-            # debug: check MODEL_DIR based load as fallback
-            model_path = self.MODEL_DIR / self.MODEL_FILE
-            print(f"[DEBUG] Checking model path: {model_path} (exists={model_path.exists()})", flush=True)
-            if not model_path.exists():
-                print("ℹ️ No saved Collaborative model found", flush=True)
-                self.is_trained = False
-                return
-            with open(model_path, "rb") as f:
-                model_data = pickle.load(f)
-            # Try to restore model if format matches
-            # If previous simple pickle stored full model object, attach to self.model
-            self.model = model_data
-            self.is_trained = True
-            print(f"[MODEL LOADED] Collaborative: {model_path}", flush=True)
-        except Exception as e:
-            print(f"[MODEL LOAD ERROR] Collaborative: {getattr(model_path, 'as_posix', lambda: model_path)()} | {e}", flush=True)
-            self.is_trained = False
 
     async def train(self, db: AsyncSession):
         """Train collaborative filtering model - HANDLES DUPLICATES SAFELY"""
