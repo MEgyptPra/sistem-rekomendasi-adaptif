@@ -16,25 +16,34 @@ from app.models.rating import Rating
 class HybridRecommender(BaseRecommender):
     """Hybrid Recommendation System combining Content-Based and Collaborative Filtering"""
     
-    MODEL_DIR = Path("data/models")
+    MODEL_DIR = Path(__file__).resolve().parents[2] / "data" / "models"
     MODEL_FILE = "hybrid_model.pkl"
-    
+
     def __init__(self):
+        import os
         super().__init__()
         self.context_component = ContextAwareComponent()
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
-        
+
         # Weight parameters - align dengan tesis research design
         self.content_weight = 0.6  # Sesuai tesis BAB III.4.5
         self.collaborative_weight = 0.4
-        
+
         self.default_lambda = 0.7  # Default fallback value
         self.similarity_matrix = None
         self.model_info = {}  # Track model metadata
-        
+
+        # Tentukan path model dari env atau default
+        env_path = os.getenv("MODEL_PATH_HYBRID")
+        if env_path:
+            self.model_path = Path(env_path).resolve()
+        else:
+            self.model_path = (Path(__file__).parent.parent / "data" / "models" / self.MODEL_FILE).resolve()
+
         # Auto-load model jika ada
         self._auto_load_model()
+
 
     async def train(self, db: AsyncSession, **kwargs):
         """Train both content-based and collaborative recommenders"""

@@ -17,10 +17,11 @@ from app.models.rating import Rating
 class CollaborativeRecommender(BaseRecommender):
     """Collaborative Filtering menggunakan Matrix Factorization (NMF) - DUPLICATE SAFE VERSION"""
     
-    MODEL_DIR = Path("data/models")
+    MODEL_DIR = Path(__file__).resolve().parents[2] / "data" / "models"
     MODEL_FILE = "collaborative_model.pkl"
-    
+
     def __init__(self):
+        import os
         super().__init__()
         self.nmf_model = NMF(n_components=50, random_state=42, max_iter=500)
         self.user_item_matrix = None
@@ -32,9 +33,36 @@ class CollaborativeRecommender(BaseRecommender):
         self.item_decoder = {}
         self.user_similarities = None
         self.model_info = {}  # Track model metadata
-        
+
+        # Tentukan path model dari env atau default
+        env_path = os.getenv("MODEL_PATH_COLLAB")
+        if env_path:
+            self.model_path = Path(env_path).resolve()
+        else:
+            self.model_path = (Path(__file__).parent.parent / "data" / "models" / self.MODEL_FILE).resolve()
+
         # Auto-load model jika ada
         self._auto_load_model()
+
+    def _auto_load_model(self):
+        try:
+            # debug: check MODEL_DIR based load as fallback
+            model_path = self.MODEL_DIR / self.MODEL_FILE
+            print(f"[DEBUG] Checking model path: {model_path} (exists={model_path.exists()})", flush=True)
+            if not model_path.exists():
+                print("ℹ️ No saved Collaborative model found", flush=True)
+                self.is_trained = False
+                return
+            with open(model_path, "rb") as f:
+                model_data = pickle.load(f)
+            # Try to restore model if format matches
+            # If previous simple pickle stored full model object, attach to self.model
+            self.model = model_data
+            self.is_trained = True
+            print(f"[MODEL LOADED] Collaborative: {model_path}", flush=True)
+        except Exception as e:
+            print(f"[MODEL LOAD ERROR] Collaborative: {getattr(model_path, 'as_posix', lambda: model_path)()} | {e}", flush=True)
+            self.is_trained = False
 
     async def train(self, db: AsyncSession):
         """Train collaborative filtering model - HANDLES DUPLICATES SAFELY"""

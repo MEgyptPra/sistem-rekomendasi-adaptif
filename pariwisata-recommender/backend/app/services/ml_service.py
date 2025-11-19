@@ -20,13 +20,13 @@ class MLService:
     
     def __init__(self):
         print("\n" + "="*60)
-        print("🚀 Initializing ML Service (minimal mode)...")
+        print("🚀 Initializing ML Service...")
         print("="*60)
 
-        # LAZY LOAD: Model hanya di-load jika diperlukan
-        self.content_recommender = None
-        self.collaborative_recommender = None
-        self.hybrid_recommender = None
+        # AUTO LOAD: Inisialisasi langsung model dari class
+        self.content_recommender = ContentBasedRecommender()
+        self.collaborative_recommender = CollaborativeRecommender()
+        self.hybrid_recommender = HybridRecommender()
 
         # Initialize MAB Optimizer dengan contextual capabilities
         self.mab_optimizer = MABOptimizer(
@@ -38,17 +38,18 @@ class MLService:
         # Initialize Context-Aware Component
         self.context_service = ContextAwareComponent()
 
-        # Training status default
+        # Training status default derived from recommender instances
         self._training_status = {
-            'content_based': False,
-            'collaborative': False,
-            'hybrid': False
+            'content_based': getattr(self.content_recommender, 'is_trained', False),
+            'collaborative': getattr(self.collaborative_recommender, 'is_trained', False),
+            'hybrid': getattr(self.hybrid_recommender, 'is_trained', False)
         }
 
+        # Print actual model load status
         print("\n📊 Model Status:")
-        print(f"   Content-Based: {'❌ NOT LOADED'}")
-        print(f"   Collaborative: {'❌ NOT LOADED'}")
-        print(f"   Hybrid:        {'❌ NOT LOADED'}")
+        print(f"   Content-Based: {'✅ LOADED' if self._training_status['content_based'] else '❌ NOT LOADED'}")
+        print(f"   Collaborative: {'✅ LOADED' if self._training_status['collaborative'] else '❌ NOT LOADED'}")
+        print(f"   Hybrid:        {'✅ LOADED' if self._training_status['hybrid'] else '❌ NOT LOADED'}")
         print("="*60 + "\n")
     
     async def train_all_models(self, db: AsyncSession) -> Dict[str, Any]:

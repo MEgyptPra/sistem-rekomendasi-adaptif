@@ -1,8 +1,8 @@
 {
   "condition": "berawan",
-  "description": "halimun",
-  "temperature": 24.5,
-  "humidity": 96,
+  "description": "sedikit berawan",
+  "temperature": 29.9,
+  "humidity": 71,
   "source": "openweathermap_api",
-  "fetched_at": "2025-11-18T15:44:26.793737"
+  "fetched_at": "2025-11-19T03:02:56.461830"
 }

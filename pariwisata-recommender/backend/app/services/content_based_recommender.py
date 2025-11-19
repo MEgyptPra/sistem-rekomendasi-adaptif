@@ -20,10 +20,11 @@ from app.models.category import Category
 class ContentBasedRecommender(BaseRecommender):
     """Content-Based Filtering menggunakan TF-IDF dan kategori destinations"""
     
-    MODEL_DIR = Path("data/models")
+    MODEL_DIR = Path(__file__).resolve().parents[2] / "data" / "models"
     MODEL_FILE = "content_based_model.pkl"
-    
+
     def __init__(self):
+        import os
         super().__init__()
         self.tfidf_vectorizer = TfidfVectorizer(
             max_features=1000,
@@ -34,9 +35,17 @@ class ContentBasedRecommender(BaseRecommender):
         self.destination_features = None
         self.destinations_df = None
         self.similarity_matrix = None
-        
+
+        # Tentukan path model dari env atau default
+        env_path = os.getenv("MODEL_PATH_CONTENT")
+        if env_path:
+            self.model_path = Path(env_path).resolve()
+        else:
+            self.model_path = (Path(__file__).parent.parent / "data" / "models" / self.MODEL_FILE).resolve()
+
         # Auto-load model jika ada
         self._auto_load_model()
+
     
     async def train(self, db: AsyncSession):
         """Train content-based model using destination features"""
@@ -268,9 +277,10 @@ class ContentBasedRecommender(BaseRecommender):
         """Auto-load model dari disk jika ada"""
         try:
             model_path = self.MODEL_DIR / self.MODEL_FILE
+            print(f"[DEBUG] Checking model path: {model_path} (exists={model_path.exists()})", flush=True)
             
             if not model_path.exists():
-                print("ℹ️ No saved Content-Based model found")
+                print("ℹ️ No saved Content-Based model found", flush=True)
                 return
             
             with open(model_path, 'rb') as f:
