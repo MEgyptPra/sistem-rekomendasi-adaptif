@@ -16,7 +16,8 @@ from app.models.rating import Rating
 class HybridRecommender(BaseRecommender):
     """Hybrid Recommendation System combining Content-Based and Collaborative Filtering"""
     
-    MODEL_DIR = Path(__file__).resolve().parents[2] / "data" / "models"
+    # Point to backend/data/models (two levels up from app/services -> backend)
+    MODEL_DIR = Path(__file__).resolve().parents[3] / "data" / "models"
     MODEL_FILE = "hybrid_model.pkl"
 
     def __init__(self):
@@ -34,15 +35,23 @@ class HybridRecommender(BaseRecommender):
         self.similarity_matrix = None
         self.model_info = {}  # Track model metadata
 
-        # Tentukan path model dari env atau default
+        # Tentukan path model dari env atau default (point to backend/data/models)
         env_path = os.getenv("MODEL_PATH_HYBRID")
         if env_path:
             self.model_path = Path(env_path).resolve()
         else:
-            self.model_path = (Path(__file__).parent.parent / "data" / "models" / self.MODEL_FILE).resolve()
+            self.model_path = (Path(__file__).resolve().parents[3] / "data" / "models" / self.MODEL_FILE).resolve()
 
-        # Auto-load model jika ada
-        self._auto_load_model()
+        # NOTE: Do not auto-load model at constructor time to avoid
+        # unbounded memory usage on startup. Use `load_model()` to
+        # load explicitly (admin action or lazy load on first use).
+        self._model_loaded = False
+
+    def load_model(self):
+        """Public method to load model from disk on demand."""
+        if not self._model_loaded:
+            self._auto_load_model()
+            self._model_loaded = True
 
 
     async def train(self, db: AsyncSession, **kwargs):

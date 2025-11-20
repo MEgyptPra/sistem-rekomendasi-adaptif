@@ -23,7 +23,10 @@ class MLService:
         print("🚀 Initializing ML Service...")
         print("="*60)
 
-        # AUTO LOAD: Inisialisasi langsung model dari class
+        # Instantiate recommender classes but do NOT auto-load heavy
+        # model artifacts at startup. Models can be loaded on-demand
+        # via `load_all_models()` or by calling individual
+        # recommender.load_model(). This prevents OOM on startup.
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
         self.hybrid_recommender = HybridRecommender()
@@ -88,6 +91,44 @@ class MLService:
             "training_status": self._training_status,
             "overall_status": "success" if any(self._training_status.values()) else "failed"
         }
+
+        def load_all_models(self) -> Dict[str, Any]:
+            """Load model artifacts for all recommenders on-demand.
+
+            Returns a dictionary with load status for each model.
+            """
+            results = {}
+            # Content-based
+            try:
+                self.content_recommender.load_model()
+                results['content_based'] = {'loaded': self.content_recommender.is_trained}
+                self._training_status['content_based'] = bool(self.content_recommender.is_trained)
+            except Exception as e:
+                results['content_based'] = {'loaded': False, 'error': str(e)}
+                self._training_status['content_based'] = False
+
+            # Collaborative
+            try:
+                self.collaborative_recommender.load_model()
+                results['collaborative'] = {'loaded': self.collaborative_recommender.is_trained}
+                self._training_status['collaborative'] = bool(self.collaborative_recommender.is_trained)
+            except Exception as e:
+                results['collaborative'] = {'loaded': False, 'error': str(e)}
+                self._training_status['collaborative'] = False
+
+            # Hybrid
+            try:
+                self.hybrid_recommender.load_model()
+                results['hybrid'] = {'loaded': self.hybrid_recommender.is_trained}
+                self._training_status['hybrid'] = bool(self.hybrid_recommender.is_trained)
+            except Exception as e:
+                results['hybrid'] = {'loaded': False, 'error': str(e)}
+                self._training_status['hybrid'] = False
+
+            return {
+                'load_results': results,
+                'training_status': self._training_status
+            }
     
     async def get_recommendations(
         self, 

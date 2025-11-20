@@ -4,6 +4,8 @@ import { recommendationsAPI } from '../services/api';
 import { itineraryAPI } from '../services/api';
 import DestinationCard from '../components/destinations/DestinationCard';
 import '../styles/planning.css';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const Planning = () => {
   const [startDate, setStartDate] = useState('');
@@ -199,19 +201,19 @@ const Planning = () => {
             <h2>Tempat Menginap</h2>
             <div className="accommodation-types">
               <div className="accommodation-card">
-                <img src="/assets/images/hotels.jpg" alt="Hotels" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/hotels.jpg" bundledSrc={placeholder} alt="Hotels" />
                 <h3>Hotel & Penginapan</h3>
                 <p>Temukan pilihan akomodasi nyaman di Sumedang</p>
                 <button className="btn secondary">Lihat Hotel</button>
               </div>
               <div className="accommodation-card">
-                <img src="/assets/images/camping.jpg" alt="Camping" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/camping.jpg" bundledSrc={placeholder} alt="Camping" />
                 <h3>Camping & Area Berkemah</h3>
                 <p>Terhubung dengan alam di lokasi camping indah</p>
                 <button className="btn secondary">Cari Lokasi Camping</button>
               </div>
               <div className="accommodation-card">
-                <img src="/assets/images/vacation-rentals.jpg" alt="Vacation Rentals" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/vacation-rentals.jpg" bundledSrc={placeholder} alt="Vacation Rentals" />
                 <h3>Villa & Homestay</h3>
                 <p>Vila, guest house, dan tempat menginap unik</p>
                 <button className="btn secondary">Jelajahi Penginapan</button>
@@ -248,7 +250,7 @@ const Planning = () => {
             <h2>Pusat Informasi Wisata</h2>
             <p>Kunjungi pusat informasi wisata Sumedang untuk mendapatkan wawasan lokal, peta, dan brosur</p>
             <div className="center-map">
-              <img src="/assets/images/visitor-center-map.jpg" alt="Peta Pusat Informasi" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/visitor-center-map.jpg" bundledSrc={placeholder} alt="Peta Pusat Informasi" />
               <p>Peta interaktif akan terintegrasi di sini</p>
             </div>
             <button className="btn secondary">Cari Pusat Informasi</button>

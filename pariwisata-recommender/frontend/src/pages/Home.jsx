@@ -6,6 +6,8 @@ import '../styles/home.css';
 import DestinationCard from '../components/destinations/DestinationCard';
 import ActivityCard from '../components/activities/ActivityCard';
 import SurpriseModal from '../components/SurpriseModal';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -211,7 +213,7 @@ const Home = () => {
               </div>
             </div>
             <div className="where-map">
-              <img src="/assets/images/peta-sumedang-jawa-barat.jpg" alt="Peta Sumedang di Jawa Barat" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/peta-sumedang-jawa-barat.jpg" bundledSrc={placeholder} alt="Peta Sumedang di Jawa Barat" />
             </div>
           </div>
         </div>

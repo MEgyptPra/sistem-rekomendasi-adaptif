@@ -1,5 +1,7 @@
 import React from 'react';
 import '../styles/resources.css';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const Resources = () => {
   return (
@@ -20,7 +22,7 @@ const Resources = () => {
             
             <div className="guides-container">
               <div className="guide-item">
-                <img src="/assets/images/oregon-guide.jpg" alt="Panduan Wisata Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/oregon-guide.jpg" bundledSrc={placeholder} alt="Panduan Wisata Sumedang" />
                 <div className="guide-info">
                   <h3>Panduan Wisata Resmi Sumedang</h3>
                   <p>Panduan lengkap menampilkan atraksi wisata, akomodasi, dan itinerary di Sumedang</p>
@@ -32,7 +34,7 @@ const Resources = () => {
               </div>
               
               <div className="guide-item">
-                <img src="/assets/images/oregon-map.jpg" alt="Peta Wisata Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/oregon-map.jpg" bundledSrc={placeholder} alt="Peta Wisata Sumedang" />
                 <div className="guide-info">
                   <h3>Peta Wisata Sumedang</h3>
                   <p>Peta rinci termasuk rute wisata, area istirahat, dan titik menarik di Sumedang</p>
@@ -44,7 +46,7 @@ const Resources = () => {
               </div>
               
               <div className="guide-item">
-                <img src="/assets/images/biking-guide.jpg" alt="Panduan Kuliner Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/biking-guide.jpg" bundledSrc={placeholder} alt="Panduan Kuliner Sumedang" />
                 <div className="guide-info">
                   <h3>Panduan Kuliner Sumedang</h3>
                   <p>Daftar kuliner khas, restoran, dan tips wisata kuliner di Sumedang</p>
@@ -101,28 +103,28 @@ const Resources = () => {
             
             <div className="resources-grid">
               <div className="resource-card">
-                <img src="/assets/images/accessibility.jpg" alt="Panduan Aksesibilitas" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/accessibility.jpg" bundledSrc={placeholder} alt="Panduan Aksesibilitas" />
                 <h3>Panduan Aksesibilitas</h3>
                 <p>Informasi tentang atraksi, jalur, dan akomodasi yang mudah diakses</p>
                 <button className="btn secondary">Pelajari Lebih Lanjut</button>
               </div>
               
               <div className="resource-card">
-                <img src="/assets/images/responsible-travel.jpg" alt="Wisata Bertanggung Jawab" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/responsible-travel.jpg" bundledSrc={placeholder} alt="Wisata Bertanggung Jawab" />
                 <h3>Wisata Bertanggung Jawab</h3>
                 <p>Tips meminimalkan dampak lingkungan saat menjelajahi Sumedang</p>
                 <button className="btn secondary">Pelajari Lebih Lanjut</button>
               </div>
               
               <div className="resource-card">
-                <img src="/assets/images/travel-tips.jpg" alt="Tips Wisata Musiman" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/travel-tips.jpg" bundledSrc={placeholder} alt="Tips Wisata Musiman" />
                 <h3>Tips Wisata Musiman</h3>
                 <p>Apa yang diharapkan dan cara mempersiapkan setiap musim di Sumedang</p>
                 <button className="btn secondary">Pelajari Lebih Lanjut</button>
               </div>
               
               <div className="resource-card">
-                <img src="/assets/images/travel-faqs.jpg" alt="FAQ Wisata" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                <SmartImage publicSrc="/assets/images/travel-faqs.jpg" bundledSrc={placeholder} alt="FAQ Wisata" />
                 <h3>FAQ Wisata</h3>
                 <p>Jawaban untuk pertanyaan umum tentang berwisata di Sumedang</p>
                 <button className="btn secondary">Pelajari Lebih Lanjut</button>

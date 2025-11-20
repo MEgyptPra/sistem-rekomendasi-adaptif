@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/footer.css';
+import SmartImage from './SmartImage';
+import bundledLogo from '../../assets/favicon.svg';
+import placeholder from '../../assets/placeholder.svg';
 
 const Footer = () => {
   return (
@@ -9,7 +12,13 @@ const Footer = () => {
         <div className="footer-content">
           <div className="footer-logo">
             <Link to="/">
-              <img src="/assets/logo-white.png" alt="Logo Wisata Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage
+                publicSrc="/assets/logo-white.png"
+                bundledSrc={bundledLogo}
+                placeholder={placeholder}
+                alt="Logo Wisata Sumedang"
+                style={{ width: 120 }}
+              />
             </Link>
             <p>Jelajahi Keindahan Sumedang</p>
           </div>

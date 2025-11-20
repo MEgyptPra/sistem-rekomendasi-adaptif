@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { activitiesAPI, relatedAPI, interactionsAPI, favoritesAPI } from '../services/api';
 import '../styles/activity-detail.css';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const ActivityDetail = () => {
   const { id } = useParams();
@@ -330,7 +332,7 @@ const ActivityDetail = () => {
               <div className="photo-gallery">
                 {activity.gallery.map((photo, index) => (
                   <div key={index} className="gallery-item">
-                    <img src={photo} alt={`Gallery ${index + 1}`} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                    <SmartImage publicSrc={photo} placeholder={placeholder} alt={`Gallery ${index + 1}`} />
                   </div>
                 ))}
               </div>
@@ -410,7 +412,7 @@ const ActivityDetail = () => {
                 {activity.reviews.map((review, index) => (
                   <div key={index} className="review-card">
                     <div className="review-header">
-                      <img src={review.avatar} alt={review.name} className="avatar" />
+                      <SmartImage publicSrc={review.avatar} placeholder={placeholder} alt={review.name} className="avatar" />
                       <div className="review-info">
                         <h4>{review.name}</h4>
                         <div className="review-meta">
@@ -435,7 +437,7 @@ const ActivityDetail = () => {
               <div className="related-grid">
                 {activity.relatedActivities.map((related) => (
                   <Link key={related.id} to={`/activities/${related.id}`} className="related-card">
-                    <img src={related.image} alt={related.name} />
+                    <SmartImage publicSrc={related.image} placeholder={placeholder} alt={related.name} />
                     <div className="related-info">
                       <h3>{related.name}</h3>
                       <span className="category-badge">{related.category}</span>

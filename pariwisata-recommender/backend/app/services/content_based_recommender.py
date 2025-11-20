@@ -43,8 +43,16 @@ class ContentBasedRecommender(BaseRecommender):
         else:
             self.model_path = (Path(__file__).parent.parent / "data" / "models" / self.MODEL_FILE).resolve()
 
-        # Auto-load model jika ada
-        self._auto_load_model()
+        # NOTE: Do not auto-load model at constructor time to avoid
+        # unbounded memory usage on startup. Use `load_model()` to
+        # load explicitly (admin action or lazy load on first use).
+        self._model_loaded = False
+
+    def load_model(self):
+        """Public method to load model from disk on demand."""
+        if not self._model_loaded:
+            self._auto_load_model()
+            self._model_loaded = True
 
     
     async def train(self, db: AsyncSession):

@@ -22,12 +22,26 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://user:rekompari@db:5432/pariwisata
       PYTHONPATH: /app
+      # ADMIN_LOAD_TOKEN should be provided via environment or .env for protecting model load endpoints
+      ADMIN_LOAD_TOKEN: ${ADMIN_LOAD_TOKEN:-}
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  # Lightweight loader service for large collaborative model.
+  # Recommended usage: run this as a one-off with `docker-compose run --rm --service-ports collab-loader`
+  # For strict memory limits, consider using `docker run --memory` with the built image instead.
+  collab-loader:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONPATH=/app
+      - ADMIN_LOAD_TOKEN=${ADMIN_LOAD_TOKEN:-}
+    command: ["python", "/app/scripts/load_collab_worker.py", "/app/data/models/collaborative_model.pkl"]
 
   admin-dashboard:
       build:

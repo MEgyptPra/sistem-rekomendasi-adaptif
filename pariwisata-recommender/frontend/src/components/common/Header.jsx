@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/header.css';
+import logo from '../../assets/favicon.svg';
+import SmartImage from './SmartImage';
+import placeholder from '../../assets/placeholder.svg';
+// External/public image (optional) that may be replaced at runtime.
+const PUBLIC_HEADER_IMAGE = '/assets/favicon.png?v=2';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,16 +20,59 @@ const Header = () => {
     navigate('/');
   };
 
+  const [imgSrc, setImgSrc] = useState(logo);
+
+  // Behavior:
+  // - By default use the local imported `logo` (stable, bundled by Vite).
+  // - If the user performs a full browser refresh (navigation type 'reload'),
+  //   attempt to fetch the public header image once (no-cache). If successful,
+  //   use it and remember in sessionStorage that it exists; otherwise fall back
+  //   to the bundled `logo` or public placeholder.
+  // - Do NOT attempt automatic re-fetches on HMR or runtime updates.
+
+  useEffect(() => {
+    try {
+      const navEntries = (performance.getEntriesByType && performance.getEntriesByType('navigation')) || [];
+      const navType = (navEntries[0] && navEntries[0].type) || (performance.navigation && performance.navigation.type === 1 ? 'reload' : 'navigate');
+
+      const cached = sessionStorage.getItem('headerImageExists');
+
+      // Only try to fetch the public image when this load was a real browser reload
+      // or if we have a cached positive flag.
+      if (navType === 'reload') {
+        // Attempt a single fetch with no-cache to verify existence
+        fetch(PUBLIC_HEADER_IMAGE, { method: 'GET', cache: 'no-store' })
+          .then(resp => {
+            if (resp.ok) {
+              sessionStorage.setItem('headerImageExists', 'true');
+              setImgSrc(PUBLIC_HEADER_IMAGE);
+            } else {
+              sessionStorage.setItem('headerImageExists', 'false');
+              setImgSrc(logo);
+            }
+          })
+          .catch(() => {
+            sessionStorage.setItem('headerImageExists', 'false');
+            setImgSrc(logo);
+          });
+      } else if (cached === 'true') {
+        // If earlier we found the public image exists, use it — but do not re-fetch.
+        setImgSrc(PUBLIC_HEADER_IMAGE);
+      } else {
+        // Default: use bundled logo to avoid network fetches during HMR/dev.
+        setImgSrc(logo);
+      }
+    } catch (e) {
+      setImgSrc(logo);
+    }
+  }, []);
+
   return (
     <header className="site-header">
       <div className="container">
         <div className="logo">
           <Link to="/">
-            <img 
-              src="/assets/favicon.png" 
-              alt="Hayu Ka Sumedang" 
-              onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}}
-            />
+            <SmartImage publicSrc={imgSrc && imgSrc.startsWith('/assets') ? imgSrc : undefined} bundledSrc={logo} placeholder={placeholder} alt="Hayu Ka Sumedang" />
           </Link>
         </div>
         

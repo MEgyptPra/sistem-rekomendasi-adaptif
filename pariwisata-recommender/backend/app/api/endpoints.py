@@ -10,6 +10,10 @@ from app.models.destinations import Destination
 from app.models.category import Category
 from app.models.rating import Rating
 from app.services.ml_service import ml_service
+import os
+import sys
+import subprocess
+from fastapi import Header
 
 router = APIRouter()
 
@@ -23,6 +27,44 @@ async def train_ml_models(db: AsyncSession = Depends(get_db)):
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Training failed: {str(e)}")
+
+
+@router.post("/ml/load")
+def load_ml_models(
+    model: Optional[Literal['content_based', 'collaborative', 'hybrid', 'all']] = Query('all', description="Which model to load (or 'all')"),
+    x_admin_token: str = Header(None)
+):
+    """Load model artifacts on-demand. Protected by `ADMIN_LOAD_TOKEN`.
+
+    model: choose one of 'content_based', 'collaborative', 'hybrid', or 'all'.
+    Provide admin token via header `X-ADMIN-TOKEN`.
+    """
+    admin_token = os.getenv('ADMIN_LOAD_TOKEN')
+    if not admin_token:
+        raise HTTPException(status_code=500, detail="ADMIN_LOAD_TOKEN not configured on server")
+    if x_admin_token != admin_token:
+        raise HTTPException(status_code=401, detail="Invalid admin token")
+
+    try:
+        if model == 'all':
+            result = ml_service.load_all_models()
+            return result
+
+        if model == 'content_based':
+            ml_service.content_recommender.load_model()
+            return {"content_based": {"loaded": ml_service.content_recommender.is_trained}}
+
+        if model == 'collaborative':
+            ml_service.collaborative_recommender.load_model()
+            return {"collaborative": {"loaded": ml_service.collaborative_recommender.is_trained}}
+
+        if model == 'hybrid':
+            ml_service.hybrid_recommender.load_model()
+            return {"hybrid": {"loaded": ml_service.hybrid_recommender.is_trained}}
+
+        raise HTTPException(status_code=400, detail="Unknown model specified")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Model load failed: {str(e)}")
 
 @router.get("/ml/status")
 async def get_ml_status():
@@ -329,6 +371,41 @@ async def reset_mab():
         return ml_service.reset_mab()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"MAB reset failed: {str(e)}")
+
+
+
+@router.post('/ml/load/collaborative-worker')
+def trigger_collaborative_worker(x_admin_token: str = Header(None)):
+    """Trigger a separate worker process to load the collaborative model.
+
+    Protected by `ADMIN_LOAD_TOKEN` environment variable. The endpoint will
+    spawn a detached child Python process that runs
+    `/app/scripts/load_collab_worker.py` and return the child PID.
+    """
+    admin_token = os.getenv('ADMIN_LOAD_TOKEN')
+    if not admin_token:
+        raise HTTPException(status_code=500, detail="ADMIN_LOAD_TOKEN not configured on server")
+    if x_admin_token != admin_token:
+        raise HTTPException(status_code=401, detail="Invalid admin token")
+
+    model_path = os.getenv('COLLAB_MODEL_PATH', '/app/data/models/collaborative_model.pkl')
+
+    # Build command using same Python interpreter
+    python_exec = sys.executable or 'python'
+    cmd = [python_exec, '/app/scripts/load_collab_worker.py', model_path]
+
+    try:
+        # Start detached process
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to start worker: {str(e)}")
+
+    return {
+        'status': 'started',
+        'pid': p.pid,
+        'cmd': cmd,
+        'note': 'Worker runs in separate process; check backend logs for output or inspect process by PID.'
+    }
 
 # ============== ANALYTICS ENDPOINTS ==============
 

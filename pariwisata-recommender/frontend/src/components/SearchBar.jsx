@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { searchAPI } from '../services/api';
 import '../styles/searchbar.css';
+import SmartImage from './common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const SearchBar = ({ onClose }) => {
   const [query, setQuery] = useState('');
@@ -90,7 +92,7 @@ const SearchBar = ({ onClose }) => {
                       onClick={() => handleResultClick('destinations', destination.id)}
                     >
                       <div className="result-image">
-                        <img src={destination.image || '/assets/placeholder.webp'} alt={destination.name} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                        <SmartImage publicSrc={destination.image} bundledSrc={placeholder} alt={destination.name} style={{ width: 72, height: 48, objectFit: 'cover' }} />
                       </div>
                       <div className="result-info">
                         <h5>{destination.name}</h5>
@@ -112,7 +114,7 @@ const SearchBar = ({ onClose }) => {
                       onClick={() => handleResultClick('activities', activity.id)}
                     >
                       <div className="result-image">
-                        <img src={activity.image || '/assets/placeholder.webp'} alt={activity.name} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                        <SmartImage publicSrc={activity.image} bundledSrc={placeholder} alt={activity.name} style={{ width: 72, height: 48, objectFit: 'cover' }} />
                       </div>
                       <div className="result-info">
                         <h5>{activity.name}</h5>

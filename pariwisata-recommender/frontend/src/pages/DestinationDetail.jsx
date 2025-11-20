@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { destinationsAPI, relatedAPI, interactionsAPI, favoritesAPI } from '../services/api';
 import '../styles/destination-detail.css';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const DestinationDetail = () => {
   const { id } = useParams();
@@ -385,7 +387,7 @@ const DestinationDetail = () => {
             <div className="photo-gallery">
               {destination.gallery.map((photo, index) => (
                 <div key={index} className="gallery-item">
-                  <img src={photo} alt={`${destination.name} ${index + 1}`} onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                  <SmartImage publicSrc={photo} placeholder={placeholder} alt={`${destination.name} ${index + 1}`} />
                 </div>
               ))}
             </div>
@@ -488,7 +490,7 @@ const DestinationDetail = () => {
               <div className="related-grid">
                 {relatedDestinations.map((related) => (
                   <Link key={related.id} to={`/destinations/${related.id}`} className="related-card">
-                    <img src={related.image || '/assets/images/placeholder.jpg'} alt={related.name} />
+                    <SmartImage publicSrc={related.image} placeholder={placeholder} alt={related.name} />
                     <div className="related-info">
                       <h3>{related.name}</h3>
                       <div className="related-meta">

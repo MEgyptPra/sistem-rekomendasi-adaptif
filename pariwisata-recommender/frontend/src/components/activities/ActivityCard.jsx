@@ -1,20 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/cards.css';
+import SmartImage from '../common/SmartImage';
+import placeholder from '../../assets/placeholder.svg';
 
 const ActivityCard = ({ activity }) => {
-  const handleImgError = (e) => {
-    e.target.onerror = null;
-    e.target.src = '/assets/placeholder.webp';
-  };
   return (
     <div className="card activity-card">
       <div className="card-image">
-        <img
-          src={activity.image}
-          alt={activity.name}
-          onError={handleImgError}
-        />
+        <SmartImage publicSrc={activity.image} bundledSrc={placeholder} alt={activity.name} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
         {activity.category && (
           <div className="card-badge">{activity.category}</div>
         )}

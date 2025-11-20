@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { activitiesAPI } from '../services/api';
 import '../styles/activities.css';
 import ActivityCard from '../components/activities/ActivityCard';
+import SmartImage from '../components/common/SmartImage';
+import placeholder from '../assets/placeholder.svg';
 
 const Activities = () => {
   const [allActivities, setAllActivities] = useState([]);
@@ -88,7 +90,7 @@ const Activities = () => {
                   <button className="btn primary">Jelajahi Petualangan Outdoor</button>
                 </div>
                 <div className="featured-image">
-                  <img src="/assets/images/outdoor-adventure.jpg" alt="Petualangan outdoor Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+                  <SmartImage publicSrc="/assets/images/outdoor-adventure.jpg" placeholder={placeholder} alt="Petualangan outdoor Sumedang" />
                 </div>
               </div>
 
@@ -115,24 +117,24 @@ const Activities = () => {
       <section className="seasonal-activities">
         <div className="container">
           <h2>Aktivitas Musiman</h2>
-          <div className="seasons-container">
+            <div className="seasons-container">
             <div className="season-card">
-              <img src="/assets/images/spring.jpg" alt="Musim Hujan di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/spring.jpg" placeholder={placeholder} alt="Musim Hujan di Sumedang" />
               <h3>Musim Hujan</h3>
               <p>Air terjun penuh, pemandangan hijau, dan udara sejuk pegunungan</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/summer.jpg" alt="Musim Kemarau di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/summer.jpg" placeholder={placeholder} alt="Musim Kemarau di Sumedang" />
               <h3>Musim Kemarau</h3>
               <p>Wisata alam, hiking, dan festival budaya lokal</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/fall.jpg" alt="Musim Panen di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/fall.jpg" placeholder={placeholder} alt="Musim Panen di Sumedang" />
               <h3>Musim Panen</h3>
               <p>Festival panen, wisata agro, dan kuliner khas Sumedang</p>
             </div>
             <div className="season-card">
-              <img src="/assets/images/winter.jpg" alt="Akhir Tahun di Sumedang" onError={e => {e.target.onerror=null;e.target.src='/assets/placeholder.webp';}} />
+              <SmartImage publicSrc="/assets/images/winter.jpg" placeholder={placeholder} alt="Akhir Tahun di Sumedang" />
               <h3>Akhir Tahun</h3>
               <p>Liburan keluarga, wisata religi, dan perayaan tahun baru</p>
             </div>
