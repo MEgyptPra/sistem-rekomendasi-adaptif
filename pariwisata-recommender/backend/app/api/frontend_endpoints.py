@@ -590,131 +590,132 @@ async def get_personalized_recommendations(
         from app.services.ml_service import ml_service
         
         # AUTO MODE: Choose best available algorithm based on user status
+        # Logged-in users should receive hybrid/context/MAB/MMR with personalization
+        # Anonymous users should receive hybrid/context/MAB/MMR (no incremental personalization)
         if algorithm == "auto":
+            model_status = ml_service.get_models_status()
             if user_id is not None:
-                # Logged-in user: Try hybrid if trained, fallback to incremental
-                model_status = ml_service.get_models_status()
+                # Logged-in user: prefer hybrid if trained; otherwise fall back to popular
                 if model_status.get('training_status', {}).get('hybrid'):
-                    algorithm = "hybrid"  # Use research model if available
-                    print(f"🎯 AUTO (logged-in): Using Hybrid MAB")
+                    algorithm = "hybrid"
+                    print(f"🎯 AUTO (logged-in): Using Hybrid MAB + personalization")
+                elif model_status.get('training_status', {}).get('content_based'):
+                    algorithm = "context_only"
+                    print(f"ℹ️ AUTO (logged-in): Hybrid unavailable, using Context-Only (limited personalization)")
                 else:
-                    algorithm = "incremental"  # Fallback to incremental
-                    print(f"⚡ AUTO (logged-in): Using Incremental Learning")
+                    algorithm = "popular_fallback"
+                    print(f"⚠️ AUTO (logged-in): ML unavailable, using Popular fallback")
             else:
-                # Anonymous user: Use context-only if available, fallback to incremental
-                model_status = ml_service.get_models_status()
+                # Anonymous user: prefer context-only (ML-driven) or hybrid without personalization
                 if model_status.get('training_status', {}).get('content_based'):
-                    algorithm = "context_only"  # Context-aware for anonymous
-                    print(f"🌍 AUTO (anonymous): Using Context-Only recommendations")
+                    algorithm = "context_only"
+                    print(f"🌍 AUTO (anonymous): Using Context-Only (ML-driven)")
+                elif model_status.get('training_status', {}).get('hybrid'):
+                    algorithm = "hybrid"
+                    print(f"🌍 AUTO (anonymous): Using Hybrid (no personalization)")
                 else:
-                    algorithm = "incremental"  # Fallback to incremental
-                    print(f"⚡ AUTO (anonymous): Using Incremental Learning")
-        
-        # STRATEGY 1: INCREMENTAL LEARNING (from new implementation)
-        # Fast, real-time, no training needed
+                    algorithm = "popular_fallback"
+                    print(f"⚠️ AUTO (anonymous): ML unavailable, using Popular fallback")
+
+        # STRATEGY 1: INCREMENTAL LEARNING
+        # Only used explicitly when requested (e.g., for debugging or explicit incremental mode).
+        # Incremental learning updates occur via interaction endpoints; we avoid applying
+        # incremental boosts automatically in the main recommendation flow to keep ML results
+        # (hybrid/context/MAB/MMR) authoritative.
         if algorithm == "incremental":
             trending = await incremental_learner.get_trending_destinations(
-                limit=limit * 2,
-                time_window_hours=24,
+                limit=limit * 5,
+                time_window_hours=168,
                 db=db
             )
-            
-            if user_id and trending:
-                # Apply simple personalization boost
-                for item in trending:
-                    boost = await incremental_learner.get_personalized_boost(
-                        user_id=user_id,
-                        destination_id=item['destination_id'],
-                        db=db
-                    )
-                    item['popularity_score'] += boost
-                
-                # Re-sort after personalization
-                trending.sort(key=lambda x: x['popularity_score'], reverse=True)
-            
             algorithm_used = "incremental_learning"
-            
-        # STRATEGY 2: CONTEXT-ONLY (for anonymous users)
-        # Context-aware recommendations without user personalization
-        elif algorithm == "context_only" and user_id is None:
+
+        # STRATEGY 2: CONTEXT-ONLY (ML-driven recommendations)
+        elif algorithm == "context_only":
             try:
-                # Use ML service context-only mode
                 ml_result = await ml_service.get_recommendations(
                     user_id=None,
                     algorithm="context_only",
                     num_recommendations=limit,
                     db=db
                 )
-                
-                # Extract recommendations from tuple
                 ml_recommendations = ml_result[0]
-                
-                # Apply incremental boost on top
-                trending = await incremental_learner.get_recommendations_with_incremental_boost(
-                    user_id=None,  # No user for anonymous
-                    base_recommendations=ml_recommendations,
-                    db=db
-                )
-                
-                algorithm_used = "context_only_with_incremental"
-                print(f"🌍 Using Context-Only + Incremental boost")
-                
+                trending = ml_recommendations
+                algorithm_used = "context_only"
+                print(f"🌍 Using Context-Only (ML-driven)")
             except Exception as e:
-                print(f"⚠️ Context-only failed, falling back to incremental: {e}")
-                # Fallback to incremental
-                trending = await incremental_learner.get_trending_destinations(
-                    limit=limit * 2,
-                    time_window_hours=24,
-                    db=db
-                )
-                algorithm_used = "incremental_fallback"
-        
-        # STRATEGY 3: HYBRID MAB (from notebook research)
-        # Accurate, uses trained ML model
+                print(f"⚠️ Context-only failed, falling back to popular: {e}")
+                trending = []
+                algorithm_used = "popular_fallback"
+
+        # STRATEGY 3: HYBRID MAB (research ML)
         elif algorithm in ["hybrid", "mab"] and user_id is not None:
             try:
-                # Use ML service from research (ml_service.py)
                 ml_result = await ml_service.get_recommendations(
                     user_id=user_id,
-                    algorithm="hybrid",  # From notebook: CB + CF + MAB
+                    algorithm="hybrid",
                     num_recommendations=limit,
                     db=db
                 )
-                
-                # Extract recommendations from tuple (recommendations, arm_index, context)
                 ml_recommendations = ml_result[0]
-                
-                # Apply incremental boost on top of ML recommendations
-                trending = await incremental_learner.get_recommendations_with_incremental_boost(
-                    user_id=user_id,
-                    base_recommendations=ml_recommendations,
-                    db=db
-                )
-                
-                algorithm_used = "hybrid_mab_with_incremental"
-                print(f"✅ Using Hybrid MAB + Incremental boost")
-                
+                trending = ml_recommendations
+                algorithm_used = "hybrid_mab"
+                print(f"✅ Using Hybrid MAB (personalized)")
             except Exception as e:
-                print(f"⚠️ ML model failed, falling back to incremental: {e}")
-                # Fallback to incremental
-                trending = await incremental_learner.get_trending_destinations(
-                    limit=limit * 2,
-                    time_window_hours=24,
-                    db=db
-                )
-                algorithm_used = "incremental_fallback"
-        
+                print(f"⚠️ ML model failed, falling back to popular: {e}")
+                trending = []
+                algorithm_used = "popular_fallback"
+
         else:
-            # Default: Use incremental for any other case
-            trending = await incremental_learner.get_trending_destinations(
-                limit=limit * 2,
-                time_window_hours=24,
-                db=db
-            )
-            algorithm_used = "incremental_default"
+            # Default: use popular fallback
+            trending = []
+            algorithm_used = "popular_fallback"
         
-        # Fallback: If no trending data yet, use popular destinations
-        if not trending:
+        # If trending is empty or smaller than requested, fetch popular destinations
+        if not trending or len(trending) < limit:
+            # Collect popular destinations to fill remaining slots
+            query = select(
+                Destination.id,
+                Destination.name,
+                Destination.description,
+                Destination.address,
+                func.avg(DestinationReview.rating).label('avg_rating'),
+                func.count(DestinationReview.id).label('review_count')
+            ).outerjoin(DestinationReview).group_by(
+                Destination.id,
+                Destination.name,
+                Destination.description,
+                Destination.address
+            ).order_by(
+                desc('avg_rating'),
+                desc('review_count')
+            ).limit(max(limit, 50))
+            
+            result = await db.execute(query)
+            destinations_data = result.all()
+
+            # Convert to trending format
+            popular_list = [
+                {
+                    'destination_id': d.id,
+                    'popularity_score': float(d.avg_rating or 0) * (d.review_count or 0),
+                    'avg_rating': float(d.avg_rating or 0),
+                    'interaction_count': d.review_count or 0
+                }
+                for d in destinations_data
+            ]
+
+            # Merge trending with popular_list while avoiding duplicates and preserving order
+            existing_ids = set([int(x['destination_id']) for x in (trending or [])])
+            merged = list(trending or [])
+            for p in popular_list:
+                if int(p['destination_id']) not in existing_ids:
+                    merged.append(p)
+                    existing_ids.add(int(p['destination_id']))
+                if len(merged) >= limit:
+                    break
+
+            trending = merged
             query = select(
                 Destination.id,
                 Destination.name,
@@ -746,7 +747,7 @@ async def get_personalized_recommendations(
                 for d in destinations_data
             ]
         
-        # Get full destination details
+        # Get full destination details (use first `limit` items from merged trending/popular)
         recommendations = []
         for item in trending[:limit]:
             dest_query = select(Destination).where(

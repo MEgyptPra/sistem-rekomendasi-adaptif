@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import defaultPlaceholder from '../../assets/placeholder.webp';
 
 /**
  * SmartImage
@@ -17,7 +18,9 @@ import React, { useState, useEffect } from 'react';
  */
 
 const SmartImage = ({ publicSrc, bundledSrc, placeholder, alt, ...imgProps }) => {
-  const [src, setSrc] = useState(bundledSrc || publicSrc || placeholder || '');
+  // Use an explicit default bundled fallback so callers don't need to pass placeholder everywhere
+  const bundled = bundledSrc || placeholder || defaultPlaceholder;
+  const [src, setSrc] = useState(bundled || publicSrc || '');
 
   useEffect(() => {
     if (!publicSrc) return; // nothing to check
@@ -37,7 +40,7 @@ const SmartImage = ({ publicSrc, bundledSrc, placeholder, alt, ...imgProps }) =>
               setSrc(publicSrc);
             } else {
               sessionStorage.setItem(key, 'false');
-              setSrc(bundledSrc || placeholder || '');
+              setSrc(bundled || publicSrc ? (bundled) : '');
             }
           })
           .catch(() => {
@@ -47,10 +50,10 @@ const SmartImage = ({ publicSrc, bundledSrc, placeholder, alt, ...imgProps }) =>
       } else if (cached === 'true') {
         setSrc(publicSrc);
       } else {
-        setSrc(bundledSrc || placeholder || '');
+        setSrc(bundled || '');
       }
     } catch (e) {
-      setSrc(bundledSrc || placeholder || '');
+      setSrc(bundled || '');
     }
   }, [publicSrc, bundledSrc, placeholder]);
 
@@ -58,7 +61,7 @@ const SmartImage = ({ publicSrc, bundledSrc, placeholder, alt, ...imgProps }) =>
     try {
       if (publicSrc) sessionStorage.setItem(`smartimg:${publicSrc}`, 'false');
     } catch (_) {}
-    if (placeholder) e.target.src = placeholder;
+    e.target.src = placeholder || bundled || defaultPlaceholder;
   };
 
   return <img src={src} alt={alt} onError={handleError} {...imgProps} />;
