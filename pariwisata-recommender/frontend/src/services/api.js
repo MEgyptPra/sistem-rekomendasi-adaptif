@@ -90,6 +90,8 @@ export const itinerariesAPI = {
   create: (data) => api.post('/itineraries', data),
   update: (id, data) => api.put(`/itineraries/${id}`, data),
   delete: (id) => api.delete(`/itineraries/${id}`),
+  // Alias untuk backward compatibility
+  list: () => api.get('/itineraries'),
 };
 
 // Alias untuk backward compatibility
@@ -115,6 +117,11 @@ export const ratingsAPI = {
     api.post(`/ratings`, { user_id: userId, destination_id: destinationId, rating }),
   update: (ratingId, rating) => 
     api.put(`/ratings/${ratingId}`, { rating }),
+};
+
+// [BARU] Categories API - Mengambil daftar kategori dinamis
+export const categoriesAPI = {
+  getAll: () => api.get('/categories'),
 };
 
 export default api;

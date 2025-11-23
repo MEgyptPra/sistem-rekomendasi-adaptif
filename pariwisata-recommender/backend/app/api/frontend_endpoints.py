@@ -739,7 +739,9 @@ async def get_personalized_recommendations(
                 "rating": round(float(item.get('avg_rating', 0) if item.get('avg_rating') else 0), 1),
                 "reviewCount": item.get('interaction_count', 0),
                 "algorithm": algo_info,
-                "explanation": explanation
+                "explanation": explanation,
+                "latitude": dest.lat, 
+                "longitude": dest.lon
             })
         
         # Build Context Info for Frontend Debugging

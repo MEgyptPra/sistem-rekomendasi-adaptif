@@ -15,58 +15,99 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
   const [duration, setDuration] = useState(3); // Default 3 hari
   const [notes, setNotes] = useState('Trip otomatis dari rekomendasi Kejutkan Saya');
 
-  const handleCreateItinerary = async () => {
-      const downloadItineraryAsPDF = () => {
-        // Simple PDF generator
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text(tripName, 10, 20);
-        doc.setFontSize(12);
-        doc.text(`Tanggal: ${startDate} - ${duration} hari`, 10, 30);
-        doc.text(`Catatan: ${notes}`, 10, 40);
-        let y = 50;
-        for (let i = 0; i < duration; i++) {
-          doc.text(`Hari ${i + 1}:`, 10, y);
-          y += 8;
-          const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
-          const dayStart = i * destinationsPerDay;
-          const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
-          const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
-          dayDestinations.forEach((dest, idx) => {
+  // =====================================================================
+  // FUNGSI 1: DOWNLOAD PDF (Untuk User Tanpa Login)
+  // Posisi: Sejajar dengan handleCreateItinerary (Scope Komponen Utama)
+  // =====================================================================
+  const downloadItineraryAsPDF = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Judul
+      doc.setFontSize(16);
+      doc.text(tripName, 10, 20);
+      
+      // Info Dasar
+      doc.setFontSize(12);
+      doc.text(`Tanggal: ${startDate} - ${duration} hari`, 10, 30);
+      doc.text(`Catatan: ${notes}`, 10, 40);
+      
+      let y = 50;
+      
+      // Loop per Hari
+      for (let i = 0; i < duration; i++) {
+        // Cek halaman baru jika y terlalu bawah (batas A4 ~290mm)
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+
+        // Header Hari
+        doc.setFont(undefined, 'bold');
+        doc.text(`Hari ${i + 1}:`, 10, y);
+        doc.setFont(undefined, 'normal');
+        y += 8;
+        
+        // Ambil destinasi untuk hari ini
+        const recList = Array.isArray(recommendations) ? recommendations : [];
+        const destinationsPerDay = Math.ceil(recList.length / duration);
+        const dayStart = i * destinationsPerDay;
+        const dayEnd = Math.min((i + 1) * destinationsPerDay, recList.length);
+        const dayDestinations = recList.slice(dayStart, dayEnd);
+        
+        // Tulis Destinasi
+        if (dayDestinations.length === 0) {
+          doc.text(`- (Bebas / Istirahat)`, 15, y);
+          y += 7;
+        } else {
+          dayDestinations.forEach((dest) => {
             doc.text(`- ${dest.name}`, 15, y);
             y += 7;
           });
-          y += 4;
         }
-        doc.save(`${tripName.replace(/\s+/g, '_')}.pdf`);
-      };
+        y += 4; // Spasi antar hari
+      }
+      
+      // Simpan File
+      doc.save(`${tripName.replace(/\s+/g, '_')}.pdf`);
+      
+    } catch (err) {
+      console.error("Gagal download PDF:", err);
+      setError("Gagal membuat file PDF. Pastikan library jsPDF terinstall.");
+    }
+  };
+
+  // =====================================================================
+  // FUNGSI 2: CREATE ITINERARY API (Untuk User Login)
+  // Posisi: Sejajar dengan downloadItineraryAsPDF
+  // =====================================================================
+  const handleCreateItinerary = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Check authentication
+      // Cek token login
       const token = localStorage.getItem('access_token');
       if (!token) {
-        setError('Anda harus login terlebih dahulu untuk membuat itinerary.');
+        setError('Anda harus login terlebih dahulu untuk menyimpan ke database.');
         setLoading(false);
         return;
       }
 
-      console.log('Auth token found:', token ? 'Yes' : 'No');
-      
-      // Calculate end date
+      // Hitung tanggal akhir
       const start = new Date(startDate);
       const end = new Date(start);
       end.setDate(end.getDate() + duration - 1);
 
-      // Distribute destinations across days
-      const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
+      // Distribusi destinasi ke hari-hari (sama logikanya dengan PDF)
+      const recList = Array.isArray(recommendations) ? recommendations : [];
+      const destinationsPerDay = Math.ceil(recList.length / duration);
       const days = [];
       
       for (let i = 0; i < duration; i++) {
         const dayStart = i * destinationsPerDay;
-        const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
-        const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
+        const dayEnd = Math.min((i + 1) * destinationsPerDay, recList.length);
+        const dayDestinations = recList.slice(dayStart, dayEnd);
         
         const currentDate = new Date(start);
         currentDate.setDate(currentDate.getDate() + i);
@@ -88,7 +129,7 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
         });
       }
 
-      // Create itinerary payload (matching backend schema)
+      // Payload untuk API
       const itineraryData = {
         title: tripName,
         description: `Itinerary dibuat dari rekomendasi hybrid sistem. ${notes}`,
@@ -97,45 +138,27 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
         days: days
       };
 
-      console.log('Creating itinerary with payload:', JSON.stringify(itineraryData, null, 2));
-
-      // Call API
-      const response = await itineraryAPI.create(itineraryData);
+      // Kirim ke Backend
+      await itineraryAPI.create(itineraryData);
       
-      console.log('Itinerary created successfully:', response.data);
-
-      // Success! Navigate to planning page to see itineraries
+      // Sukses
       onClose();
       navigate('/planning');
       
     } catch (err) {
       console.error('Error creating itinerary:', err);
-      console.error('Error response status:', err.response?.status);
-      console.error('Error response data:', JSON.stringify(err.response?.data, null, 2));
-      
-      // Handle validation errors
       let errorMessage = 'Gagal membuat itinerary.';
       
+      // Error handling detail dari backend
       if (err.response?.data?.detail) {
         const detail = err.response.data.detail;
-        console.log('Detail type:', typeof detail, 'Is array:', Array.isArray(detail));
-        
-        if (Array.isArray(detail)) {
-          // Validation errors from FastAPI (Pydantic)
-          console.log('Validation errors:', detail);
-          errorMessage = 'Validasi gagal: ' + detail.map(e => {
-            const field = e.loc ? e.loc.join('.') : 'unknown';
-            return `${field}: ${e.msg}`;
-          }).join('; ');
-        } else if (typeof detail === 'string') {
+        if (typeof detail === 'string') {
           errorMessage = detail;
-        } else if (typeof detail === 'object') {
-          errorMessage = JSON.stringify(detail);
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map(e => e.msg).join('; ');
         }
       } else if (err.response?.status === 401) {
-        errorMessage = 'Silakan login terlebih dahulu untuk membuat itinerary.';
-      } else if (!err.response) {
-        errorMessage = 'Tidak dapat terhubung ke server. Pastikan backend berjalan.';
+        errorMessage = 'Sesi habis. Silakan login ulang.';
       }
       
       setError(errorMessage);
@@ -217,10 +240,11 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
           <div className="distribution-preview">
             <h4>📅 Distribusi Destinasi:</h4>
             {Array.from({ length: duration }, (_, i) => {
-              const destinationsPerDay = Math.ceil((Array.isArray(recommendations) ? recommendations.length : 0) / duration);
+              const recList = Array.isArray(recommendations) ? recommendations : [];
+              const destinationsPerDay = Math.ceil(recList.length / duration);
               const dayStart = i * destinationsPerDay;
-              const dayEnd = Math.min((i + 1) * destinationsPerDay, Array.isArray(recommendations) ? recommendations.length : 0);
-              const dayDestinations = Array.isArray(recommendations) ? recommendations.slice(dayStart, dayEnd) : [];
+              const dayEnd = Math.min((i + 1) * destinationsPerDay, recList.length);
+              const dayDestinations = recList.slice(dayStart, dayEnd);
               
               const date = new Date(startDate);
               date.setDate(date.getDate() + i);
@@ -249,7 +273,10 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
             <button className="btn secondary" onClick={onClose} disabled={loading}>
               Batal
             </button>
+            
+            {/* LOGIKA TOMBOL: Cek Token */}
             {localStorage.getItem('access_token') ? (
+              // KONDISI LOGIN: Panggil API
               <button 
                 className="btn primary" 
                 onClick={handleCreateItinerary}
@@ -258,6 +285,7 @@ const ItineraryCreatorModal = ({ isOpen, onClose, recommendations }) => {
                 {loading ? '⏳ Membuat...' : '✅ Buat Itinerary'}
               </button>
             ) : (
+              // KONDISI ANONYMOUS: Download PDF
               <button 
                 className="btn primary" 
                 onClick={downloadItineraryAsPDF}
