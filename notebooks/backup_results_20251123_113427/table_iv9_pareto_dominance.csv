@@ -1,0 +1,12 @@
+Model,Is_Pareto_Optimal,Dominates_Count,Dominated_By_Count,Dominates,Dominated_By
+popularity,True,8,0,"cf, cb, hybrid, hybrid_no_context, hybrid_mmr_lambda_0.0, hybrid_mmr_lambda_0.3, hybrid_mmr_lambda_0.5, hybrid_mab_mmr",None
+cf,False,0,2,None,"popularity, hybrid_mmr_lambda_0.7"
+cb,False,0,1,None,popularity
+hybrid,False,1,1,hybrid_no_context,popularity
+hybrid_no_context,False,0,3,None,"popularity, hybrid, hybrid_mmr_lambda_0.0"
+hybrid_mmr_lambda_0.0,False,1,1,hybrid_no_context,popularity
+hybrid_mmr_lambda_0.3,False,0,1,None,popularity
+hybrid_mmr_lambda_0.5,False,0,1,None,popularity
+hybrid_mmr_lambda_0.7,True,1,0,cf,None
+hybrid_mmr_lambda_1.0,True,0,0,None,None
+hybrid_mab_mmr,False,0,1,None,popularity

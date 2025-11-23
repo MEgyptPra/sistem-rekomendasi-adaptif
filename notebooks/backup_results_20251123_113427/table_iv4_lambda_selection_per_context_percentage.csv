@@ -1,0 +1,10 @@
+context_label,0.0,0.3,0.5,0.7
+Rainy + libur,81.21,15.96,2.13,0.71
+Cloudy + libur,79.57,17.20,2.87,0.36
+Sunny + libur,78.47,17.52,3.28,0.73
+Rainy + Weekday,73.89,23.57,2.55,0.00
+Sunny + Weekday,75.80,21.02,2.55,0.64
+Rainy + Weekend,79.47,17.88,2.65,0.00
+Cloudy + Weekday,79.72,18.18,1.40,0.70
+Cloudy + Weekend,73.19,21.74,4.35,0.72
+Sunny + Weekend,79.70,18.80,1.50,0.00

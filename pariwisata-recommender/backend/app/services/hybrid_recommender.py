@@ -1,5 +1,6 @@
 import numpy as np
 from app.services.context_aware_component import ContextAwareComponent
+from app.services.social_trend_service import SocialTrendService  # [BARU] Import Social Trend
 import pandas as pd
 import pickle
 from datetime import datetime
@@ -12,6 +13,7 @@ from app.services.content_based_recommender import ContentBasedRecommender
 from app.services.collaborative_recommender import CollaborativeRecommender
 from app.models.user import User
 from app.models.rating import Rating
+from app.models.destinations import Destination # [BARU] Import model Destination
 
 class HybridRecommender(BaseRecommender):
     """Hybrid Recommendation System combining Content-Based and Collaborative Filtering"""
@@ -26,6 +28,7 @@ class HybridRecommender(BaseRecommender):
         self.context_component = ContextAwareComponent()
         self.content_recommender = ContentBasedRecommender()
         self.collaborative_recommender = CollaborativeRecommender()
+        self.social_trend_service = SocialTrendService() # [BARU] Inisialisasi service trending
 
         # Weight parameters - align dengan tesis research design
         self.content_weight = 0.6  # Sesuai tesis BAB III.4.5
@@ -42,9 +45,6 @@ class HybridRecommender(BaseRecommender):
         else:
             self.model_path = (Path(__file__).resolve().parents[3] / "data" / "models" / self.MODEL_FILE).resolve()
 
-        # NOTE: Do not auto-load model at constructor time to avoid
-        # unbounded memory usage on startup. Use `load_model()` to
-        # load explicitly (admin action or lazy load on first use).
         self._model_loaded = False
 
     def load_model(self):
@@ -81,8 +81,8 @@ class HybridRecommender(BaseRecommender):
             # Update model info for status tracking
             self.model_info = {
                 'trained_at': datetime.now().isoformat(),
-                'n_samples': 0,  # Hybrid doesn't directly track samples
-                'accuracy': 0.88  # Hybrid typically has higher accuracy
+                'n_samples': 0, 
+                'accuracy': 0.88 
             }
             
             # Auto-save model setelah training berhasil
@@ -96,144 +96,192 @@ class HybridRecommender(BaseRecommender):
             print(f"❌ Hybrid training failed: {str(e)}")
             raise Exception(f"Hybrid training failed: {str(e)}")
 
-    async def predict(self, user_id: int, num_recommendations: int = 10, 
+    async def predict(self, user_id: Optional[int], num_recommendations: int = 10, 
                  db: AsyncSession = None, lambda_mmr: float = None, 
                  mab_optimizer=None, context: Dict[str, Any] = None) -> Tuple[List[Dict[str, Any]], Optional[int]]:
         """
-        Generate hybrid recommendations with contextual MMR diversification
-        IMPROVED: Consistent dengan research methodology di tesis
+        Generate hybrid recommendations with contextual MMR diversification.
+        [UPDATED] Supports both User Login (Personalized) and Anonymous (Trending).
         """
         
         # 🔍 DEBUG: Print context type immediately
-        print(f"🔍 DEBUG predict() - context type: {type(context)}, value: {context}")
+        print(f"🔍 DEBUG predict() - user_id: {user_id}, context: {context}")
         
-        if not self.is_trained:
-            raise ValueError("Model belum di-train. Jalankan train terlebih dahulu.")
+        # Note: We allow predicting even if not fully trained for Anonymous users (using Trends)
+        if user_id and not self.is_trained:
+            print("⚠️ Model not trained, falling back to non-personalized logic")
+            user_id = None # Fallback to anonymous logic
         
         try:
-            # Get base recommendations dari components
-            content_recs = []
-            collab_recs = []
-            if self.content_recommender.is_trained:
-                try:
-                    content_recs = await self.content_recommender.predict(
-                        user_id, num_recommendations * 3, db  # Get more candidates for MMR
-                    )
-                except Exception as e:
-                    print(f"Content-based prediction failed: {e}")
-            
-            if self.collaborative_recommender.is_trained:
-                try:
-                    collab_recs = await self.collaborative_recommender.predict(
-                        user_id, num_recommendations * 3, db
-                    )
-                except Exception as e:
-                    print(f"Collaborative prediction failed: {e}")
-            
-            if not content_recs and not collab_recs:
-                raise ValueError("Both recommenders failed to generate recommendations")
-            
-            # Combine recommendations dengan weighted scoring
-            hybrid_scores = {}
-            
-            # Add content-based scores
-            for rec in content_recs:
-                dest_id = rec['destination_id']
-                hybrid_scores[dest_id] = {
-                    'content_score': rec['score'] * self.content_weight,
-                    'collab_score': 0,
-                    'destination': rec
-                }
-            
-            # Add collaborative scores  
-            for rec in collab_recs:
-                dest_id = rec['destination_id']
-                if dest_id in hybrid_scores:
-                    hybrid_scores[dest_id]['collab_score'] = rec['score'] * self.collaborative_weight
-                else:
+            candidate_recommendations = []
+
+            # --- [CABANG UTAMA] LOGIC USER LOGIN VS ANONYMOUS ---
+            if user_id:
+                # === A. USER LOGIN (Personalized Hybrid) ===
+                print(f"👤 Generating Personalized Hybrid Recs for User {user_id}")
+                content_recs = []
+                collab_recs = []
+                
+                # 1. Ambil kandidat Content-Based
+                if self.content_recommender.is_trained:
+                    try:
+                        content_recs = await self.content_recommender.predict(
+                            user_id, num_recommendations * 3, db
+                        )
+                    except Exception as e:
+                        print(f"Content-based prediction failed: {e}")
+                
+                # 2. Ambil kandidat Collaborative Filtering
+                if self.collaborative_recommender.is_trained:
+                    try:
+                        collab_recs = await self.collaborative_recommender.predict(
+                            user_id, num_recommendations * 3, db
+                        )
+                    except Exception as e:
+                        print(f"Collaborative prediction failed: {e}")
+                
+                # 3. Gabungkan Skor (Weighted Sum)
+                hybrid_scores = {}
+                
+                for rec in content_recs:
+                    dest_id = rec['destination_id']
                     hybrid_scores[dest_id] = {
-                        'content_score': 0,
-                        'collab_score': rec['score'] * self.collaborative_weight,
+                        'content_score': rec['score'] * self.content_weight,
+                        'collab_score': 0,
                         'destination': rec
                     }
-            
-            # Calculate final hybrid scores
-            candidate_recommendations = []
-            for dest_id, scores in hybrid_scores.items():
-                final_score = scores['content_score'] + scores['collab_score']
-                rec = scores['destination'].copy()
-                rec['score'] = round(final_score, 4)
-                rec['algorithm'] = 'hybrid'
-                rec['explanation'] = f"Hybrid: Content={scores['content_score']:.3f} + Collaborative={scores['collab_score']:.3f}"
-                candidate_recommendations.append(rec)
-            
-            # [BARU] APPLY CONTEXT AWARE BOOSTING (Sesuai Evaluasi RM2)
-            if context and self.content_recommender.is_trained:
+                
+                for rec in collab_recs:
+                    dest_id = rec['destination_id']
+                    if dest_id in hybrid_scores:
+                        hybrid_scores[dest_id]['collab_score'] = rec['score'] * self.collaborative_weight
+                    else:
+                        hybrid_scores[dest_id] = {
+                            'content_score': 0,
+                            'collab_score': rec['score'] * self.collaborative_weight,
+                            'destination': rec
+                        }
+                
+                for dest_id, scores in hybrid_scores.items():
+                    final_score = scores['content_score'] + scores['collab_score']
+                    rec = scores['destination'].copy()
+                    rec['score'] = round(final_score, 4)
+                    rec['algorithm'] = 'hybrid'
+                    rec['explanation'] = f"Hybrid: Content={scores['content_score']:.2f} + Collab={scores['collab_score']:.2f}"
+                    candidate_recommendations.append(rec)
+
+            else:
+                # === B. ANONYMOUS USER (Trending & Popularity) ===
+                print(f"👻 Generating Trending/Popular Recs for Anonymous User")
+                
+                # 1. Ambil Trending dari SocialTrendService (Views, Clicks)
+                # Mengambil lebih banyak kandidat untuk diversity (MMR)
+                trending_data = self.social_trend_service.get_top_trending(limit=num_recommendations * 3)
+                
+                # 2. Enrich dengan detail database
+                for item in trending_data:
+                    dest = await db.get(Destination, item['destination_id'])
+                    if dest:
+                        # Normalisasi skor trending (biasanya > 10) ke skala rating (0-5)
+                        # Logarithmic scaling agar skor viral tidak merusak MMR
+                        raw_score = item['trend_score']
+                        normalized_score = min(5.0, np.log1p(raw_score)) 
+                        
+                        rec = {
+                            'destination_id': dest.id,
+                            'name': dest.name,
+                            'category_str': dest.category, # Penting untuk Context Aware
+                            'description': dest.description,
+                            'score': round(normalized_score, 4),
+                            'algorithm': 'social_trending',
+                            'explanation': f"Trending: {item.get('status', 'popular')} ({raw_score} pts)"
+                        }
+                        candidate_recommendations.append(rec)
+                
+                # Fallback jika data trending kosong (Cold Start System)
+                if not candidate_recommendations:
+                    print("⚠️ No trending data, fetching general popular items from DB")
+                    # Gunakan logic cold-start dari Collaborative Recommender (Avg Rating)
+                    candidate_recommendations = await self.collaborative_recommender._handle_cold_start_user(0, num_recommendations * 2, db)
+                    for rec in candidate_recommendations:
+                        rec['algorithm'] = 'general_popularity'
+
+            # --- [COMMON STAGE] CONTEXT, MAB, & MMR (Berlaku untuk User & Anonymous) ---
+
+            # 1. APPLY CONTEXT AWARE BOOSTING
+            if context and candidate_recommendations:
+                # Pastikan category tersedia untuk mapping
                 item_categories = {}
                 for rec in candidate_recommendations:
-                    item_categories[rec['destination_id']] = rec.get('category_str', 'Other')
+                    # Ambil kategori, fallback ke 'Other' jika tidak ada
+                    cat = rec.get('category_str') or rec.get('category') or 'Other'
+                    item_categories[rec['destination_id']] = cat
+                    
                 safe_ctx = context if isinstance(context, dict) else {}
                 mapped_context = safe_ctx.copy()
+                
+                # Mapping helper sederhana untuk waktu
                 h = safe_ctx.get('hour_of_day', 12)
                 if 5 <= h < 10: mapped_context['time_of_day'] = 'pagi'
                 elif 10 <= h < 15: mapped_context['time_of_day'] = 'siang'
                 elif 15 <= h < 19: mapped_context['time_of_day'] = 'sore'
                 else: mapped_context['time_of_day'] = 'malam'
+                
                 if safe_ctx.get('is_holiday'): mapped_context['day_type'] = 'libur_nasional'
                 elif safe_ctx.get('is_weekend'): mapped_context['day_type'] = 'weekend'
                 else: mapped_context['day_type'] = 'weekday'
+                
                 candidate_recommendations = self.context_component.get_contextual_boost(
                     candidate_recommendations,
                     mapped_context,
                     item_categories
                 )
                 print(f"✅ Context Boost Applied for {len(candidate_recommendations)} items")
+
             # Sort candidates by NEW boosted score
             candidate_recommendations.sort(key=lambda x: x['score'], reverse=True)
             
-            # IMPROVED: Determine lambda value using MAB or fallback
+            # 2. MAB LAMBDA SELECTION
             selected_arm_index = None
-
-            # 🌍 Create safe context wrapper
             safe_context = SafeContext(context)
 
             if mab_optimizer is not None:
-                # Use MAB untuk contextual lambda selection
                 selected_arm_index = mab_optimizer.select_arm(context)
                 dynamic_lambda = mab_optimizer.get_lambda_value(selected_arm_index)
                 
-                # ✅ Context-aware print with safe access
                 if safe_context.is_valid:
                     weather = safe_context.get('weather', 'unknown')
                     season = safe_context.get('season', 'unknown')
-                    temp = safe_context.get('temperature_category', 'unknown')
-                    weekend = safe_context.get('is_weekend', False)
-                    print(f"🌍 Contextual MAB: λ={dynamic_lambda:.2f} [Indonesia: {season}, {weather}, {temp}°, weekend={weekend}]")
+                    print(f"🌍 MAB Context: λ={dynamic_lambda:.2f} [{season}, {weather}]")
                 else:
-                    print(f"🎰 MAB Decision: λ={dynamic_lambda:.2f}")
-                
+                    print(f"🎰 MAB Decision: λ={dynamic_lambda:.2f}")     
             else:
-                # Fallback to provided lambda_mmr or default
                 dynamic_lambda = lambda_mmr if lambda_mmr is not None else self.default_lambda
                 print(f"📊 Static λ={dynamic_lambda:.2f}")
             
-            # IMPROVED: Apply MMR re-ranking dengan dynamic lambda
-            if self.similarity_matrix is not None and len(candidate_recommendations) > num_recommendations:
-                final_recommendations = self.rerank_with_mmr(
-                    recommendations=candidate_recommendations,
-                    lambda_val=dynamic_lambda,  # Use dynamic lambda dari MAB
-                    num_final_recs=num_recommendations
-                )
-                print(f"MMR applied with λ={dynamic_lambda:.2f} "
-                     f"({len(candidate_recommendations)} candidates → {len(final_recommendations)} final)")
+            # 3. MMR RE-RANKING (Diversification)
+            # Untuk anonymous, MMR sangat penting agar tidak hanya melihat 1 jenis tempat trending
+            if len(candidate_recommendations) > num_recommendations:
+                # Pastikan similarity matrix ada (butuh content recommender terlatih)
+                if self.similarity_matrix is not None:
+                    final_recommendations = self.rerank_with_mmr(
+                        recommendations=candidate_recommendations,
+                        lambda_val=dynamic_lambda,
+                        num_final_recs=num_recommendations
+                    )
+                    print(f"MMR applied with λ={dynamic_lambda:.2f}")
+                else:
+                    # Fallback jika sim matrix belum siap (misal baru pertama deploy)
+                    final_recommendations = candidate_recommendations[:num_recommendations]
+                    print("⚠️ MMR skipped (No similarity matrix), using top-N")
             else:
-                # Fallback to top-N by relevance only
                 final_recommendations = candidate_recommendations[:num_recommendations]
-                print(f"MMR skipped: using top-{num_recommendations} by relevance only")
             
             return final_recommendations, selected_arm_index
             
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             raise Exception(f"Hybrid prediction failed: {str(e)}")
 
     def rerank_with_mmr(self, recommendations: List[Dict[str, Any]], lambda_val: float, 
@@ -449,7 +497,6 @@ class HybridRecommender(BaseRecommender):
             print(f"✅ Hybrid model loaded (trained at: {trained_at})")
             
             # Update is_trained berdasarkan sub-models
-            # (sudah auto-loaded oleh ContentBasedRecommender dan CollaborativeRecommender)
             if self.content_recommender.is_trained and self.collaborative_recommender.is_trained:
                 print("✅ All sub-models ready")
             else:

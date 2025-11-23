@@ -1,0 +1,10 @@
+context_label,0.0,0.3,0.5,0.7
+Rainy + libur,229,45,6,2
+Cloudy + libur,222,48,8,1
+Sunny + libur,215,48,9,2
+Rainy + Weekday,116,37,4,0
+Sunny + Weekday,119,33,4,1
+Rainy + Weekend,120,27,4,0
+Cloudy + Weekday,114,26,2,1
+Cloudy + Weekend,101,30,6,1
+Sunny + Weekend,106,25,2,0

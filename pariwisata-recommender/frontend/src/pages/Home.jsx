@@ -10,7 +10,9 @@ import SmartImage from '../components/common/SmartImage';
 import placeholder from '../assets/placeholder.svg';
 
 const Home = () => {
-  const { isAuthenticated } = useAuth();
+  // [PERBAIKAN 1] Ambil objek 'user' dari AuthContext
+  const { user, isAuthenticated } = useAuth(); 
+  
   // State untuk rekomendasi personal dari backend
   const [personalizedDestinations, setPersonalizedDestinations] = useState([]);
   const [popularActivities, setPopularActivities] = useState([]);
@@ -20,20 +22,30 @@ const Home = () => {
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
 
   // ✅ Fetch rekomendasi dari ML MODEL (Hybrid CF+CB + MAB + MMR)
-  // - Algorithm: AUTO (smart selection based on user status)
-  // - Anonymous: Context-Only + Context (berdasarkan hari/context hari)
-  // - Logged-in: Hybrid + Context + Preferensi User
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        // ✅ Use AUTO algorithm for both anonymous and logged-in users
-        // Backend will smart-select: context_only for anonymous, hybrid for logged-in
-        const response = await recommendationsAPI.getPersonalized({
-          algorithm: 'auto', // Smart selection based on user status
-          num_recommendations: 6
-        });
+        // [PERBAIKAN 2] Kirim user_id jika ada
+        // Backend akan otomatis memilih strategi:
+        // - Ada user_id -> Personalized Hybrid
+        // - Tidak ada -> Trending Hybrid
+        const params = {
+          algorithm: 'auto', 
+          num_recommendations: 6,
+          user_id: user?.id // Kirim ID user jika login
+        };
+
+        console.log("Fetching recommendations with params:", params);
+
+        const response = await recommendationsAPI.getPersonalized(params);
         setPersonalizedDestinations(response.data.recommendations || []);
-        console.log('✅ Algorithm used:', response.data.algorithm, '| Message:', response.data.message);
+        
+        // Debugging info dari backend
+        console.log('✅ Algorithm used:', response.data.algorithm);
+        if(response.data.context) {
+           console.log('🌍 Context:', response.data.context);
+        }
+
       } catch (error) {
         console.error('Error fetching recommendations:', error);
         await loadFallbackDestinations(); // Last resort: random
@@ -42,8 +54,9 @@ const Home = () => {
       }
     };
 
+    // Jalankan ulang jika user login/logout
     fetchRecommendations();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]); 
 
   // Last resort fallback: Random destinations
   const loadFallbackDestinations = async () => {
@@ -61,11 +74,11 @@ const Home = () => {
         id: dest.id,
         name: dest.name,
         description: dest.description,
-        region: dest.region,
+        region: dest.region || dest.address || 'Sumedang',
         category: dest.category,
         image: dest.image,
         score: 0.75,
-        explanation: `Destinasi populer di ${dest.region}`
+        explanation: `Destinasi populer di ${dest.region || 'Sumedang'}`
       }));
       
       setPersonalizedDestinations(transformedData);
@@ -116,31 +129,39 @@ const Home = () => {
       <section className="personalized-recommendations netflix-style">
         <div className="container">
           <div className="section-header-simple">
-            <h2>Rekomendasi Untuk Anda</h2>
+            {/* Judul dinamis tergantung status login */}
+            <h2>{isAuthenticated ? `Rekomendasi Untuk ${user?.name || 'Anda'}` : 'Sedang Trending Hari Ini'}</h2>
           </div>
           
           {loading ? (
             <div className="loading-state">
               <div className="loading-spinner"></div>
-              <p>Memuat rekomendasi personal...</p>
+              <p>Sedang meracik rekomendasi terbaik...</p>
             </div>
           ) : (
             <div className="slider-container">
               <div className="slider-wrapper">
-                {personalizedDestinations.map(destination => (
-                  <div key={destination.destination_id || destination.id} className="slider-item">
-                    <DestinationCard 
-                      destination={{
-                        id: destination.destination_id || destination.id,
-                        name: destination.name,
-                        description: destination.description,
-                        image: destination.image,
-                        region: destination.region,
-                        category: destination.category
-                      }} 
-                    />
-                  </div>
-                ))}
+                {personalizedDestinations.length > 0 ? (
+                  personalizedDestinations.map(destination => (
+                    <div key={destination.destination_id || destination.id} className="slider-item">
+                      <DestinationCard 
+                        destination={{
+                          id: destination.destination_id || destination.id,
+                          name: destination.name,
+                          description: destination.description,
+                          image: destination.image,
+                          region: destination.region || destination.address || 'Sumedang',
+                          category: destination.category,
+                          // Tampilkan badge trending/hybrid jika ada
+                          score: destination.score, 
+                          algorithm: destination.algorithm 
+                        }} 
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p>Belum ada rekomendasi saat ini.</p>
+                )}
               </div>
             </div>
           )}

@@ -22,25 +22,29 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://user:rekompari@db:5432/pariwisata
       PYTHONPATH: /app
-      # ADMIN_LOAD_TOKEN should be provided via environment or .env for protecting model load endpoints
-      ADMIN_LOAD_TOKEN: ${ADMIN_LOAD_TOKEN:-}
+      # Token admin untuk load model (opsional)
+      ADMIN_LOAD_TOKEN: ${ADMIN_LOAD_TOKEN:-secret_token}
     depends_on:
       db:
         condition: service_healthy
     volumes:
+      # Mapping Kode (agar perubahan live tanpa rebuild)
       - ./backend:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+      # 👇 [PENTING] Mapping Data untuk Persistensi Model
+      # Memastikan folder /app/data di container tersimpan di folder backend/data komputer
+      - ./backend/data:/app/data
+    # Command menggunakan --reload untuk development
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Lightweight loader service for large collaborative model.
-  # Recommended usage: run this as a one-off with `docker-compose run --rm --service-ports collab-loader`
-  # For strict memory limits, consider using `docker run --memory` with the built image instead.
+  # Service opsional untuk load model berat secara terpisah (jika perlu)
   collab-loader:
     build: ./backend
     volumes:
       - ./backend:/app
+      - ./backend/data:/app/data
     environment:
       - PYTHONPATH=/app
-      - ADMIN_LOAD_TOKEN=${ADMIN_LOAD_TOKEN:-}
+      - ADMIN_LOAD_TOKEN=${ADMIN_LOAD_TOKEN:-secret_token}
     command: ["python", "/app/scripts/load_collab_worker.py", "/app/data/models/collaborative_model.pkl"]
 
   admin-dashboard:
@@ -64,6 +68,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    # Host 0.0.0.0 agar bisa diakses dari browser luar container
     command: npm run dev -- --host 0.0.0.0 --port 5173
 
 volumes:
