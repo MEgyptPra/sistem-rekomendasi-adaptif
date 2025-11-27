@@ -23,7 +23,7 @@ class CollaborativeRecommender(BaseRecommender):
     def __init__(self):
         import os
         super().__init__()
-        self.nmf_model = NMF(n_components=50, random_state=42, max_iter=500)
+        self.nmf_model = NMF(n_components=20, random_state=42, max_iter=50, verbose=True)
         self.user_item_matrix = None
         self.user_factors = None
         self.item_factors = None

@@ -1,0 +1,220 @@
+{
+  "type": "ContextualMAB",
+  "n_contexts": 1342,
+  "lambda_values": [
+    0.0,
+    0.3,
+    0.5,
+    0.7,
+    1.0
+  ],
+  "total_selections_all_contexts": 1764,
+  "aggregated_counts": [
+    1342.0,
+    349.0,
+    61.0,
+    11.0,
+    1.0
+  ],
+  "aggregated_avg_rewards": [
+    0.24443536618700007,
+    0.24385116302114013,
+    0.22658639774001954,
+    0.253958418263351,
+    0.0
+  ],
+  "most_common_best_lambda": 0.0,
+  "random_state": 42,
+  "top_10_contexts": {
+    "hujan_weekend_musim_kemarau_malam_sedang_festival_kuliner_notviral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.40625151572489415,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "mendung_weekend_musim_kemarau_siang_ramai_festival_budaya_notviral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.23775784753363227,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "hujan_weekend_musim_kemarau_malam_sedang_None_notviral": {
+      "total_selections": 3,
+      "counts": [
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.28819133034379674,
+        0.20765321375186846,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "hujan_weekend_musim_hujan_siang_ramai_festival_budaya_viral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.22233183856502242,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "mendung_libur_lebaran_musim_hujan_pagi_puncak_kepadatan_festival_budaya_viral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.25112107623318386,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "mendung_libur_lebaran_musim_kemarau_pagi_ramai_festival_budaya_notviral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.25052316890881915,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "hujan_weekend_musim_hujan_sore_sedang_festival_budaya_viral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.16747384155455905,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    },
+    "cerah_libur_lebaran_musim_hujan_pagi_sangat_ramai_festival_budaya_viral": {
+      "total_selections": 4,
+      "counts": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.2531240657698057,
+        0.2865171898355755,
+        0.32367713004484305,
+        0.0,
+        0.0
+      ],
+      "best_arm": 2,
+      "best_lambda": 0.5
+    },
+    "cerah_libur_lebaran_musim_hujan_pagi_ramai_festival_budaya_notviral": {
+      "total_selections": 4,
+      "counts": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.28762331838565025,
+        0.2898953662182362,
+        0.2926457399103139,
+        0.0,
+        0.0
+      ],
+      "best_arm": 2,
+      "best_lambda": 0.5
+    },
+    "hujan_weekend_musim_kemarau_malam_sepi_None_viral": {
+      "total_selections": 2,
+      "counts": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "avg_rewards": [
+        0.22071748878923766,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "best_arm": 0,
+      "best_lambda": 0.0
+    }
+  }
+}

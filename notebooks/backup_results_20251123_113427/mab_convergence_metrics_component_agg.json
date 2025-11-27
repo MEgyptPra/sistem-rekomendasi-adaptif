@@ -1,0 +1,962 @@
+{
+  "viral=viral": {
+    "total_selections": 909,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.3046711509715994,
+    "exploration_rate": 0.9911991199119912,
+    "exploitation_rate": 0.0088008800880088,
+    "arm_distribution": {
+      "0": {
+        "count": 693,
+        "percentage": 76.23762376237624,
+        "avg_reward": 0.24395076399021437,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 173,
+        "percentage": 19.03190319031903,
+        "avg_reward": 0.23990848584194108,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 34,
+        "percentage": 3.74037403740374,
+        "avg_reward": 0.22149125120900376,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 8,
+        "percentage": 0.88008800880088,
+        "avg_reward": 0.3046711509715994,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.11001100110011,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "season=musim_hujan": {
+    "total_selections": 899,
+    "best_arm": 2,
+    "best_lambda": 0.5,
+    "best_arm_reward": 0.26324877933656327,
+    "exploration_rate": 0.9666295884315906,
+    "exploitation_rate": 0.03337041156840934,
+    "arm_distribution": {
+      "0": {
+        "count": 687,
+        "percentage": 76.4182424916574,
+        "avg_reward": 0.24398205658104738,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 173,
+        "percentage": 19.243604004449388,
+        "avg_reward": 0.2415074000190952,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 30,
+        "percentage": 3.337041156840934,
+        "avg_reward": 0.26324877933656327,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 9,
+        "percentage": 1.0011123470522802,
+        "avg_reward": 0.23172562697226373,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "season=musim_kemarau": {
+    "total_selections": 865,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.35400597907324366,
+    "exploration_rate": 0.9976878612716763,
+    "exploitation_rate": 0.0023121387283236996,
+    "arm_distribution": {
+      "0": {
+        "count": 655,
+        "percentage": 75.72254335260115,
+        "avg_reward": 0.2449108222164498,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 176,
+        "percentage": 20.346820809248555,
+        "avg_reward": 0.24615497551746854,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 31,
+        "percentage": 3.5838150289017343,
+        "avg_reward": 0.1911066736143321,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.23121387283236997,
+        "avg_reward": 0.35400597907324366,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.11560693641618498,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "viral=notviral": {
+    "total_selections": 855,
+    "best_arm": 1,
+    "best_lambda": 0.3,
+    "best_arm_reward": 0.24772663547569398,
+    "exploration_rate": 0.7941520467836257,
+    "exploitation_rate": 0.20584795321637428,
+    "arm_distribution": {
+      "0": {
+        "count": 649,
+        "percentage": 75.90643274853801,
+        "avg_reward": 0.24495282277000865,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 176,
+        "percentage": 20.58479532163743,
+        "avg_reward": 0.24772663547569398,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 27,
+        "percentage": 3.1578947368421053,
+        "avg_reward": 0.23300250818648394,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 3,
+        "percentage": 0.3508771929824561,
+        "avg_reward": 0.11872446437468859,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "event=None": {
+    "total_selections": 615,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.29460388639760837,
+    "exploration_rate": 0.9902439024390244,
+    "exploitation_rate": 0.00975609756097561,
+    "arm_distribution": {
+      "0": {
+        "count": 462,
+        "percentage": 75.1219512195122,
+        "avg_reward": 0.24964983936544188,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 122,
+        "percentage": 19.83739837398374,
+        "avg_reward": 0.25582242345049283,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 24,
+        "percentage": 3.902439024390244,
+        "avg_reward": 0.23213502740408568,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 6,
+        "percentage": 0.975609756097561,
+        "avg_reward": 0.29460388639760837,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.16260162601626016,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "weather=hujan": {
+    "total_selections": 612,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.35103139013452916,
+    "exploration_rate": 0.9967320261437909,
+    "exploitation_rate": 0.0032679738562091504,
+    "arm_distribution": {
+      "0": {
+        "count": 465,
+        "percentage": 75.98039215686273,
+        "avg_reward": 0.24285963085648968,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 123,
+        "percentage": 20.098039215686274,
+        "avg_reward": 0.21837909183363857,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 21,
+        "percentage": 3.431372549019608,
+        "avg_reward": 0.20463164638052528,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.32679738562091504,
+        "avg_reward": 0.35103139013452916,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.16339869281045752,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "event=festival_budaya": {
+    "total_selections": 590,
+    "best_arm": 2,
+    "best_lambda": 0.5,
+    "best_arm_reward": 0.24413264746381713,
+    "exploration_rate": 0.9627118644067797,
+    "exploitation_rate": 0.03728813559322034,
+    "arm_distribution": {
+      "0": {
+        "count": 455,
+        "percentage": 77.11864406779661,
+        "avg_reward": 0.2403048003428325,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 110,
+        "percentage": 18.64406779661017,
+        "avg_reward": 0.22759085575154622,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 22,
+        "percentage": 3.728813559322034,
+        "avg_reward": 0.24413264746381713,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 3,
+        "percentage": 0.5084745762711864,
+        "avg_reward": 0.11714997508719482,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "weather=cerah": {
+    "total_selections": 576,
+    "best_arm": 1,
+    "best_lambda": 0.3,
+    "best_arm_reward": 0.26886336698396346,
+    "exploration_rate": 0.8055555555555556,
+    "exploitation_rate": 0.19444444444444445,
+    "arm_distribution": {
+      "0": {
+        "count": 440,
+        "percentage": 76.38888888888889,
+        "avg_reward": 0.24753796198555955,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 112,
+        "percentage": 19.444444444444446,
+        "avg_reward": 0.26886336698396346,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 18,
+        "percentage": 3.125,
+        "avg_reward": 0.26353097492110944,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 6,
+        "percentage": 1.0416666666666665,
+        "avg_reward": 0.17757847533632287,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "weather=mendung": {
+    "total_selections": 576,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.3420029895366219,
+    "exploration_rate": 0.9947916666666666,
+    "exploitation_rate": 0.005208333333333333,
+    "arm_distribution": {
+      "0": {
+        "count": 437,
+        "percentage": 75.86805555555556,
+        "avg_reward": 0.24298816888109914,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 114,
+        "percentage": 19.791666666666664,
+        "avg_reward": 0.24676079383014457,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 22,
+        "percentage": 3.8194444444444446,
+        "avg_reward": 0.21731582452591788,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 3,
+        "percentage": 0.5208333333333333,
+        "avg_reward": 0.3420029895366219,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "event=festival_kuliner": {
+    "total_selections": 559,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.33723467862481316,
+    "exploration_rate": 0.9964221824686941,
+    "exploitation_rate": 0.0035778175313059034,
+    "arm_distribution": {
+      "0": {
+        "count": 425,
+        "percentage": 76.02862254025044,
+        "avg_reward": 0.24318906230619125,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 117,
+        "percentage": 20.930232558139537,
+        "avg_reward": 0.24665577863886937,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 15,
+        "percentage": 2.6833631484794274,
+        "avg_reward": 0.19197409068261084,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.35778175313059035,
+        "avg_reward": 0.33723467862481316,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "day_type=weekday": {
+    "total_selections": 469,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.3562182361733931,
+    "exploration_rate": 0.9957356076759062,
+    "exploitation_rate": 0.0042643923240938165,
+    "arm_distribution": {
+      "0": {
+        "count": 349,
+        "percentage": 74.4136460554371,
+        "avg_reward": 0.23201583747519056,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 102,
+        "percentage": 21.748400852878465,
+        "avg_reward": 0.2443208637452909,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 16,
+        "percentage": 3.411513859275053,
+        "avg_reward": 0.20621543348281016,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.42643923240938164,
+        "avg_reward": 0.3562182361733931,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "time_of_day=siang": {
+    "total_selections": 456,
+    "best_arm": 2,
+    "best_lambda": 0.5,
+    "best_arm_reward": 0.316903269095412,
+    "exploration_rate": 0.9671052631578947,
+    "exploitation_rate": 0.03289473684210526,
+    "arm_distribution": {
+      "0": {
+        "count": 342,
+        "percentage": 75.0,
+        "avg_reward": 0.2476030248041617,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 95,
+        "percentage": 20.833333333333336,
+        "avg_reward": 0.25115020261725896,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 15,
+        "percentage": 3.289473684210526,
+        "avg_reward": 0.316903269095412,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 3,
+        "percentage": 0.6578947368421052,
+        "avg_reward": 0.2233781763826607,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.21929824561403508,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "time_of_day=sore": {
+    "total_selections": 445,
+    "best_arm": 1,
+    "best_lambda": 0.3,
+    "best_arm_reward": 0.24819642154840163,
+    "exploration_rate": 0.797752808988764,
+    "exploitation_rate": 0.20224719101123595,
+    "arm_distribution": {
+      "0": {
+        "count": 344,
+        "percentage": 77.30337078651685,
+        "avg_reward": 0.24499670381360397,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 90,
+        "percentage": 20.224719101123593,
+        "avg_reward": 0.24819642154840163,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 11,
+        "percentage": 2.4719101123595504,
+        "avg_reward": 0.1378122027449382,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "time_of_day=malam": {
+    "total_selections": 437,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.35696562032884904,
+    "exploration_rate": 0.9954233409610984,
+    "exploitation_rate": 0.004576659038901602,
+    "arm_distribution": {
+      "0": {
+        "count": 339,
+        "percentage": 77.57437070938215,
+        "avg_reward": 0.23848097463382015,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 83,
+        "percentage": 18.993135011441648,
+        "avg_reward": 0.2300697306946948,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 13,
+        "percentage": 2.9748283752860414,
+        "avg_reward": 0.19401172818213178,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.4576659038901602,
+        "avg_reward": 0.35696562032884904,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "day_type=weekend": {
+    "total_selections": 436,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.31829596412556055,
+    "exploration_rate": 0.9977064220183486,
+    "exploitation_rate": 0.0022935779816513763,
+    "arm_distribution": {
+      "0": {
+        "count": 327,
+        "percentage": 75.0,
+        "avg_reward": 0.24021350990955362,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 90,
+        "percentage": 20.642201834862387,
+        "avg_reward": 0.24469913977179614,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 18,
+        "percentage": 4.128440366972478,
+        "avg_reward": 0.1782826772961302,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 1,
+        "percentage": 0.22935779816513763,
+        "avg_reward": 0.31829596412556055,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "day_type=libur_lebaran": {
+    "total_selections": 432,
+    "best_arm": 0,
+    "best_lambda": 0.0,
+    "best_arm_reward": 0.253457613266637,
+    "exploration_rate": 0.24537037037037035,
+    "exploitation_rate": 0.7546296296296297,
+    "arm_distribution": {
+      "0": {
+        "count": 326,
+        "percentage": 75.46296296296296,
+        "avg_reward": 0.253457613266637,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 90,
+        "percentage": 20.833333333333336,
+        "avg_reward": 0.24782329944317,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 12,
+        "percentage": 2.7777777777777777,
+        "avg_reward": 0.2461199930353305,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 4,
+        "percentage": 0.9259259259259258,
+        "avg_reward": 0.08790732436472347,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "day_type=libur_nasional": {
+    "total_selections": 427,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.3527952167414051,
+    "exploration_rate": 0.990632318501171,
+    "exploitation_rate": 0.00936768149882904,
+    "arm_distribution": {
+      "0": {
+        "count": 340,
+        "percentage": 79.62529274004683,
+        "avg_reward": 0.25259333670225026,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 67,
+        "percentage": 15.690866510538642,
+        "avg_reward": 0.23666131735837773,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 15,
+        "percentage": 3.51288056206089,
+        "avg_reward": 0.2906530145774615,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 4,
+        "percentage": 0.936768149882904,
+        "avg_reward": 0.3527952167414051,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.234192037470726,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "time_of_day=pagi": {
+    "total_selections": 426,
+    "best_arm": 0,
+    "best_lambda": 0.0,
+    "best_arm_reward": 0.24677637358733828,
+    "exploration_rate": 0.255868544600939,
+    "exploitation_rate": 0.744131455399061,
+    "arm_distribution": {
+      "0": {
+        "count": 317,
+        "percentage": 74.4131455399061,
+        "avg_reward": 0.24677637358733828,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 81,
+        "percentage": 19.014084507042252,
+        "avg_reward": 0.24458421060151242,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 22,
+        "percentage": 5.164319248826291,
+        "avg_reward": 0.22864247859763553,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 6,
+        "percentage": 1.4084507042253522,
+        "avg_reward": 0.2349128051818635,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=ramai": {
+    "total_selections": 312,
+    "best_arm": 1,
+    "best_lambda": 0.3,
+    "best_arm_reward": 0.24034185464072982,
+    "exploration_rate": 0.7852564102564102,
+    "exploitation_rate": 0.21474358974358973,
+    "arm_distribution": {
+      "0": {
+        "count": 231,
+        "percentage": 74.03846153846155,
+        "avg_reward": 0.23829887860464247,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 67,
+        "percentage": 21.474358974358974,
+        "avg_reward": 0.24034185464072982,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 11,
+        "percentage": 3.5256410256410255,
+        "avg_reward": 0.22634597091996198,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 3,
+        "percentage": 0.9615384615384616,
+        "avg_reward": 0.2374788241155954,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=sangat_ramai": {
+    "total_selections": 301,
+    "best_arm": 1,
+    "best_lambda": 0.3,
+    "best_arm_reward": 0.24873971985633972,
+    "exploration_rate": 0.7840531561461794,
+    "exploitation_rate": 0.2159468438538206,
+    "arm_distribution": {
+      "0": {
+        "count": 221,
+        "percentage": 73.421926910299,
+        "avg_reward": 0.24703461171679403,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 65,
+        "percentage": 21.59468438538206,
+        "avg_reward": 0.24873971985633972,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 12,
+        "percentage": 3.9867109634551494,
+        "avg_reward": 0.24315894369706026,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 2,
+        "percentage": 0.6644518272425249,
+        "avg_reward": 0.17591928251121078,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 1,
+        "percentage": 0.33222591362126247,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=sangat_sepi": {
+    "total_selections": 298,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.31829596412556055,
+    "exploration_rate": 0.9966442953020134,
+    "exploitation_rate": 0.003355704697986577,
+    "arm_distribution": {
+      "0": {
+        "count": 231,
+        "percentage": 77.51677852348993,
+        "avg_reward": 0.2385596838313401,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 58,
+        "percentage": 19.463087248322147,
+        "avg_reward": 0.2532485641719636,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 8,
+        "percentage": 2.684563758389262,
+        "avg_reward": 0.2610986547085202,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 1,
+        "percentage": 0.33557046979865773,
+        "avg_reward": 0.31829596412556055,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=sedang": {
+    "total_selections": 291,
+    "best_arm": 0,
+    "best_lambda": 0.0,
+    "best_arm_reward": 0.24774436883047216,
+    "exploration_rate": 0.20274914089347074,
+    "exploitation_rate": 0.7972508591065293,
+    "arm_distribution": {
+      "0": {
+        "count": 232,
+        "percentage": 79.72508591065292,
+        "avg_reward": 0.24774436883047216,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 51,
+        "percentage": 17.525773195876287,
+        "avg_reward": 0.24358529186501413,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 7,
+        "percentage": 2.405498281786942,
+        "avg_reward": 0.12043561819346572,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 1,
+        "percentage": 0.3436426116838488,
+        "avg_reward": 0.0,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=sepi": {
+    "total_selections": 290,
+    "best_arm": 3,
+    "best_lambda": 0.7,
+    "best_arm_reward": 0.3527428998505232,
+    "exploration_rate": 0.9862068965517241,
+    "exploitation_rate": 0.013793103448275862,
+    "arm_distribution": {
+      "0": {
+        "count": 222,
+        "percentage": 76.55172413793103,
+        "avg_reward": 0.25211673389202366,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 51,
+        "percentage": 17.586206896551722,
+        "avg_reward": 0.24167838762579305,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 13,
+        "percentage": 4.482758620689655,
+        "avg_reward": 0.2789620560290705,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 4,
+        "percentage": 1.3793103448275863,
+        "avg_reward": 0.3527428998505232,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  },
+  "crowd_density=puncak_kepadatan": {
+    "total_selections": 272,
+    "best_arm": 0,
+    "best_lambda": 0.0,
+    "best_arm_reward": 0.2431057356982048,
+    "exploration_rate": 0.24632352941176472,
+    "exploitation_rate": 0.7536764705882353,
+    "arm_distribution": {
+      "0": {
+        "count": 205,
+        "percentage": 75.36764705882352,
+        "avg_reward": 0.2431057356982048,
+        "lambda": 0.0
+      },
+      "1": {
+        "count": 57,
+        "percentage": 20.955882352941178,
+        "avg_reward": 0.2350211485400333,
+        "lambda": 0.3
+      },
+      "2": {
+        "count": 10,
+        "percentage": 3.6764705882352944,
+        "avg_reward": 0.18557119642565523,
+        "lambda": 0.5
+      },
+      "3": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 0.7
+      },
+      "4": {
+        "count": 0,
+        "percentage": 0.0,
+        "avg_reward": 0.0,
+        "lambda": 1.0
+      }
+    }
+  }
+}
