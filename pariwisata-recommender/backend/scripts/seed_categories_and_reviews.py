@@ -156,15 +156,12 @@ async def seed_reviews_from_excel():
                 users = [default_user]
             
             # Process reviews
-            print("💬 Memproses reviews...")
+            print("💬 Memproses SEMUA reviews (no limit)...")
             review_count = 0
             skipped = 0
             
-            # Sample: ambil max 500 reviews untuk tidak overload
-            sample_size = min(500, len(df))
-            df_sample = df.sample(n=sample_size, random_state=42) if len(df) > sample_size else df
-            
-            for idx, row in df_sample.iterrows():
+            # Process ALL reviews (no sampling)
+            for idx, row in df.iterrows():
                 place_name = str(row.get('place', '')).strip()
                 review_text = str(row.get('review', '')).strip()
                 try:
