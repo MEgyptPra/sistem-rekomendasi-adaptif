@@ -30,9 +30,9 @@ class HybridRecommender(BaseRecommender):
         self.collaborative_recommender = CollaborativeRecommender()
         self.social_trend_service = SocialTrendService() # [BARU] Inisialisasi service trending
 
-        # Weight parameters - align dengan tesis research design
-        self.content_weight = 0.6  # Sesuai tesis BAB III.4.5
-        self.collaborative_weight = 0.4
+        # Weight parameters - sesuai tesis BAB III.4.8 (Balanced Hybrid: αCF = 0.5, αCB = 0.5)
+        self.content_weight = 0.5  # Content-Based weight
+        self.collaborative_weight = 0.5  # Collaborative Filtering weight
 
         self.default_lambda = 0.7  # Default fallback value
         self.similarity_matrix = None
@@ -326,31 +326,32 @@ class HybridRecommender(BaseRecommender):
                         selected_id = selected_item['destination_id']
                         
                         try:
-                            # Get similarity from matrix if available
-                            if (self.content_recommender.destinations_df is not None and 
-                                'id' in self.content_recommender.destinations_df.columns):
+                            # Get similarity using item_vectors mapping
+                            # item_vectors: {destination_id: TF-IDF vector}
+                            if (candidate_id in self.content_recommender.item_vectors and 
+                                selected_id in self.content_recommender.item_vectors):
                                 
-                                candidate_df_idx = self.content_recommender.destinations_df[
-                                    self.content_recommender.destinations_df['id'] == candidate_id
-                                ].index
-                                selected_df_idx = self.content_recommender.destinations_df[
-                                    self.content_recommender.destinations_df['id'] == selected_id
-                                ].index
+                                # Get list of all item IDs (preserves order for similarity_matrix indexing)
+                                item_ids = list(self.content_recommender.item_vectors.keys())
                                 
-                                if len(candidate_df_idx) > 0 and len(selected_df_idx) > 0:
-                                    candidate_matrix_idx = candidate_df_idx[0]
-                                    selected_matrix_idx = selected_df_idx[0]
-                                    sim = self.similarity_matrix[candidate_matrix_idx, selected_matrix_idx]
-                                    max_similarity = max(max_similarity, sim)
-                                else:
-                                    max_similarity = max(max_similarity, 0)
+                                # Find matrix indices
+                                candidate_matrix_idx = item_ids.index(candidate_id)
+                                selected_matrix_idx = item_ids.index(selected_id)
+                                
+                                # Get similarity from pre-computed matrix
+                                sim = self.similarity_matrix[candidate_matrix_idx, selected_matrix_idx]
+                                max_similarity = max(max_similarity, sim)
                             else:
+                                # Items not in model, assume no similarity
                                 max_similarity = max(max_similarity, 0)
-                        except (KeyError, IndexError, TypeError):
+                                
+                        except (KeyError, IndexError, ValueError, TypeError):
+                            # Fallback: no similarity
                             max_similarity = max(max_similarity, 0)
                 
-                # Calculate MMR Score: λ * relevance - (1-λ) * max_similarity
-                mmr_score = lambda_val * relevance_score - (1 - lambda_val) * max_similarity
+                # Calculate MMR Score: (1-λ) * relevance - λ * max_similarity
+                # λ=0.0 → Pure relevance, λ=1.0 → Pure diversity
+                mmr_score = (1 - lambda_val) * relevance_score - lambda_val * max_similarity
                 
                 if mmr_score > best_mmr_score:
                     best_mmr_score = mmr_score

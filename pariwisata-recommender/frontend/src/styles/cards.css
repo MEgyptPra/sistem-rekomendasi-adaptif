@@ -72,6 +72,42 @@
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 1.25rem;
+}
+
+/* Override untuk p yang tidak ada class khusus */
+.card-content p:not(.card-category):not(.card-address):not(.card-description) {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.card-category {
+  color: #667eea !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+.card-address {
+  color: #999 !important;
+  font-size: 0.85rem !important;
+  margin-bottom: 0.75rem !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.card-description {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;

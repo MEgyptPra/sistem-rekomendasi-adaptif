@@ -38,36 +38,71 @@ NIM: 23523311
 
 (Program Studi Magister Informatika)
 
-Transformasi digital pariwisata menciptakan paradoks di mana sistem
-rekomendasi konvensional memperburuk ketimpangan distribusi kunjungan
-melalui *popularity bias*. Di Kabupaten Sumedang, 72,4% kunjungan
-terpusat pada 10 dari 77 destinasi. Solusi diversifikasi statis seperti
-*Maximal Marginal Relevance* (MMR) gagal beradaptasi terhadap dinamika
-konteks *real-time*. Penelitian ini mengembangkan sistem rekomendasi
-adaptif yang mengintegrasikan *Multi-Armed Bandit* (MAB) untuk optimasi
-parameter dinamis pada MMR, menyeimbangkan akurasi dan keberagaman untuk
-pemerataan pariwisata.
+Transformasi digital dalam industri pariwisata telah menciptakan
+paradoks fundamental di mana sistem rekomendasi konvensional justru
+memperburuk ketimpangan distribusi kunjungan melalui fenomena popularity
+bias. Secara global, 10 destinasi teratas menampung 40% kedatangan
+wisatawan, menciptakan konsentrasi yang tidak berkelanjutan dan
+mengabaikan potensi destinasi alternatif. Di Kabupaten Sumedang, dari 77
+destinasi terdaftar, 72,4% total kunjungan terpusat pada hanya 10
+destinasi populer, sementara 67 destinasi potensial lainnya mengalami
+marjinalisasi sistematis. Sistem rekomendasi berbasis *Collaborative
+Filtering* tradisional memperparah masalah ini karena cenderung
+memperkuat preferensi mayoritas, menciptakan siklus
+\"*rich-get-richer*\" di mana kurang dari 3% item dapat mendominasi
+hingga 100% rekomendasi.
 
-Metodologi menggunakan *Design Science Research Methodology* (DSRM)
-dengan model hibrida (*Collaborative* dan *Content-Based*) yang
-diperkaya komponen *Context-Aware*. Kebaruan penelitian terletak pada
-mekanisme optimisasi dua lapis: MAB memilih parameter $\lambda$ secara
-dinamis berdasarkan umpan balik pengguna, diikuti re-ranking MMR.
-Evaluasi hibrida menggabungkan evaluasi offline (sparsity 0,602%) dan
-*user testing.*
+Meskipun teknik diversifikasi seperti *Maximal Marginal Relevance* (MMR)
+telah terbukti meningkatkan keberagaman rekomendasi, pendekatan existing
+menggunakan parameter λ statis yang gagal beradaptasi terhadap
+karakteristik dinamis domain pariwisata. Faktor kontekstual seperti
+cuaca, waktu, dan kepadatan wisatawan sangat memengaruhi keputusan
+wisatawan, namun sistem tradisional tidak mampu merespons perubahan ini
+secara adaptif. Lebih penting lagi, tidak ada penelitian yang secara
+sistematis mengeksplorasi optimasi parameter diversifikasi secara
+dinamis untuk mencapai keseimbangan optimal antara akurasi dan
+keberagaman dalam konteks pariwisata dengan *data sparsity* ekstrem.
+Penelitian ini bertujuan mengembangkan sistem rekomendasi adaptif yang
+mampu menyeimbangkan akurasi dan keberagaman melalui optimasi parameter
+dinamis, serta memvalidasi dampaknya terhadap pemerataan distribusi dan
+eksposur destinasi *long-tail*. Pendekatan ini diperlukan untuk
+memberikan bukti empiris bahwa intervensi algoritmik dapat memitigasi
+*popularity bias* sambil mempertahankan kepuasan pengguna.
 
-Model MAB-MMR mencapai NDCG@10 sebesar 0,0237 (setara baseline,
-$p = 0,1998$) dengan peningkatan Diversity 3,5% ($p < 0,001$). MAB
-menunjukkan adaptivitas dengan memilih $\lambda = 0,0$dalam 78,30% kasus
-untuk mencegah penurunan akurasi. Sistem mencatat *Long-Tail Coverage*
-tertinggi (69,64%) dan *Gini Coefficient* terendah (0,6401), dengan
-peningkatan eksposur destinasi seperti \"Curug Pasirwangi\" hingga
-52,78%. Evaluasi kualitatif menunjukkan SUS score 75,5, Discovery Rate
-78,6% vs 42,9% baseline ($p = 0,046$), dan *Perceived Diversity*
-meningkat signifikan (4,1 vs 3,2; $p = 0,007$; Cohen\'s $d = 0,98$).
-Penelitian ini membuktikan pendekatan adaptif MAB-MMR memitigasi
-*popularity bias* dan meningkatkan visibilitas destinasi *long-tail*
-tanpa mengorbankan kepuasan pengguna
+Penelitian menggunakan *Design Science Research Methodology* (DSRM)
+dengan arsitektur hibrida yang mengintegrasikan *Collaborative
+Filtering*, *Content-Based Filtering*, dan komponen *Context-Aware* yang
+memproses data cuaca dan kalender secara *real-time* melalui API, serta
+model simulasi untuk lalu lintas dan tren media sosial. Mekanisme inti
+adalah *Multi-Armed Bandit* dengan algoritma *Upper Confidence Bound*
+yang memilih parameter λ secara adaptif dari 5 arms diskrit (0.0, 0.3,
+0.5, 0.7, 1.0) berdasarkan fungsi *composite reward* yang
+mengombinasikan 50% akurasi, 30% keberagaman, dan 20% kebaruan. Evaluasi
+komprehensif pada dataset 36.992 interaksi dari 224 destinasi Sumedang
+(*sparsity* 0,602%) dan pengujian pengguna (n=30) dilakukan untuk
+memvalidasi performa sistem.
+
+Model MAB-MMR mencapai akurasi setara baseline Hybrid (NDCG@10=0,0237,
+p=0,20) dengan peningkatan *Diversity* sebesar +3,5% dibanding baseline
+tersebut (dari 0,5801 menjadi 0,6003, p\<0,001, Cohen\'s d=0,33) dan
+*Long-Tail Coverage* tertinggi (69,64%). Sistem berhasil memberikan
+boost eksposur signifikan pada destinasi long-tail berkualitas tinggi,
+seperti Curug Pasirwangi yang meningkat +52,78% dan Curug Cirengganis
++33,77%. Evaluasi pengguna (n=30) menunjukkan usability kategori
+\"Baik\" (SUS 79,1, percentile rank ke-85) dengan tingkat penemuan
+destinasi baru yang sangat tinggi (96,7%) dan persepsi keberagaman yang
+positif (4,3/5,0). Keterbatasan meliputi evaluasi terbatas pada satu
+kabupaten dan penggunaan data simulasi untuk sebagian konteks (lalu
+lintas, tren media sosial).
+
+Penelitian ini menunjukkan bahwa pendekatan adaptif *Multi-Armed Bandit*
+untuk optimasi parameter *Maximal Marginal Relevance* dapat secara
+efektif memitigasi popularity bias, meningkatkan visibilitas destinasi
+long-tail, dan mendukung pemerataan distribusi pariwisata tanpa
+mengorbankan akurasi prediksi maupun kepuasan pengguna. Temuan ini
+memberikan panduan praktis bagi pengelola destinasi wisata, pelaku UKM
+lokal, dan pembuat kebijakan dalam meningkatkan visibilitas destinasi
+berkualitas yang selama ini terabaikan.
 
 Kata Kunci: Sistem Rekomendasi Adaptif, *Multi-Armed Bandit, Maximal
 Marginal Relevance, Popularity Bias*, Pariwisata Berkelanjutan,
@@ -87,34 +122,68 @@ NIM: 23523311
 
 (*Master's Program in Informatics*)
 
-Digital transformation in tourism creates a paradox where conventional
-recommender systems exacerbate visitation inequality through popularity
-bias. In Sumedang Regency, 72.4% of visits concentrate in 10 out of 77
-destinations. Static diversification solutions like Maximal Marginal
-Relevance (MMR) fail to adapt to real-time contextual dynamics. This
-study develops an adaptive recommender system integrating Multi-Armed
-Bandit (MAB) for dynamic parameter optimization in MMR, balancing
-accuracy and diversity to promote equitable tourism distribution.
+The digital transformation of the tourism industry has created a
+fundamental paradox where conventional recommender systems exacerbate
+visitation inequality through popularity bias phenomena. Globally, the
+top 10 destinations attract 40% of tourist arrivals, creating
+unsustainable concentration while neglecting the potential of
+alternative destinations. In Sumedang Regency, out of 77 registered
+destinations, 72.4% of total visits are concentrated in only 10 popular
+destinations, while 67 other potential destinations experience
+systematic marginalization. Traditional Collaborative Filtering-based
+recommender systems worsen this problem by reinforcing majority
+preferences, creating a \"rich-get-richer\" cycle where less than 3% of
+items can dominate up to 100% of recommendations.
 
-The methodology employs Design Science Research Methodology (DSRM) with
-a hybrid model (Collaborative and Content-Based) enriched with
-Context-Aware components. The novelty lies in a two-layer optimization:
-MAB dynamically selects parameter $\lambda$based on user feedback,
-followed by MMR re-ranking. Hybrid evaluation combines offline
-evaluation (sparsity 0.602%) and user testing.
+Although diversification techniques such as Maximal Marginal Relevance
+(MMR) have proven to increase recommendation diversity, existing
+approaches use static λ parameters that fail to adapt to the dynamic
+characteristics of the tourism domain. Contextual factors such as
+weather, time, and tourist density significantly influence tourist
+decisions, yet traditional systems cannot respond adaptively to these
+changes. More importantly, no research has systematically explored
+dynamic diversification parameter optimization to achieve optimal
+balance between accuracy and diversity in tourism contexts with extreme
+data sparsity. This research aims to develop an adaptive recommender
+system capable of balancing accuracy and diversity through dynamic
+parameter optimization, and validate its impact on distribution equity
+and long-tail destination exposure. This approach is necessary to
+provide empirical evidence that algorithmic interventions can mitigate
+popularity bias while maintaining user satisfaction.
 
-The MAB-MMR model achieves NDCG@10 of 0.0237 (equivalent to baseline,
-$p = 0.1998$) with 3.5% Diversity increase ($p < 0.001$). MAB
-demonstrates adaptivity by selecting $\lambda = 0.0$in 78.30% of cases
-to prevent accuracy degradation. The system records highest Long-Tail
-Coverage (69.64%) and lowest Gini Coefficient (0.6401), with increased
-exposure for destinations like \"Curug Pasirwangi\" up to 52.78%.
-Qualitative evaluation shows SUS score 75.5, Discovery Rate 78.6% vs
-42.9% baseline ($p = 0.046$), and significantly increased Perceived
-Diversity (4.1 vs 3.2; $p = 0.007$; Cohen\'s $d = 0.98$). This research
-demonstrates the MAB-MMR adaptive approach mitigates popularity bias and
-enhances long-tail destination visibility without compromising user
-satisfaction.
+The research employs Design Science Research Methodology (DSRM) with a
+hybrid architecture integrating Collaborative Filtering, Content-Based
+Filtering, and Context-Aware components that process weather and
+calendar data in real-time via APIs, along with simulation models for
+traffic and social media trends. The core mechanism is a Multi-Armed
+Bandit with Upper Confidence Bound algorithm that adaptively selects λ
+parameter from 5 discrete arms (0.0, 0.3, 0.5, 0.7, 1.0) based on a
+composite reward function combining 50% accuracy, 30% diversity, and 20%
+novelty. Comprehensive evaluation on a dataset of 36,992 interactions
+from 224 Sumedang destinations (0.602% sparsity) and user testing (n=30)
+was conducted to validate system performance.
+
+The MAB-MMR model achieves accuracy equivalent to the Hybrid baseline
+(NDCG@10=0.0237, p=0.20) with a +3.5% increase in Diversity compared to
+that baseline (from 0.5801 to 0.6003, p\<0.001, Cohen\'s d=0.33) and the
+highest Long-Tail Coverage (69.64%). The system successfully provides
+significant exposure boosts to high-quality long-tail destinations, such
+as Curug Pasirwangi which increased by +52.78% and Curug Cirengganis by
++33.77%. User evaluation (n=30) demonstrates \"Good\" category usability
+(SUS 79.1, 85th percentile rank) with a remarkably high discovery rate
+of novel destinations (96.7%) and positive perceived diversity
+(4.3/5.0). Limitations include evaluation restricted to one regency and
+use of simulated data for partial context (traffic, social media
+trends).
+
+This research demonstrates that the adaptive Multi-Armed Bandit approach
+for optimizing Maximal Marginal Relevance parameters can effectively
+mitigate popularity bias, enhance long-tail destination visibility, and
+support equitable tourism distribution without compromising prediction
+accuracy or user satisfaction. These findings provide practical guidance
+for destination managers, local SME operators, and policymakers in
+increasing the visibility of quality destinations that have been
+previously overlooked.
 
 Keywords: Adaptive Recommender System, Multi-Armed Bandit, Maximal
 Marginal Relevance, Popularity Bias, Sustainable Tourism, Long-Tail
@@ -225,18 +294,18 @@ Penulis
 
 [ABSTRAK [i](#abstrak)](#abstrak)
 
-[ABSTRACT [ii](#abstract)](#abstract)
+[ABSTRACT [iii](#abstract)](#abstract)
 
-[HALAMAN PENGESAHAN [iii](#halaman-pengesahan)](#halaman-pengesahan)
+[HALAMAN PENGESAHAN [v](#halaman-pengesahan)](#halaman-pengesahan)
 
 [PEDOMAN PENGGUNAAN TESIS
-[iv](#pedoman-penggunaan-tesis)](#pedoman-penggunaan-tesis)
+[vi](#pedoman-penggunaan-tesis)](#pedoman-penggunaan-tesis)
 
-[HALAMAN PERUNTUKAN [v](#halaman-peruntukan)](#halaman-peruntukan)
+[HALAMAN PERUNTUKAN [vii](#halaman-peruntukan)](#halaman-peruntukan)
 
-[KATA PENGANTAR [vi](#kata-pengantar)](#kata-pengantar)
+[KATA PENGANTAR [viii](#kata-pengantar)](#kata-pengantar)
 
-[DAFTAR ISI [vii](#daftar-isi)](#daftar-isi)
+[DAFTAR ISI [ix](#daftar-isi)](#daftar-isi)
 
 [DAFTAR LAMPIRAN [i](#daftar-lampiran)](#daftar-lampiran)
 
@@ -280,16 +349,16 @@ Pariwisata
 [13](#collaborative-filtering-dalam-sistem-rekomendasi-sektor-pariwisata)](#collaborative-filtering-dalam-sistem-rekomendasi-sektor-pariwisata)
 
 [II.4 *Context-Aware Recommendations* dalam Domain Pariwisata
-[15](#context-aware-recommendations-dalam-domain-pariwisata)](#context-aware-recommendations-dalam-domain-pariwisata)
+[14](#context-aware-recommendations-dalam-domain-pariwisata)](#context-aware-recommendations-dalam-domain-pariwisata)
 
 [II.4.1 Kategori Konteks dalam Pariwisata
 [15](#kategori-konteks-dalam-pariwisata)](#kategori-konteks-dalam-pariwisata)
 
 [II.4.2 Pendekatan Integrasi Konteks
-[16](#pendekatan-integrasi-konteks)](#pendekatan-integrasi-konteks)
+[15](#pendekatan-integrasi-konteks)](#pendekatan-integrasi-konteks)
 
 [II.5 Pendekatan Hibrida untuk Personalisasi
-[17](#pendekatan-hibrida-untuk-personalisasi)](#pendekatan-hibrida-untuk-personalisasi)
+[16](#pendekatan-hibrida-untuk-personalisasi)](#pendekatan-hibrida-untuk-personalisasi)
 
 [II.6 Keberagaman dan Cakupan
 [18](#keberagaman-dan-cakupan)](#keberagaman-dan-cakupan)
@@ -298,7 +367,7 @@ Pariwisata
 [21](#maximal-marginal-relevance-dan-multi-armed-bandit)](#maximal-marginal-relevance-dan-multi-armed-bandit)
 
 [II.8 Sistem Adaptif: Keterbatasan Pendekatan Statis
-[24](#sistem-adaptif-keterbatasan-pendekatan-statis)](#sistem-adaptif-keterbatasan-pendekatan-statis)
+[23](#sistem-adaptif-keterbatasan-pendekatan-statis)](#sistem-adaptif-keterbatasan-pendekatan-statis)
 
 [II.9 Rangkuman Tinjauan Pustaka dan Posisi Penelitian
 [26](#rangkuman-tinjauan-pustaka-dan-posisi-penelitian)](#rangkuman-tinjauan-pustaka-dan-posisi-penelitian)
@@ -342,20 +411,20 @@ Pariwisata
 [52](#arsitektur-aliran-data)](#arsitektur-aliran-data)
 
 [III.4.6 Alur Interaksi Sistem (*Sequence Diagram*)
-[55](#alur-interaksi-sistem-sequence-diagram)](#alur-interaksi-sistem-sequence-diagram)
+[54](#alur-interaksi-sistem-sequence-diagram)](#alur-interaksi-sistem-sequence-diagram)
 
 [III.4.7 Desain Basis Data (ERD)
-[57](#desain-basis-data-erd)](#desain-basis-data-erd)
+[56](#desain-basis-data-erd)](#desain-basis-data-erd)
 
 [III.4.8 Strategi Menangani *Cold Start*
-[60](#strategi-menangani-cold-start)](#strategi-menangani-cold-start)
+[59](#strategi-menangani-cold-start)](#strategi-menangani-cold-start)
 
-[III.5 Demonstrasi [61](#demonstrasi)](#demonstrasi)
+[III.5 Demonstrasi [60](#demonstrasi)](#demonstrasi)
 
 [III.5.1 Skenario Demonstrasi
-[61](#skenario-demonstrasi)](#skenario-demonstrasi)
+[60](#skenario-demonstrasi)](#skenario-demonstrasi)
 
-[III.6 Evaluasi [62](#evaluasi)](#evaluasi)
+[III.6 Evaluasi [61](#evaluasi)](#evaluasi)
 
 [III.6.1 Evaluasi Kuantitatif
 [62](#evaluasi-kuantitatif)](#evaluasi-kuantitatif)
@@ -364,87 +433,88 @@ Pariwisata
 [65](#evaluasi-kualitatif)](#evaluasi-kualitatif)
 
 [III.6.3 Protokol Pengujian
-[66](#protokol-pengujian)](#protokol-pengujian)
+[67](#protokol-pengujian)](#protokol-pengujian)
 
-[III.7 Komunikasi [68](#komunikasi)](#komunikasi)
+[III.7 Komunikasi [69](#komunikasi)](#komunikasi)
 
 [BAB IV. Implementasi dan Hasil Penelitian
-[69](#implementasi-dan-hasil-penelitian)](#implementasi-dan-hasil-penelitian)
+[70](#implementasi-dan-hasil-penelitian)](#implementasi-dan-hasil-penelitian)
 
 [IV.1 Lingkungan Implementasi
-[69](#lingkungan-implementasi)](#lingkungan-implementasi)
+[70](#lingkungan-implementasi)](#lingkungan-implementasi)
 
-[IV.1.1 Stack Teknologi [69](#stack-teknologi)](#stack-teknologi)
+[IV.1.1 Stack Teknologi [70](#stack-teknologi)](#stack-teknologi)
 
 [IV.1.2 Spesifikasi Sistem
-[70](#spesifikasi-sistem)](#spesifikasi-sistem)
+[71](#spesifikasi-sistem)](#spesifikasi-sistem)
 
 [IV.2 Implementasi Sistem
-[70](#implementasi-sistem)](#implementasi-sistem)
+[71](#implementasi-sistem)](#implementasi-sistem)
 
-[IV.2.1 Arsitektur Sistem [71](#arsitektur-sistem)](#arsitektur-sistem)
+[IV.2.1 Arsitektur Sistem [72](#arsitektur-sistem)](#arsitektur-sistem)
 
 [IV.2.2 Deskripsi Dataset dan Eksperimen
-[72](#deskripsi-dataset-dan-eksperimen)](#deskripsi-dataset-dan-eksperimen)
+[73](#deskripsi-dataset-dan-eksperimen)](#deskripsi-dataset-dan-eksperimen)
 
 [IV.2.3 Implementasi Backend dan Model
-[73](#implementasi-backend-dan-model)](#implementasi-backend-dan-model)
+[75](#implementasi-backend-dan-model)](#implementasi-backend-dan-model)
 
 [IV.2.4 Implementasi Antarmuka Pengguna
-[75](#implementasi-antarmuka-pengguna)](#implementasi-antarmuka-pengguna)
+[77](#implementasi-antarmuka-pengguna)](#implementasi-antarmuka-pengguna)
 
 [IV.3 Hasil Evaluasi Kuantitatif
-[75](#hasil-evaluasi-kuantitatif)](#hasil-evaluasi-kuantitatif)
+[78](#hasil-evaluasi-kuantitatif)](#hasil-evaluasi-kuantitatif)
 
 [IV.3.1 Performa Model Baseline Non-Diversified (CF, CB, Hybrid)
-[76](#performa-model-baseline-non-diversified-cf-cb-hybrid)](#performa-model-baseline-non-diversified-cf-cb-hybrid)
+[78](#performa-model-baseline-non-diversified-cf-cb-hybrid)](#performa-model-baseline-non-diversified-cf-cb-hybrid)
 
 [IV.3.2 Performa Model Diversifikasi (MMR Statis vs. MAB-MMR)
-[81](#performa-model-diversifikasi-mmr-statis-vs.-mab-mmr)](#performa-model-diversifikasi-mmr-statis-vs.-mab-mmr)
+[83](#performa-model-diversifikasi-mmr-statis-vs.-mab-mmr)](#performa-model-diversifikasi-mmr-statis-vs.-mab-mmr)
 
-[IV.3.3 Statistical validation kontribusi MAB
-[85](#statistical-validation-kontribusi-mab)](#statistical-validation-kontribusi-mab)
+[IV.3.3 *Statistical Validation* Kontribusi MAB
+[87](#statistical-validation-kontribusi-mab)](#statistical-validation-kontribusi-mab)
 
 [IV.3.4 Pareto frontier analysis & *trade-off* interpretation
-[88](#pareto-frontier-analysis-trade-off-interpretation)](#pareto-frontier-analysis-trade-off-interpretation)
+[91](#pareto-frontier-analysis-trade-off-interpretation)](#pareto-frontier-analysis-trade-off-interpretation)
 
-[IV.3.5 Analisis Distribusi dan *Long-Tail*
-[90](#analisis-distribusi-dan-long-tail)](#analisis-distribusi-dan-long-tail)
+[IV.3.5 Validasi Strategi *Cold-Start* Melalui\
+Stratifikasi Pengguna
+[93](#validasi-strategi-cold-start-melalui-stratifikasi-pengguna)](#validasi-strategi-cold-start-melalui-stratifikasi-pengguna)
 
-[IV.3.6 Analisis *Novelty* [94](#analisis-novelty)](#analisis-novelty)
+[IV.3.6 Analisis Distribusi dan *Long-Tail*
+[94](#analisis-distribusi-dan-long-tail)](#analisis-distribusi-dan-long-tail)
 
-[IV.3.7 Rangkuman Validasi Tujuan Penelitian
-[96](#rangkuman-validasi-tujuan-penelitian)](#rangkuman-validasi-tujuan-penelitian)
+[IV.3.7 Analisis *Novelty* [97](#analisis-novelty)](#analisis-novelty)
 
-[IV.3.8 Evaluasi Performa Sistem (*Latency Analysis*)
-[96](#evaluasi-performa-sistem-latency-analysis)](#evaluasi-performa-sistem-latency-analysis)
+[IV.3.8 Rangkuman Validasi Tujuan Penelitian
+[99](#rangkuman-validasi-tujuan-penelitian)](#rangkuman-validasi-tujuan-penelitian)
 
-[IV.3.9 Demonstrasi Adaptabilitas Skenario (*Case Studies*)
-[97](#demonstrasi-adaptabilitas-skenario-case-studies)](#demonstrasi-adaptabilitas-skenario-case-studies)
+[IV.3.9 Evaluasi Performa Sistem (*Latency Analysis*)
+[100](#evaluasi-performa-sistem-latency-analysis)](#evaluasi-performa-sistem-latency-analysis)
+
+[IV.3.10 Demonstrasi Adaptabilitas Skenario (*Case Studies*)
+[101](#demonstrasi-adaptabilitas-skenario-case-studies)](#demonstrasi-adaptabilitas-skenario-case-studies)
 
 [IV.4 Hasil Evaluasi Kualitatif
-[99](#hasil-evaluasi-kualitatif)](#hasil-evaluasi-kualitatif)
+[103](#hasil-evaluasi-kualitatif)](#hasil-evaluasi-kualitatif)
 
-[IV.4.1 Metodologi User Testing
-[99](#metodologi-user-testing)](#metodologi-user-testing)
+[IV.4.1 Hasil SUS (*System Usability Scale*)
+[103](#hasil-sus-system-usability-scale)](#hasil-sus-system-usability-scale)
 
-[IV.4.2 Hasil SUS (*System Usability Scale*)
-[101](#hasil-sus-system-usability-scale)](#hasil-sus-system-usability-scale)
+[IV.4.2 Triangulasi Kualitatif-Kuantitatif
+[105](#triangulasi-kualitatif-kuantitatif)](#triangulasi-kualitatif-kuantitatif)
 
-[IV.4.3 Triangulasi Kualitatif-Kuantitatif
-[104](#triangulasi-kualitatif-kuantitatif)](#triangulasi-kualitatif-kuantitatif)
-
-[IV.4.4 Kesimpulan Evaluasi Kualitatif
-[105](#kesimpulan-evaluasi-kualitatif)](#kesimpulan-evaluasi-kualitatif)
+[IV.4.3 Kesimpulan Evaluasi Kualitatif
+[106](#kesimpulan-evaluasi-kualitatif)](#kesimpulan-evaluasi-kualitatif)
 
 [IV.5 Diskusi dan Implikasi
-[106](#diskusi-dan-implikasi)](#diskusi-dan-implikasi)
+[107](#diskusi-dan-implikasi)](#diskusi-dan-implikasi)
 
 [IV.5.1 Interpretasi Temuan Utama
-[106](#interpretasi-temuan-utama)](#interpretasi-temuan-utama)
+[107](#interpretasi-temuan-utama)](#interpretasi-temuan-utama)
 
 [IV.5.2 Kontribusi terhadap *Body of Knowledge*
-[108](#kontribusi-terhadap-body-of-knowledge)](#kontribusi-terhadap-body-of-knowledge)
+[109](#kontribusi-terhadap-body-of-knowledge)](#kontribusi-terhadap-body-of-knowledge)
 
 [IV.5.3 Implikasi Praktis [109](#implikasi-praktis)](#implikasi-praktis)
 
@@ -460,165 +530,172 @@ Pariwisata
 
 [V.2 Saran [115](#saran)](#saran)
 
-[DAFTAR PUSTAKA [117](#daftar-pustaka)](#daftar-pustaka)
+[DAFTAR PUSTAKA [116](#daftar-pustaka)](#daftar-pustaka)
 
-[LAMPIRAN [121](#lampiran)](#lampiran)
+[LAMPIRAN [120](#lampiran)](#lampiran)
 
 # DAFTAR LAMPIRAN
 
 [Lampiran A: Detail Implementasi Teknis
-[122](#_Toc214305484)](#_Toc214305484)
+[121](#_Toc214880879)](#_Toc214880879)
 
-[A.1 Snippet Kode Komponen Utama [122](#_Toc214305485)](#_Toc214305485)
+[A.1 Snippet Kode Komponen Utama [121](#_Toc214880880)](#_Toc214880880)
 
 [A.2 Detail Aturan Kontekstual Aditif
-[124](#_Toc214305486)](#_Toc214305486)
+[123](#_Toc214880881)](#_Toc214880881)
 
 # DAFTAR GAMBAR DAN ILUSTRASI
 
 [Gambar II.1 Alur Konseptual Penelitian
-[28](#_Toc214313529)](#_Toc214313529)
+[28](#_Toc214882431)](#_Toc214882431)
 
 [Gambar III.1 Kerangka Kerja DSRM berdasarkan Peffers dkk (2007)
-[29](#_Toc214313530)](#_Toc214313530)
+[29](#_Toc214882432)](#_Toc214882432)
 
-[Gambar III.2 Kerangka Penelitian [30](#_Toc214313531)](#_Toc214313531)
-
-[Gambar III.3 Desain Model Machine Learning
-[49](#_Toc214313532)](#_Toc214313532)
+[Gambar III.2 Kerangka Penelitian [30](#_Toc214882433)](#_Toc214882433)
 
 [Gambar III.4 Arsitektur Aliran Data
-[52](#_Toc214313533)](#_Toc214313533)
+[52](#_Toc214882434)](#_Toc214882434)
 
 [Gambar III.5 Tahap 1: Permintaan Rekomendasi
-[55](#_Toc214313534)](#_Toc214313534)
+[54](#_Toc214882435)](#_Toc214882435)
 
 [Gambar III.6 Tahap 6-7: Interaksi & Pembelajaran
-[56](#_Toc214313535)](#_Toc214313535)
+[55](#_Toc214882436)](#_Toc214882436)
 
 [Gambar III.7 *Entity-Relationship Diagram* (ERD)
-[57](#_Toc214313536)](#_Toc214313536)
+[56](#_Toc214882437)](#_Toc214882437)
 
 [Gambar IV.1 Arsitektur Pipeline Rekomendasi MAB-MMR
-[72](#_Toc214313537)](#_Toc214313537)
+[73](#_Toc214882438)](#_Toc214882438)
 
-[Gambar IV.2 Perbandingan Rata-rata Metrik Model Baseline
-Non-Diversified [80](#_Toc214313538)](#_Toc214313538)
+[Gambar IV.2 Distribusi Interaksi Pengguna Asli (*Long-Tail*) pada
+Dataset\
+Pariwisata Sumedang [74](#_Toc214882439)](#_Toc214882439)
 
-[Gambar IV.3 *Trade-off* Akurasi (NDCG@10) vs. Keberagaman\
-(*Diversity*) [88](#_Toc214313539)](#_Toc214313539)
+[Gambar IV.3 Tampilan Halaman Utama
+[77](#_Toc214882440)](#_Toc214882440)
 
-[Gambar IV.4 Visualisasi metrik *long-tail*: (a) Jangkauan (*Coverage*)
+[Gambar IV.4 Perbandingan Rata-rata Metrik Model Baseline
+*Non-Diversified* [82](#_Toc214882441)](#_Toc214882441)
+
+[Gambar IV.5 Kurva Pembelajaran MAB: Peningkatan Rata-rata Reward
+Seiring\
+Waktu [90](#_Toc214882442)](#_Toc214882442)
+
+[Gambar IV.6 *Trade-off* Akurasi (NDCG@10) vs. Keberagaman\
+(*Diversity*) [91](#_Toc214882443)](#_Toc214882443)
+
+[Gambar IV.7 Visualisasi metrik *long-tail*: (a) Jangkauan (*Coverage*)
 per segmen,\
 (b) Rasio *Head-Tail*, (c) *Aggregate Diversity* (Jangkauan Katalog),\
 dan (d) *Expected Popularity Complement* (EPC)
-[92](#_Toc214313540)](#_Toc214313540)
+[96](#_Toc214882444)](#_Toc214882444)
 
-[Gambar IV.5 Stabilitas *Novelty* seiring waktu: (a) Skor *Novelty*
+[Gambar IV.8 Stabilitas *Novelty* seiring waktu: (a) Skor *Novelty*
 dengan 50-episode\
 moving average, dan (b) Rata-rata Novelty per boks episode
-[94](#_Toc214313541)](#_Toc214313541)
+[98](#_Toc214882445)](#_Toc214882445)
 
-[Gambar IV.6 Heatmap Korelasi Metrik MAB-MMR
-[95](#_Toc214313542)](#_Toc214313542)
+[Gambar IV.9 *Heatmap* Korelasi Metrik MAB-MMR
+[99](#_Toc214882446)](#_Toc214882446)
 
 # DAFTAR TABEL
 
 [Tabel III.1 Solusi Alternatif Mengurangi *Popularity Bias*
-[34](#_Toc214305272)](#_Toc214305272)
+[34](#_Toc214880948)](#_Toc214880948)
 
 [Tabel III.2 Solusi Alternatif Mengatasi Kurangnya *Context-Awareness*
-[36](#_Toc214305273)](#_Toc214305273)
+[36](#_Toc214880949)](#_Toc214880949)
 
 [Tabel III.3 Solusi Alternatif Meningkatkan *Diversity & Coverage*
-[38](#_Toc214305274)](#_Toc214305274)
+[38](#_Toc214880950)](#_Toc214880950)
 
 [Tabel III.4 Solusi Alternatif Mengatasi *Cold-Start Problem*
-[40](#_Toc214305275)](#_Toc214305275)
+[40](#_Toc214880951)](#_Toc214880951)
 
 [Tabel III.5 Solusi Alternatif Menangani *Concept Drift*
-[42](#_Toc214305276)](#_Toc214305276)
+[42](#_Toc214880952)](#_Toc214880952)
 
 [Tabel III.6 Kebutuhan Fungsional Sistem
-[45](#_Toc214305277)](#_Toc214305277)
+[45](#_Toc214880953)](#_Toc214880953)
 
-[Tabel III.7 Kebutuhan Non-Fungsional Sistem
-[46](#_Toc214305278)](#_Toc214305278)
+[Tabel III.7 Kebutuhan *Non-Fungsional* Sistem
+[46](#_Toc214880954)](#_Toc214880954)
 
 [Tabel III.8 Spesifikasi Integrasi Data dan API
-[47](#_Toc214305279)](#_Toc214305279)
+[47](#_Toc214880955)](#_Toc214880955)
 
-[Tabel III.9 Struktur Tabel User [58](#_Toc214305280)](#_Toc214305280)
+[Tabel III.9 Struktur Tabel User [57](#_Toc214880956)](#_Toc214880956)
 
 [Tabel III.10 Struktur Tabel rating
-[58](#_Toc214305281)](#_Toc214305281)
+[57](#_Toc214880957)](#_Toc214880957)
 
 [Tabel III.11 Struktur Tabel Destination
-[58](#_Toc214305282)](#_Toc214305282)
+[58](#_Toc214880958)](#_Toc214880958)
 
 [Tabel III.12 Struktur Tabel destination_categories
-[59](#_Toc214305283)](#_Toc214305283)
+[58](#_Toc214880959)](#_Toc214880959)
 
 [Tabel III.13 Struktur Tabel Categories
-[59](#_Toc214305284)](#_Toc214305284)
+[58](#_Toc214880960)](#_Toc214880960)
 
 [Tabel III.14 Struktur Tabel review
-[59](#_Toc214305285)](#_Toc214305285)
+[59](#_Toc214880961)](#_Toc214880961)
 
 [Tabel III.15 Daftar Pernyataan *System Usability Scale*
-[65](#_Toc214305286)](#_Toc214305286)
+[66](#_Toc214880962)](#_Toc214880962)
 
-[Tabel IV.1 Perbandingan Kinerja Model Baseline Non-Diversified
-[76](#_Toc214305287)](#_Toc214305287)
+[Tabel IV.1 Stack Teknologi Penelitian
+[70](#_Toc214880963)](#_Toc214880963)
 
-[Tabel IV.2 Performa MMR dengan Berbagai Nilai λ Statis
-[81](#_Toc214305288)](#_Toc214305288)
+[Tabel IV.2 Perbandingan Kinerja Model *Baseline Non-Diversified*
+[78](#_Toc214880964)](#_Toc214880964)
 
-[Tabel IV.3 Perbandingan MAB-MMR (Adaptif) vs MMR- λ =0.5 (Statis)
-[83](#_Toc214305289)](#_Toc214305289)
+[Tabel IV.3 Performa MMR dengan Berbagai Nilai λ Statis
+[83](#_Toc214880965)](#_Toc214880965)
 
-[Tabel IV.4 Distribusi Pemilihan Parameter λ oleh MAB-MMR
-[84](#_Toc214305290)](#_Toc214305290)
+[Tabel IV.4 Perbandingan MAB-MMR (Adaptif) vs MMR- λ =0.5 (Statis)
+[85](#_Toc214880966)](#_Toc214880966)
 
-[Tabel IV.5 Hasil Uji Statistik (Paired t-test, N=1714 users)
-[85](#_Toc214305291)](#_Toc214305291)
+[Tabel IV.5 Distribusi Pemilihan Parameter λ oleh MAB-MMR
+[86](#_Toc214880967)](#_Toc214880967)
 
-[Tabel IV.6 Perbandingan *Gini Coefficient* (Pemerataan Frekuensi)
-[90](#_Toc214305292)](#_Toc214305292)
+[Tabel IV.6 Hasil Uji Statistik (*Paired t-test*, N=1714 *users*)
+[87](#_Toc214880968)](#_Toc214880968)
 
-[Tabel IV.7 Analisis *Coverage* dan *Long-Tail*
-[91](#_Toc214305293)](#_Toc214305293)
+[Tabel IV.7 Performa Model (NDCG@10) per Strata Pengguna
+[93](#_Toc214880969)](#_Toc214880969)
 
-[Tabel IV.8 Top 5 Destinasi *Long-Tail* dengan Boost Tertinggi\
-(MAB vs. Hybrid) [93](#_Toc214305294)](#_Toc214305294)
+[Tabel IV.8 Perbandingan *Gini Coefficient* (Pemerataan Frekuensi)
+[94](#_Toc214880970)](#_Toc214880970)
 
-[Tabel IV.9 Perbandingan Skor *Novelty*
-[94](#_Toc214305295)](#_Toc214305295)
+[Tabel IV.9 Analisis *Coverage* dan *Long-Tail*
+[95](#_Toc214880971)](#_Toc214880971)
 
-[Tabel IV.10 Demonstrasi Perubahan Rekomendasi pada Berbagai\
-Skenario Konteks [97](#_Toc214305296)](#_Toc214305296)
+[Tabel IV.10 Top 5 Destinasi *Long-Tail* dengan Boost Tertinggi\
+(MAB vs. Hybrid) [96](#_Toc214880972)](#_Toc214880972)
 
-[Tabel IV.11 Karakteristik Demografis Partisipan (N=28)
-[100](#_Toc214305297)](#_Toc214305297)
+[Tabel IV.11 Perbandingan Skor *Novelty*
+[97](#_Toc214880973)](#_Toc214880973)
 
-[Tabel IV.12 Hasil Uji Statistik Evaluasi Kualitatif (Independent
-t-test,\
-n=14 per grup) [102](#_Toc214305298)](#_Toc214305298)
+[Tabel IV.12 Demonstrasi Perubahan Rekomendasi pada Berbagai\
+Skenario Konteks [101](#_Toc214880974)](#_Toc214880974)
 
-[Tabel IV.13 Analisis Per-Item System Usability Scale (MAB-MMR, n=14)
-[103](#_Toc214305299)](#_Toc214305299)
+[Tabel IV.13 Analisis Per-Item *System Usability Scale* (MAB-MMR, n=30)
+[103](#_Toc214880975)](#_Toc214880975)
 
 [Tabel A.2.1 Aturan Kontekstual - Tipe Hari
-[124](#_Toc214305300)](#_Toc214305300)
+[123](#_Toc214880976)](#_Toc214880976)
 
 [Tabel A.2.2 Aturan Kontekstual -- Cuaca
-[125](#_Toc214305301)](#_Toc214305301)
+[124](#_Toc214880977)](#_Toc214880977)
 
 [Tabel A.2.3 Aturan Kontekstual - Waktu & Musim
-[125](#_Toc214305302)](#_Toc214305302)
+[124](#_Toc214880978)](#_Toc214880978)
 
 [Tabel A.2.4 Aturan Kontekstual - Event, Tren, & Kepadatan
-[126](#_Toc214305303)](#_Toc214305303)
+[125](#_Toc214880979)](#_Toc214880979)
 
 # DAFTAR SINGKATAN DAN LAMBANG
 
@@ -634,8 +711,6 @@ n=14 per grup) [102](#_Toc214305298)](#_Toc214305298)
 
   MAB              Multi-Armed Bandit                        Hal. 4
 
-  MAE              Mean Absolute Error                       Hal. 14
-
   ML               Machine Learning                          Hal. 32
 
   MMR              Maximal Marginal Relevance                Hal. 3
@@ -643,8 +718,6 @@ n=14 per grup) [102](#_Toc214305298)](#_Toc214305298)
   NDCG             Normalized Discounted Cumulative Gain     Hal. 5
 
   ODTW             Objek Daya Tarik Wisata                   Hal. 31
-
-  RMSE             Root Mean Squared Error                   Hal. 14
 
   RS               Recommender Systems                       Hal. 7
   ----------------------------------------------------------------------
@@ -693,16 +766,15 @@ dibahas dalam penelitian setelah membaca sumber referensi yang tersedia.
 
 ## Latar Belakang
 
-Industri pariwisata digital menghadapi paradoks fundamental yang
-mengancam esensi eksplorasi wisata itu sendiri. Meskipun teknologi
+Ekosistem pariwisata digital saat ini dihadapkan pada paradoks
+fundamental yang mengancam esensi eksplorasi wisata. Meskipun teknologi
 informasi membuka akses ke ribuan destinasi yang beragam dan otentik,
 sistem rekomendasi konvensional justru menghasilkan konsentrasi
 wisatawan yang tidak berkelanjutan pada segelintir destinasi populer
 Pencarelli, (2020) dan Ricci dkk., (2022) menggarisbawahi fenomena ini.
 Dampak dari paradoks tersebut tidak hanya mengikis autentisitas
-pengalaman wisata, tetapi juga menim
-
-bulkan distorsi ekonomi sistematis dalam ekosistem pariwisata global.
+pengalaman wisata, tetapi juga menimbulkan distorsi ekonomi yang
+sistematis dalam ekosistem pariwisata global.
 
 Konsentrasi wisatawan memicu ketidakseimbangan ekonomi yang merugikan.
 Menurut UNWTO (2021), 10 destinasi teratas menampung 40% kedatangan
@@ -715,8 +787,9 @@ daerah lain kerap terabaikan, sehingga pemerintah beberapa negara,
 seperti Belanda, mendorong kebijakan penyebaran wisatawan ke luar kota
 besar (Hu dkk., 2020). Dalam konteks digital, bias algoritma yang lebih
 sering merekomendasikan destinasi populer (*popularity bias*)
-memperparah ketimpangan ini, sekaligus menyulitkan UKM lokal di
-destinasi alternatif untuk bersaing (Massimo dan Ricci, 2022).
+(Abdollahpouri dkk., 2021) memperparah ketimpangan ini, sekaligus
+menyulitkan UKM lokal di destinasi alternatif untuk bersaing (Massimo
+dan Ricci, 2022).
 
 Secara sosial, konsentrasi wisatawan yang tidak merata menciptakan
 gesekan di lokasi populer dan mengabaikan potensi pengembangan komunitas
@@ -739,12 +812,12 @@ wisatawan yang tidak merata tidak hanya memperburuk beban sosial di
 destinasi utama, tetapi juga menghambat potensi pembangunan komunitas di
 wilayah lain (Hoarau-Heemstra dkk., 2023).
 
-Data dari pariwisata Kabupaten Sumedang memperkuat pola amplifikasi
-algoritmik yang diprediksi dalam literatur, DISPARBUDPORA (2024)
-melaporkan distribusi kunjungan yang sangat timpang: dari 77 destinasi
-terdaftar, 72,4% total kunjungan terpusat pada hanya 10 destinasi
-populer (13% dari total destinasi), menghasilkan distribusi Pareto yang
-jauh lebih ekstrem dibandingkan rasio klasik 80/20.
+Fenomena global tersebut terkonfirmasi oleh data empiris dari Kabupaten
+Sumedang, DISPARBUDPORA (2024) melaporkan distribusi kunjungan yang
+sangat timpang: dari 77 destinasi terdaftar, 72,4% total kunjungan
+terpusat pada hanya 10 destinasi populer (13% dari total destinasi),
+menghasilkan distribusi Pareto yang jauh lebih ekstrem dibandingkan
+rasio klasik 80/20.
 
 Dominasi destinasi *mainstream* menunjukkan pola yang konsisten dengan
 temuan tentang *popularity bias*, di mana item-item populer cenderung
@@ -787,9 +860,9 @@ meningkatkan keberagaman rekomendasi dengan mengoptimalisasi *trade-off*
 antara relevansi dan dissimilarity, dalam kerangka MMR, parameter lambda
 (λ ∈ \[0,1\]) mengatur keseimbangan tersebut λ=0 menekankan relevansi
 murni dan λ=1 memaksimalkan keberagaman tanpa mempertimbangkan
-relevansi. Namun demikian, nilai λ yang bersifat statis menghadapi
-keterbatasan dalam konteks pariwisata yang dinamis. Optimalitas λ
-bersifat kontekstual dan dapat berubah secara drastis berdasarkan
+relevansi. Namun, pendekatan dengan parameter λ statis memiliki
+keterbatasan signifikan dalam merespons dinamika pariwisata. Optimalitas
+λ bersifat kontekstual dan dapat berubah secara drastis berdasarkan
 kondisi *real-time*.
 
 Perubahan konteks seperti perubahan cuaca, kepadatan pengunjung, atau
@@ -803,51 +876,51 @@ menuntut mekanisme adaptif yang mampu menyesuaikan λ secara *real-time*.
 
 *Multi-Armed Bandit* (MAB) menawarkan solusi untuk masalah adaptasi
 parameter λ secara otomatis. MAB bekerja dengan mencoba berbagai nilai λ
-(misalnya 0.3, 0.5, 0.7) dan secara bertahap belajar nilai mana yang
-paling efektif untuk setiap kondisi konteks. Dengan menerima feedback
-dari interaksi pengguna (klik, rating), sistem dapat terus menyesuaikan
-pilihan λ optimal berdasarkan perubahan cuaca, lalu lintas, atau tren
-viral secara berkelanjutan (Shi dkk., 2023).
+(misalnya 0.0, 0.3, 0.5, 0.7, 1.0) dan secara bertahap belajar nilai
+mana yang paling efektif untuk setiap kondisi konteks. Dengan menerima
+feedback dari interaksi pengguna (klik, rating), sistem dapat terus
+menyesuaikan pilihan λ optimal berdasarkan perubahan cuaca, lalu lintas,
+atau tren viral secara berkelanjutan (Shi dkk., 2023).
 
 Meskipun potensi integrasi MAB dengan teknik diversifikasi seperti
 *Maximal Marginal Relevance* (MMR) telah diidentifikasi, implementasi
 sistematis untuk optimasi parameter dinamis dalam lingkungan pemrosesan
 kontekstual *real-time* data multimodal pariwisata belum dieksplorasi
-secara komprehensif. Gap penelitian ini menandai area riset penting
-dalam pengembangan sistem rekomendasi pariwisata adaptif yang dapat
+secara komprehensif. Kesenjangan (gap) penelitian ini mengindikasikan
+urgensi pengembangan sistem rekomendasi pariwisata adaptif yang dapat
 menjawab tantangan distribusi tidak merata sekaligus mempertahankan
 kualitas rekomendasi.
 
 ## Rumusan Masalah
 
-Berikut merupakan rumusan masalah yang akan dibahas dalam penelitian
-ini:
+Berdasarkan identifikasi masalah tersebut, rumusan masalah penelitian
+ini adalah:
 
 1.  Bagaimana optimasi dinamis parameter λ pada MMR menggunakan
     *Multi-Armed Bandit* dapat meningkatkan keberagaman dan cakupan
     rekomendasi tanpa mengorbankan akurasi?
 
-2.  Seberapa besar pengaruh integrasi data *real-time* (cuaca, kondisi
-    lalu lintas, penanggalan, dan tren media sosial) dalam mendorong
-    pemerataan distribusi kunjungan pariwisata, khususnya dengan
-    mengangkat destinasi kurang terekspos, diukur melalui pengurangan
-    koefisien Gini dan peningkatan *Coverage@K*?
+2.  Seberapa besar pengaruh integrasi data kontekstual (cuaca dan
+    kalender secara *real-time*, serta simulasi lalu lintas dan tren
+    media sosial) dalam mendorong pemerataan distribusi kunjungan
+    pariwisata, diukur melalui pengurangan koefisien Gini dan
+    peningkatan *Coverage@K*?
 
 3.  Sejauh mana sistem rekomendasi adaptif dapat meningkatkan eksposur
     destinasi kurang populer dibandingkan sistem konvensional, diukur
-    melalui metrik *Novelty, rasio long-tail coverage,* dan evaluasi
-    kepuasan pengguna (*user acceptance*)?
+    melalui metrik *Novelty, long-tail coverage,* dan evaluasi kepuasan
+    pengguna (*user acceptance*)?
 
 ## Tujuan Penelitian
 
-Tujuan utama penelitian ini adalah mengembangkan sistem rekomendasi
+Tujuan utama penelitian ini adalah pengembangan sistem rekomendasi
 pariwisata adaptif dengan optimasi parameter *Multi-Armed Bandit* pada
 *Maximal Marginal Relevance* yang menyeimbangkan *trade-off* antara
 akurasi (Precision@K, NDCG) dan keberagaman (*Intra-List Diversity*),
 serta memvalidasi dampaknya terhadap pemerataan distribusi rekomendasi
 (*Gini coefficient*), peningkatan *catalog coverage*, dan eksposur
-destinasi kurang populer melalui evaluasi offline. Beberapa tujuan
-spesifik yang dicapai dalam rangka mendukung tujuan utama adalah:
+destinasi kurang populer melalui evaluasi offline. Secara spesifik,
+tujuan penelitian meliputi:
 
 1.  Mengembangkan mekanisme parameter tuning adaptif berbasis
     *Multi-Armed Bandit* pada *Maximal Marginal Relevance* untuk
@@ -856,29 +929,30 @@ spesifik yang dicapai dalam rangka mendukung tujuan utama adalah:
     distribusi rekomendasi yang lebih merata (*Gini coefficient*) dan
     eksposur item yang lebih luas (Coverage@K).
 
-2.  Menerapkan integrasi data kontekstual (cuaca, kondisi lalu lintas,
-    penanggalan, dan tren media sosial) dalam sistem rekomendasi untuk
-    meningkatkan relevansi rekomendasi dan memperluas eksposur
-    destinasi, serta memvalidasi dampaknya terhadap pemerataan
-    distribusi rekomendasi (*Gini coefficient*) dan peningkatan *catalog
-    coverage.*
+2.  Mengintegrasikan data kontekstual dinamis (cuaca dan kalender secara
+    *real-time* melalui API, serta model simulasi lalu lintas dan tren
+    media sosial) dalam sistem rekomendasi untuk meningkatkan relevansi
+    rekomendasi dan memperluas eksposur destinasi, serta memvalidasi
+    dampaknya terhadap pemerataan distribusi rekomendasi (*Gini
+    coefficient*) dan peningkatan *catalog coverage*.
 
 3.  Merancang dan menguji sistem rekomendasi adaptif melalui evaluasi
     hybrid: (a) *offline evaluation* komprehensif menggunakan metrik
     akurasi (Precision@K, Recall@K, NDCG@K), metrik keberagaman
     (*Intra-List Diversity*), metrik distribusi (Gini coefficient,
-    Coverage@K), dan (b) *online user testing* dengan prototype web
+    Coverage@K), dan (b) *online user testing* dengan *prototype* web
     menggunakan *System Usability Scale* (SUS), guna menilai dampaknya
     terhadap eksposur destinasi kurang populer secara komprehensif.
 
 ## Ruang Lingkup Masalah
 
-Untuk meningkatkan fokus dari penelitian, diperlukan beberapa batasan
-dalam penyelesaian masalah penelitian. Berikut merupakan batasan masalah
-dari penelitian ini:
+Agar penelitian lebih terarah, ruang lingkup masalah dibatasi pada
+aspek-aspek berikut:
 
-1.  Penggunaan data *real-time* meliputi pembaruan cuaca, kondisi lalu
-    lintas, penanggalan, dan tren media sosial.
+1.  Penggunaan data kontekstual dinamis meliputi cuaca dan kalender
+    secara *real-time* melalui API (*OpenWeatherMap* dan
+    *Calendarific*), serta model simulasi untuk kondisi lalu lintas dan
+    tren media sosial guna validasi logika adaptasi algoritma.
 
 2.  Penelitian difokuskan pada destinasi wisata di Kabupaten Sumedang.
 
@@ -901,12 +975,16 @@ dari penelitian ini:
 
 ## Kontribusi Keilmuan
 
-Adapun kontribusi penelitian ini adalah sebagai berikut.
-
-1.  Penelitian ini mengembangkan sistem rekomendasi pariwisata adaptif
-    yang menggunakan pemrosesan kontekstual *real-time* sebagai
-    parameter dinamis untuk mengurangi *popularity bias* dan
-    meningkatkan eksposur destinasi kurang populer.
+Kontribusi utama penelitian ini terletak pada pengembangan mekanisme
+optimasi parameter adaptif untuk *Maximal Marginal Relevance* (MMR)
+menggunakan algoritma *Multi-Armed Bandit* (MAB). Penelitian ini mengisi
+celah pada literatur sistem rekomendasi pariwisata yang sebelumnya
+didominasi oleh pendekatan parameter statis, dengan menawarkan solusi
+dinamis untuk menyeimbangkan trade-off antara akurasi dan keberagaman
+secara otomatis. Pendekatan ini terbukti memberikan kontribusi empiris
+dalam memitigasi *popularity bias* dan meningkatkan eksposur destinasi
+long-tail tanpa mengorbankan relevansi, khususnya pada kondisi data
+dengan tingkat kelangkaan (sparsity) tinggi.
 
 ## Hipotesis
 
@@ -916,7 +994,7 @@ Beberapa premis tersebut adalah sebagai berikut:
 
 1.  Model optimasi dinamis (seperti MAB/RL) mampu menyeimbangkan tujuan
     yang saling bertentangan (misalnya, relevansi dan keberagaman)
-    secara adaptif (Shi dkk., 2023) . Hal ini mengatasi keterbatasan
+    secara adaptif (Shi dkk., 2023). Hal ini mengatasi keterbatasan
     *trade-off* kaku pada MMR berparameter statis, yang cenderung
     mengorbankan akurasi untuk meningkatkan keberagaman (Shi dkk.,
     2023).
@@ -927,11 +1005,11 @@ Beberapa premis tersebut adalah sebagai berikut:
     *real-time* (misalnya, waktu, lokasi) melalui *contextual bandit*
     krusial untuk personalisasi yang adaptif (Qassimi dan Rakrak, 2025).
 
-3.  Kerangka kerja adaptif berbasis *Reinforcement Learning* (RL)
-    dirancang untuk memitigasi *popularity bias* (Shi dkk., 2023).
-    Pendekatan ini terbukti meningkatkan *novelty* dan *diversity*
-    sehingga mempromosikan eksposur *long-tail* sembari mempertahankan
-    akurasi yang memadai dibandingkan model statis (Shi dkk., 2023).
+3.  Kerangka kerja adaptif dirancang untuk memitigasi *popularity bias*
+    (Shi dkk., 2023). Pendekatan ini terbukti meningkatkan *novelty* dan
+    *Diversity* sehingga mempromosikan eksposur *long-tail* sembari
+    mempertahankan akurasi yang memadai dibandingkan model statis (Shi
+    dkk., 2023).
 
 Dari beberapa premis tersebut, didapat hipotesis yang mencerminkan fokus
 utama penelitian ini, yaitu: \"Implementasi *Multi-Armed Bandit* untuk
@@ -966,15 +1044,15 @@ BAB III Metodologi Penelitian
 
 BAB IV Implementasi dan Hasil Penelitian
 
-> Bab ini berisi dokumentasikan eksperimen komprehensif, *statistical
+> Bab ini menyajikan dokumentasi implementasi sistem, *statistical
 > analysis*, dan *interpretation of results* dalam konteks *research
 > questions* yang telah diformulasikan.
 
 BAB V Kesimpulan dan Saran
 
-> Bab ini merangkum temuan utama, *acknowledge limitations*, dan
-> menyajikan *future research directions* yang spesifik dan
-> *actionable*.
+> Bab ini merangkum kesimpulan utama yang menjawab rumusan masalah.
+> *acknowledge limitations*, dan menyajikan *future research directions*
+> yang spesifik dan *actionable*.
 
 # Tinjauan Pustaka
 
@@ -985,30 +1063,29 @@ yang menjadi dasar dalam perancangan sistem.
 
 ## Sistem Rekomendasi dalam Ekosistem Pariwisata Digital
 
-Menurut Barykin dkk., (2021) industri pariwisata telah mengalami
-transformasi digital yang fundamental, sebuah proses yang dipercepat
-oleh berbagai peristiwa global yang menyoroti urgensi integrasi
-teknologi. Studi tersebut menekankan bahwa solusi teknologi menjadi
-krusial agar industri ini dapat tumbuh lebih tangguh dan berkelanjutan.
-Sebagai konsekuensinya, para pelaku industri dituntut untuk meningkatkan
+Industri pariwisata telah mengalami transformasi digital fundamental
+yang dipercepat oleh peristiwa global (Barykin dkk., 2021). Studi
+tersebut menekankan bahwa solusi teknologi menjadi krusial agar industri
+ini dapat tumbuh lebih tangguh dan berkelanjutan. Sebagai
+konsekuensinya, para pelaku industri dituntut untuk meningkatkan
 kehadiran *e-commerce*, menawarkan pengalaman digital yang inovatif, dan
 mengoptimalkan strategi pemasaran destinasi mereka (Barykin dkk., 2021).
 
-Namun ironisnya pertumbuhan data yang eksponensial di internet (Huang
-dkk., 2020 dan Alfaifi, 2024) justru menciptakan fenomena paradoksal,
-yaitu kelebihan informasi atau information overload (Kumar dkk., 2024
-dan Sachi Nandan Mohanty, 2020). Paradoks ini secara fundamental
-menghambat kemampuan pengguna untuk mengakses konten yang relevan dengan
-cepat (Huang dkk., 2020) dan menjadikan pencarian rekomendasi yang
-benar-benar sesuai sebagai sebuah tantangan kompleks (Kumar dkk., 2024).
-Oleh karena itu, sistem rekomendasi hadir sebagai alat mitigasi yang
-krusial, dirancang khusus untuk mengelola surplus informasi ini dan
-memfasilitasi pengambilan keputusan yang lebih optimal bagi pengguna
-(Gotthardt dan Mezhuyev, 2022 dan Ko dkk., 2022).
+Pertumbuhan data eksponensial di internet (*information overload*)
+(Huang dkk., 2020 dan Alfaifi, 2024) menciptakan paradoks kelebihan
+informasi (*information overload*) (Kumar dkk., 2024 dan Sachi Nandan
+Mohanty, 2020). Paradoks ini secara fundamental menghambat kemampuan
+pengguna untuk mengakses konten yang relevan dengan cepat (Huang dkk.,
+2020) dan menjadikan pencarian rekomendasi yang benar-benar sesuai
+sebagai sebuah tantangan kompleks (Kumar dkk., 2024). Oleh karena itu,
+sistem rekomendasi hadir sebagai alat mitigasi yang krusial, dirancang
+khusus untuk mengelola surplus informasi ini dan memfasilitasi
+pengambilan keputusan yang lebih optimal bagi pengguna (Gotthardt dan
+Mezhuyev, 2022).
 
-Dengan demikian, peran strategis Sistem Rekomendasi (SR) melampaui
-sekadar mekanisme penyelesaian masalah kelebihan informasi (Shuvo dan
-Islam, 2024). Lebih dari itu, SR berfungsi sebagai pendorong pergeseran
+Dengan demikian, peran strategis Sistem Rekomendasi melampaui sekadar
+mekanisme penyelesaian masalah kelebihan informasi (Shuvo dan Islam,
+2024). Lebih dari itu, SR berfungsi sebagai pendorong pergeseran
 paradigma dalam perilaku wisatawan dari pemrosesan informasi yang
 reaktif menuju kurasi pengalaman yang proaktif. Kemampuan SR untuk
 menyediakan rekomendasi yang personal dan relevan, seperti yang
@@ -1040,30 +1117,30 @@ pengalaman wisatawan dan menjadikan perjalanan sebagai jalur yang lebih
 bermakna menuju pengembangan pribadi, sebuah tren yang sejalan dengan
 pantauan (World Tourism Organization, 2024).
 
-Dengan demikian, sistem rekomendasi tidak hanya berfungsi sebagai alat
-teknis untuk mengatasi *information overload*, tetapi juga sebagai
-enabler transformasi fundamental dalam cara wisatawan merencanakan dan
-mengalami perjalanan mereka. Kemampuan SR untuk menyeimbangkan
-personalisasi dengan penemuan pengalaman otentik menjadi titik tolak
-bagi penelitian ini dalam mengembangkan sistem yang tidak hanya relevan
-tetapi juga mendorong diversifikasi destinasi wisata.
+Oleh karena itu, sistem rekomendasi berfungsi tidak hanya sebagai
+instrumen teknis untuk mengatasi *information overload*, melainkan juga
+sebagai fasilitator transformasi fundamental dalam cara wisatawan
+merencanakan dan mengalami perjalanan mereka. Kemampuan SR untuk
+menyeimbangkan personalisasi dengan penemuan pengalaman otentik menjadi
+titik tolak bagi penelitian ini dalam mengembangkan sistem yang tidak
+hanya relevan tetapi juga mendorong diversifikasi destinasi wisata.
 
 ## Tantangan Sistem Rekomendasi Konvensional: *Popularity Bias*
 
-Dalam lanskap sistem rekomendasi (SR) yang terus berkembang (Alfaifi,
-2024), *popularity bias* menjadi sebuah fenomena sistemik yang
-signifikan. Bias ini menyebabkan item-item populer direkomendasikan
-secara tidak proporsional dibandingkan item long-tail. Seperti yang
-diidentifikasi oleh Yalcin dan Bilge, (2021) dan Abdollahpouri dkk.,
-(2021), item niche tersebut mungkin sangat relevan bagi preferensi
-pengguna namun terabaikan. Kecenderungan intrinsik ini menghasilkan efek
-\"yang kaya semakin kaya\" (*the rich get richer*), di mana item-item
-populer secara sistematis diuntungkan (Abdollahpouri dkk., 2021).
-Akibatnya, konten populer mendapatkan visibilitas berlebihan yang
-kemudian meningkatkan konsumsinya secara eksponensial. Kondisi ini,
-menurut Abdollahpouri, (2019) dan Ricci dkk., (2022), menyebabkan
-marjinalisasi terhadap item-item niche, terutama yang baru, meskipun
-memiliki potensi relevansi yang tinggi.
+Dalam lanskap sistem rekomendasi yang terus berkembang (Alfaifi, 2024),
+*popularity bias* menjadi sebuah fenomena sistemik yang signifikan. Bias
+ini menyebabkan item-item populer direkomendasikan secara tidak
+proporsional dibandingkan item *long-tail*. Seperti yang diidentifikasi
+oleh Yalcin dan Bilge, (2021) dan Abdollahpouri dkk., (2021), *item
+niche* tersebut mungkin sangat relevan bagi preferensi pengguna namun
+terabaikan. Kecenderungan intrinsik ini menghasilkan efek \"yang kaya
+semakin kaya\" (*the rich get richer*), di mana item-item populer secara
+sistematis diuntungkan (Abdollahpouri dkk., 2021). Akibatnya, konten
+populer mendapatkan visibilitas berlebihan yang kemudian meningkatkan
+konsumsinya secara eksponensial. Kondisi ini, menurut Abdollahpouri,
+(2019) dan Ricci dkk., (2022), menyebabkan marjinalisasi terhadap
+item-item niche, terutama yang baru, meskipun memiliki potensi relevansi
+yang tinggi.
 
 Akar dari bias algoritmik ini terletak pada karakteristik fundamental
 algoritma itu sendiri, yang dilatih berdasarkan pola preferensi pengguna
@@ -1124,16 +1201,16 @@ sejalan dengan pemikiran Abdollahpouri, (2019) dan Ricci dkk., (2022),
 untuk memastikan terciptanya ekosistem pariwisata yang lebih merata dan
 berkelanjutan.
 
-Analisis mendalam terhadap *popularity bias* dan dampaknya yang
+Analisis komprehensif terhadap popularity bias dan dampaknya yang
 multidimensi mulai dari degradasi pengalaman wisatawan hingga
-ketimpangan ekonomi regional menjadi landasan fundamental bagi
-penelitian ini. Fenomena *overtourism* dan marjinalisasi destinasi
-*long-tail* yang diidentifikasi dalam tinjauan ini bukan sekadar masalah
-teknis algoritmik, melainkan tantangan sosio-ekonomi yang mendesak. Oleh
-karena itu, penelitian ini tidak hanya bertujuan meningkatkan metrik
-teknis seperti akurasi, tetapi secara eksplisit mengintegrasikan
-mekanisme mitigasi bias popularitas melalui strategi diversifikasi
-adaptif yang responsif terhadap dinamika kontekstual pariwisata.
+ketimpangan ekonomi regional mendasari urgensi penelitian ini. Fenomena
+*overtourism* dan marjinalisasi destinasi *long-tail* yang
+diidentifikasi dalam tinjauan ini bukan sekadar masalah teknis
+algoritmik, melainkan tantangan sosio-ekonomi yang mendesak. Oleh karena
+itu, penelitian ini tidak hanya bertujuan meningkatkan metrik teknis
+seperti akurasi, tetapi secara eksplisit mengintegrasikan mekanisme
+mitigasi bias popularitas melalui strategi diversifikasi adaptif yang
+responsif terhadap dinamika kontekstual pariwisata.
 
 ## *Collaborative Filtering* dalam Sistem Rekomendasi Sektor Pariwisata
 
@@ -1141,9 +1218,8 @@ adaptif yang responsif terhadap dinamika kontekstual pariwisata.
 paling banyak diadopsi dalam sistem rekomendasi (Wang dkk., 2022) dan
 telah menjadi salah satu pendekatan dominan dalam domain pariwisata
 (Solano-Barliza dkk., 2024). Pendekatan ini bekerja dengan
-merekomendasikan destinasi *Point of Interest* (POI) berdasarkan
-analisis pola perilaku pengguna dengan preferensi serupa (Yoon dan Choi,
-2023).
+merekomendasikan berdasarkan analisis pola perilaku pengguna dengan
+preferensi serupa (Yoon dan Choi, 2023).
 
 CF berbasis pengguna mengidentifikasi sekelompok kecil wisatawan dengan
 preferensi serupa dan menggunakan pola kunjungan mereka untuk
@@ -1163,7 +1239,7 @@ fundamental yang menghambat efektivitasnya dalam layanan perencanaan
 perjalanan (Choi dkk., 2021). Pertama, CF sangat rentan terhadap masalah
 data sparsity, terutama untuk destinasi baru atau kurang populer yang
 memiliki sedikit interaksi historis (Yoon dan Choi, 2023). Kedua, sifat
-content-agnostic CF yang hanya mengandalkan pola perilaku agregat
+*content-agnostic* CF yang hanya mengandalkan pola perilaku agregat
 cenderung memperkuat popularity bias, di mana destinasi populer secara
 sistematis direkomendasikan secara berlebihan (Falk, 2019 dan
 Abdollahpouri dkk., 2021). Ketiga, CF tradisional tidak mampu
@@ -1174,7 +1250,7 @@ dan Ricci, 2022).
 Keterbatasan-keterbatasan CF konvensional ini menjadi justifikasi utama
 bagi penelitian ini untuk mengembangkan pendekatan hibrida yang
 mengintegrasikan CF dengan teknik lain. Dengan menggabungkan kekuatan CF
-dalam personalisasi dengan mekanisme context-aware dan strategi
+dalam personalisasi dengan mekanisme *context-aware* dan strategi
 diversifikasi adaptif, penelitian ini bertujuan mengatasi kelemahan
 inheren CF sambil mempertahankan kemampuan personalisasinya. Pendekatan
 ini menjadi fondasi bagi sistem rekomendasi yang tidak hanya akurat
@@ -1241,18 +1317,18 @@ oleh Suhaim dan Berri, (2021):
     prediksi. Pendekatan ini dianggap lebih canggih karena mampu
     menangkap interaksi kompleks antara pengguna, item, dan konteks .
 
-Dengan menyadari keunggulan dan keterbatasan dari masing-masing
-paradigma integrasi kontekstual, penelitian ini mengusulkan pendekatan
-hibrida yang mengombinasikan kekuatan pemodelan kontekstual (contextual
-modeling) pada tahap candidate generation dengan fleksibilitas
-pasca-penyaringan kontekstual (post-filtering) pada tahap re-ranking.
-Pendekatan ini memastikan informasi kontekstual tidak hanya memengaruhi
-pemilihan kandidat awal tetapi juga secara dinamis menyesuaikan urutan
-rekomendasi final berdasarkan kondisi *real-time* pengguna. Dengan
-demikian, sistem yang dikembangkan menghasilkan rekomendasi yang tidak
-hanya relevan secara situasional tetapi juga dioptimalkan untuk tujuan
-keberagaman dan pemerataan destinasi wisata, sebuah kebutuhan krusial
-yang terabaikan dalam pendekatan context-aware konvensional.
+Berdasarkan analisis keunggulan dan keterbatasan tersebut, penelitian
+ini mengusulkan pendekatan hibrida yang mengombinasikan kekuatan
+pemodelan kontekstual (contextual modeling) pada tahap candidate
+generation dengan fleksibilitas pasca-penyaringan kontekstual
+(post-filtering) pada tahap re-ranking. Pendekatan ini memastikan
+informasi kontekstual tidak hanya memengaruhi pemilihan kandidat awal
+tetapi juga secara dinamis menyesuaikan urutan rekomendasi final
+berdasarkan kondisi *real-time* pengguna. Dengan demikian, sistem yang
+dikembangkan menghasilkan rekomendasi yang tidak hanya relevan secara
+situasional tetapi juga dioptimalkan untuk tujuan keberagaman dan
+pemerataan destinasi wisata, sebuah kebutuhan krusial yang terabaikan
+dalam pendekatan context-aware konvensional.
 
 ## Pendekatan Hibrida untuk Personalisasi
 
@@ -1310,14 +1386,14 @@ dalam domain pariwisata.
 
 ## Keberagaman dan Cakupan
 
-Shambour dkk., (2024) mencatat bahwa evaluasi sistem rekomendasi (SR)
-secara historis sangat bertumpu pada metrik akurasi prediktif, seperti
-*Mean Absolute Error* (MAE) dan *Root Mean Square Error* (RMSE). MAE
-mengukur selisih absolut rata-rata antara prediksi dan rating aktual,
-sedangkan RMSE menjalankan fungsi serupa namun dengan memberikan bobot
-lebih pada kesalahan yang besar (Falk, 2019). Namun, studi oleh Choi
-dkk., (2021) menunjukkan bahwa dalam konteks pariwisata yang kompleks,
-metrik akurasi tradisional ini menjadi tidak memadai.
+Shambour dkk., (2024) mencatat bahwa evaluasi sistem rekomendasi secara
+historis sangat bertumpu pada metrik akurasi prediktif, seperti *Mean
+Absolute Error* (MAE) dan *Root Mean Square Error* (RMSE). MAE mengukur
+selisih absolut rata-rata antara prediksi dan rating aktual, sedangkan
+RMSE menjalankan fungsi serupa namun dengan memberikan bobot lebih pada
+kesalahan yang besar (Falk, 2019). Namun, studi oleh Choi dkk., (2021)
+menunjukkan bahwa dalam konteks pariwisata yang kompleks, metrik akurasi
+tradisional ini menjadi tidak memadai.
 
 Ricci dkk., (2022) mengidentifikasi bahwa peningkatan marginal dalam
 akurasi yang dilaporkan dalam riset sering kali tidak berkorelasi dengan
@@ -1342,9 +1418,9 @@ mendefinisikan keberagaman sebagai lawan dari kesamaan, yang merujuk
 pada variasi item dalam sebuah daftar rekomendasi. Pengukuran
 keberagaman dapat dilakukan dengan menghitung jarak rata-rata
 berpasangan antar semua item dalam set tersebut (Ricci dkk., 2022).
-Literatur kemudian membedakan dua jenis utama: *intra-list diversity*,
+Literatur kemudian membedakan dua jenis utama: *intra-list Diversity*,
 yang mengukur perbedaan item untuk seorang pengguna, dan *inter-list
-diversity*, yang menilai perbedaan antar daftar rekomendasi untuk
+Diversity*, yang menilai perbedaan antar daftar rekomendasi untuk
 pengguna yang berbeda (Akhadam dkk., 2025). Pentingnya keberagaman
 didasari oleh beberapa argumen.
 
@@ -1362,18 +1438,18 @@ jenis aktivitas, bukan sekadar variasi minor pada lokasi yang sama
 
 Dimensi evaluasi krusial lainnya adalah kebaruan (*novelty*), yang
 merujuk pada sejauh mana item yang direkomendasikan belum pernah atau
-jarang dilihat oleh pengguna (Abdollahpouri dkk., 2021 dan Akhadam dkk.,
-2025). Sementara keberagaman berfokus pada variasi karakteristik antar
-item, *novelty* memastikan pengguna terekspos pada konten atau
-pengalaman yang benar-benar baru dan tidak terduga (Ricci dkk., 2022 dan
-Abdollahpouri dkk., 2020). Di domain pariwisata, *novelty* memiliki
-nilai strategis tinggi karena berkaitan dengan penemuan hidden gems
-destinasi non-mainstream dengan potensi pengalaman otentik
-(Abdollahpouri dkk., 2020). Sistem yang efektif menghasilkan rekomendasi
-baru dapat mendorong wisatawan keluar dari zona nyaman mereka, menemukan
-pengalaman yang tidak terjangkau melalui pencarian konvensional,
-sekaligus mengurangi *popularity bias* dengan mengeksplorasi item-item
-*long-tail* yang relevan (Abdollahpouri dkk., 2021).
+jarang dilihat oleh pengguna (Abdollahpouri dkk., 2021). Sementara
+keberagaman berfokus pada variasi karakteristik antar item, *novelty*
+memastikan pengguna terekspos pada konten atau pengalaman yang
+benar-benar baru dan tidak terduga (Ricci dkk., 2022). Di domain
+pariwisata, *novelty* memiliki nilai strategis tinggi karena berkaitan
+dengan penemuan hidden gems destinasi non-mainstream dengan potensi
+pengalaman otentik (Abdollahpouri dkk., 2020). Sistem yang efektif
+menghasilkan rekomendasi baru dapat mendorong wisatawan keluar dari zona
+nyaman mereka, menemukan pengalaman yang tidak terjangkau melalui
+pencarian konvensional, sekaligus mengurangi *popularity bias* dengan
+mengeksplorasi item-item *long-tail* yang relevan (Abdollahpouri dkk.,
+2021).
 
 Meskipun demikian, optimalisasi *novelty* menghadirkan dilema
 fundamental. Sebagaimana diperingatkan oleh Falk, (2019) terlalu banyak
@@ -1400,7 +1476,7 @@ Destinasi yang baru berkembang seringkali kekurangan data historis (Yoon
 dan Choi, 2023), dan sistem dengan cakupan rendah akan cenderung
 mengabaikan aset potensial ini dan hanya berfokus pada item populer
 (Abdollahpouri dkk., 2021). Dengan demikian, peningkatan cakupan menjadi
-strategi vital untuk mendistribusikan perhatian ke item-item long-tail
+strategi vital untuk mendistribusikan perhatian ke item-item *long-tail*
 yang krusial bagi keberlanjutan ekonomi sektor pariwisata (Ricci dkk.,
 2022).
 
@@ -1513,19 +1589,19 @@ adaptif (Yoon dan Choi, 2023; Achmad dkk., 2023).
 
 ## Sistem Adaptif: Keterbatasan Pendekatan Statis
 
-Sistem rekomendasi (SR) tradisional, yang beroperasi berdasarkan data
+Sistem rekomendasi tradisional, yang beroperasi berdasarkan data
 historis dan pemodelan statis, menunjukkan keterbatasan signifikan dalam
 konteks dinamis karena kerap mengabaikan perubahan minat pengguna dari
 waktu ke waktu (Wang dkk., 2022 dan Bukhari dkk., 2025)). Akibatnya,
 sistem ini kesulitan merekomendasikan destinasi saat informasi tidak
 mencukupi atau berubah secara *real-time* (Song dan Jiao, 2023 dan Yoon
-dan Choi, 2023). Yoon dan Choi, (2023) bahkan mencatat bahwa SR berbasis
-kecerdasan buatan (AI) pun memiliki kelemahan serupa, karena gagal
-merefleksikan perubahan faktor eksternal seperti suhu atau curah hujan.
-Hal ini menggarisbawahi bagaimana sebagian besar model rekomendasi yang
-ada masih cenderung statis dalam beradaptasi terhadap perubahan
-lingkungan dan preferensi pengguna (Shi dkk., 2023 dan Bukhari dkk.,
-2025).
+dan Choi, 2023). Yoon dan Choi, (2023) mengidentifikasi bahwa SR
+berbasis kecerdasan buatan (AI) juga memiliki keterbatasan serupa,
+karena gagal merefleksikan perubahan faktor eksternal seperti suhu atau
+curah hujan. Hal ini menggarisbawahi bagaimana sebagian besar model
+rekomendasi yang ada masih cenderung statis dalam beradaptasi terhadap
+perubahan lingkungan dan preferensi pengguna (Shi dkk., 2023 dan Bukhari
+dkk., 2025).
 
 Dalam riset pariwisata, pentingnya konteks *real-time* telah berulang
 kali ditekankan oleh berbagai peneliti (Javadian Sabet dkk., 2022 dan
@@ -1598,16 +1674,15 @@ interval yang tidak terduga (Wang dkk., 2022 dan Shi dkk., 2023).
 
 ## Rangkuman Tinjauan Pustaka dan Posisi Penelitian
 
-Tinjauan pustaka yang telah disajikan mengungkap progresi logis dari
-masalah fundamental hingga celah penelitian kritis dalam ekosistem
-rekomendasi pariwisata digital. Transformasi digital industri pariwisata
-(Barykin dkk., 2021) telah menciptakan paradoks *information overload*
-yang memerlukan sistem rekomendasi sebagai solusi (Kumar dkk., 2024).
-Namun, sistem rekomendasi konvensional berbasis *Collaborative
-Filtering* menghadapi tantangan sistemik berupa *popularity bias*
-(Abdollahpouri dkk., 2021), yang dalam konteks pariwisata memicu
-fenomena overtourism dan ketimpangan ekonomi regional yang signifikan
-(Pencarelli, 2020 dan Ricci dkk., 2022).
+Tinjauan pustaka ini mengungkap progresi logis dari masalah fundamental
+hingga celah penelitian kritis dalam ekosistem rekomendasi pariwisata
+digital. Transformasi digital industri pariwisata (Barykin dkk., 2021)
+telah menciptakan paradoks *information overload* yang memerlukan sistem
+rekomendasi sebagai solusi (Kumar dkk., 2024). Namun, sistem rekomendasi
+konvensional berbasis *Collaborative Filtering* menghadapi tantangan
+sistemik berupa *popularity bias* (Abdollahpouri dkk., 2021), yang dalam
+konteks pariwisata memicu fenomena overtourism dan ketimpangan ekonomi
+regional yang signifikan (Pencarelli, 2020 dan Ricci dkk., 2022).
 
 Upaya mitigasi melalui teknik diversifikasi seperti *Maximal Marginal
 Relevance* (MMR) telah menunjukkan hasil positif dalam meningkatkan
@@ -1662,11 +1737,11 @@ yang memetakan secara sistematis dari identifikasi masalah fundamental
 keterbatasannya (MMR statis), hingga kerangka solusi adaptif yang
 diusulkan (integrasi MAB-MMR dengan pemrosesan kontekstual *real-time*).
 
-[]{#_Toc214313529 .anchor}Gambar II.1 Alur Konseptual Penelitian
+[]{#_Toc214882431 .anchor}Gambar II.1 Alur Konseptual Penelitian
 
 # Metodologi Penelitian
 
-Bab ini akan menjelaskan metodologi penelitian yang diterapkan dalam
+Bab ini menguraikan metodologi penelitian yang diterapkan dalam
 pengembangan sistem rekomendasi adaptif *real-time* ini. Pendekatan
 *Design Science Research Methodology* (DSRM) dipilih sebagai kerangka
 kerja utama. Pembahasan dalam bab ini akan mencakup setiap tahapan DSRM,
@@ -1676,37 +1751,37 @@ penelitian.
 
 ## Metode Penelitian DSRM
 
-Penelitian ini menggunakan metode DSRM. DSRM adalah salah satu metode
-penelitian yang menyajikan setiap tahapan dengan mudah sehingga membantu
-dalam penelitian yang berhubungan dengan teknologi informasi dengan
-prinsip "pencarian solusi yang bertujuan" (Peffers dkk., 2007). Metode
-ini dapat digunakan untuk memahami dan melakukan evaluasi. DSRM terdiri
-dari enam tahapan mulai dari proses identifikasi terhadap masalah,
-menentukan solusi, melakukan perancangan dan pengembangan, melakukan
-demonstrasi, melakukan evaluasi, sampai dengan melakukan komunikasi
-seperti yang ditampilkan pada Gambar III. 1.
+Penelitian ini menggunakan metode DSRM. DSRM merupakan kerangka kerja
+metodologis yang menyediakan tahapan terstruktur untuk memfasilitasi
+penelitian yang berhubungan dengan teknologi informasi dengan prinsip
+"pencarian solusi yang bertujuan" (Peffers dkk., 2007). Metode ini dapat
+digunakan untuk memahami dan melakukan evaluasi. DSRM terdiri dari enam
+tahapan mulai dari proses identifikasi terhadap masalah, menentukan
+solusi, melakukan perancangan dan pengembangan, melakukan demonstrasi,
+melakukan evaluasi, sampai dengan melakukan komunikasi seperti yang
+ditampilkan pada Gambar III. 1.
 
 ![A diagram of a process AI-generated content may be
 incorrect.](media/image3.png){width="5.510416666666667in"
 height="2.2536209536307963in"}
 
-[]{#_Toc214313530 .anchor}Gambar III.1 Kerangka Kerja DSRM berdasarkan
+[]{#_Toc214882432 .anchor}Gambar III.1 Kerangka Kerja DSRM berdasarkan
 Peffers dkk (2007)
 
 Pemilihan DSRM dalam penelitian ini didasarkan pada beberapa
 pertimbangan strategis yang selaras dengan karakteristik sistem
 rekomendasi adaptif yang dikembangkan. Pertama, DSRM memberikan kerangka
 kerja yang terstruktur untuk menggabungkan konsep teori dengan pembuatan
-sistem nyata, sebuah hal ini penting agar mengingat penelitian ini
-menggabungkan konsep teoritis *Multi-Armed Bandit* dengan aplikasi
-praktis dalam domain pariwisata yang dinamis. Kedua, sifat iteratif DSRM
-memungkinkan memperbaiki sistem berdasarkan feedback dari setiap tahap
-evaluasi, sangat relevan dengan sistem yang dikembangkan, yang memang
-bersifat adaptif dan terus belajar dari sistem yang dikembangkan.
-Ketiga, DSRM mendukung evaluasi dari berbagai sisi yang mencakup aspek
-teknis (akurasi, keberagaman, cakupan) dan aspek pengalaman pengguna
-(user acceptance, usability), selaras dengan paradigma evaluasi
-\"*beyond accuracy*\" yang telah diidentifikasi dalam tinjauan pustaka.
+sistem nyata, hal ini krusial mengingat penelitian ini mengintegrasikan
+konsep teoritis *Multi-Armed Bandit* dengan aplikasi praktis dalam
+domain pariwisata yang dinamis. Kedua, sifat iteratif DSRM memungkinkan
+memperbaiki sistem berdasarkan feedback dari setiap tahap evaluasi,
+sangat relevan dengan sistem yang dikembangkan, yang memang bersifat
+adaptif dan terus belajar dari sistem yang dikembangkan. Ketiga, DSRM
+mendukung evaluasi dari berbagai sisi yang mencakup aspek teknis
+(akurasi, keberagaman, cakupan) dan aspek pengalaman pengguna (user
+acceptance, usability), selaras dengan paradigma evaluasi \"*beyond
+accuracy*\" yang telah diidentifikasi dalam tinjauan pustaka.
 
 Berdasarkan kerangka DSRM, setiap tahapan penelitian telah diuraikan
 metode pelaksanaannya secara rinci guna memastikan penelitian berjalan
@@ -1716,11 +1791,10 @@ pada DSRM memfasilitasi uji coba prototipe dalam skenario perubahan
 cuaca mendadak. Berikut kerangka penelitian yang digunakan dalam
 penelitian ini sebagaimana pada Gambar III 2.
 
-![A diagram of a company AI-generated content may be
-incorrect.](media/image4.png){width="7.4652438757655295in"
-height="3.8384623797025372in"}
+![](media/image4.png){width="7.458333333333333in"
+height="3.1881944444444446in"}
 
-[]{#_Toc214313531 .anchor}Gambar III.2 Kerangka Penelitian
+[]{#_Toc214882433 .anchor}Gambar III.2 Kerangka Penelitian
 
 ## Identifikasi Masalah dan Motivasi
 
@@ -1812,8 +1886,8 @@ keberagaman, cakupan, dan adaptivitas kontekstual.
 Berdasarkan masalah yang telah teridentifikasi, tahapan kedua DSRM
 adalah menentukan tujuan dari solusi yang diusulkan. Tujuan ini telah
 dirumuskan secara spesifik dan terukur dalam bentuk Rumusan Masalah dan
-Tujuan Penelitian di Bab I, yang secara langsung diturunkan dari
-*research gap* yang diidentifikasi pada akhir Bab II.
+Tujuan ini diformulasikan, yang berangkat dari kesenjangan penelitian
+(*research gap*) yang diidentifikasi pada akhir Bab II.
 
 ### Analisis Solusi
 
@@ -1825,7 +1899,7 @@ Tujuan Penelitian di Bab I, yang secara langsung diturunkan dari
 > Bilge, 2021). Tabel III.1 memuat beberapa solusi yang bisa mengurangi
 > *popularity bias.*
 
-[]{#_Toc214305272 .anchor}Tabel III.1 Solusi Alternatif Mengurangi
+[]{#_Toc214880948 .anchor}Tabel III.1 Solusi Alternatif Mengurangi
 *Popularity Bias*
 
   ---------------------------------------------------------------------------------------------
@@ -1884,7 +1958,7 @@ Tujuan Penelitian di Bab I, yang secara langsung diturunkan dari
 > pengguna (Suhaim dan Berri, 2021). Tabel III.2 memuat beberapa solusi
 > yang bisa mengatasi kurangnya *context-awareness*.
 
-[]{#_Toc214305273 .anchor}Tabel III.2 Solusi Alternatif Mengatasi
+[]{#_Toc214880949 .anchor}Tabel III.2 Solusi Alternatif Mengatasi
 Kurangnya *Context-Awareness*
 
   --------------------------------------------------------------------------------
@@ -1945,9 +2019,9 @@ Kurangnya *Context-Awareness*
 > dan rendahnya visibilitas *item long-tail* (Abdollahpouri dkk., 2021),
 > yang penting untuk penemuan pengetahuan dan keadilan bagi penyedia
 > konten (Abdollahpouri, 2019). Tabel III.3 memuat beberapa solusi yang
-> bisa meningkatkan *diversity* dan *coverage*.
+> bisa meningkatkan *Diversity* dan *coverage*.
 
-[]{#_Toc214305274 .anchor}Tabel III.3 Solusi Alternatif Meningkatkan
+[]{#_Toc214880950 .anchor}Tabel III.3 Solusi Alternatif Meningkatkan
 *Diversity & Coverage*
 
   ----------------------------------------------------------------------------------
@@ -2004,7 +2078,7 @@ Kurangnya *Context-Awareness*
 > tidak adanya data historis yang memadai (Shambour dkk., 2024). Tabel
 > III.4 memuat beberapa solusi yang bisa menangani *cold-start problem*.
 
-[]{#_Toc214305275 .anchor}Tabel III.4 Solusi Alternatif Mengatasi
+[]{#_Toc214880951 .anchor}Tabel III.4 Solusi Alternatif Mengatasi
 *Cold-Start Problem*
 
   ----------------------------------------------------------------------------------------
@@ -2060,7 +2134,7 @@ Kurangnya *Context-Awareness*
 > dengan lingkungan yang dinamis (Bukhari dkk., 2025). Tabel III.5
 > memuat beberapa solusi yang bisa menangani *Concept Drift*.
 
-[]{#_Toc214305276 .anchor}Tabel III.5 Solusi Alternatif Menangani
+[]{#_Toc214880952 .anchor}Tabel III.5 Solusi Alternatif Menangani
 *Concept Drift*
 
   ----------------------------------------------------------------------------------
@@ -2089,10 +2163,10 @@ Kurangnya *Context-Awareness*
                         seringkali        Pendekatan berbasis   
                        menggunakan       LSTM dapat menyeleksi  
                      arsitektur LSTM    fitur kontekstual yang  
-                     (Long Short-Term   relevan seperti jarak,  
-                       Memory) atau        waktu, dan cuaca.    
-                    Time-aware Matrix                           
-                      Factorization.                            
+                    (*Long Short-Term   relevan seperti jarak,  
+                      Memory*) atau        waktu, dan cuaca.    
+                    *Time-aware Matrix                          
+                     Factorization*.                            
 
     *Contextual     C-MAB mengadaptasi    Ringan, Mudah, dan    Secara tradisional,
     Multi-Armed    strategi exploration   *Real-time*: C-MAB     MAB mengasumsikan
@@ -2108,7 +2182,7 @@ Kurangnya *Context-Awareness*
                      mengintegrasikan                           
                          optimasi                               
                        multi-tujuan                             
-                       (*diversity,                             
+                       (*Diversity,                             
                         fairness,                               
                     relevance*) secara                          
                          dinamis.                               
@@ -2122,11 +2196,11 @@ mengadopsi kerangka kerja adaptif:
 
 $$Hybrid\ (CF + CB + Context - Aware) + MMR + MAB$$
 
-Kerangka kerja ini dipilih karena mencapai keseimbangan antara cakupan
-masalah, efisiensi implementasi, dan kemampuan adaptasi *real-time* yang
-krusial untuk sektor pariwisata yang dinamis:
+Kerangka kerja ini diadopsi untuk mengakomodasi keseimbangan antara
+kompleksitas masalah, efisiensi implementasi, dan kemampuan adaptasi
+*real-time* yang krusial untuk sektor pariwisata yang dinamis:
 
-1.  Mengatasi Cold-Start (Hybrid CF+CB+Context-Aware): Penggunaan
+1.  Mengatasi *Cold-Start* (Hybrid CF+CB+*Context-Aware*): Penggunaan
     pendekatan hibrida (*hybrid switching* atau *mixed*) yang
     menggabungkan CF dan CBF secara efektif menangani *Cold-Start
     Problem* dan *Low Coverage*. Komponen *Context-Aware* (CARS) yang
@@ -2157,8 +2231,8 @@ Tahap Perancangan dan Pengembangan merupakan inti dari DSRM, di mana
 sistem solusi mulai dibangun secara teknis. Berdasarkan tujuan yang
 telah dirumuskan pada sub-bab sebelumnya, sistem yang dikembangkan dalam
 penelitian ini adalah sebuah sistem rekomendasi pariwisata adaptif
-*real-time*. Bagian ini akan menjelaskan cetak biru teknis dari sistem
-tersebut.
+*real-time*. Sub-bab ini menyajikan spesifikasi teknis dan arsitektur
+sistem.
 
 ### Spesifikasi Kebutuhan Sistem
 
@@ -2173,7 +2247,7 @@ Kebutuhan Fungsional
 Kebutuhan fungsional mendefinisikan fungsionalitas inti yang harus
 disediakan sistem. Spesifikasi lengkap disajikan pada Tabel III.6.
 
-[]{#_Toc214305277 .anchor}Tabel III.6 Kebutuhan Fungsional Sistem
+[]{#_Toc214880953 .anchor}Tabel III.6 Kebutuhan Fungsional Sistem
 
   -----------------------------------------------------------------------
   ID      Kebutuhan Fungsional
@@ -2194,12 +2268,12 @@ disediakan sistem. Spesifikasi lengkap disajikan pada Tabel III.6.
           interaksi) untuk evaluasi
   -----------------------------------------------------------------------
 
-Kebutuhan Non-Fungsional
+Kebutuhan *Non-Fungsional*
 
-Kebutuhan non-fungsional mendefinisikan standar kualitas dan batasan
+Kebutuhan *non-fungsional* mendefinisikan standar kualitas dan batasan
 operasional sistem. Spesifikasi lengkap disajikan pada Tabel III.7:
 
-[]{#_Toc214305278 .anchor}Tabel III.7 Kebutuhan Non-Fungsional Sistem
+[]{#_Toc214880954 .anchor}Tabel III.7 Kebutuhan *Non-Fungsional* Sistem
 
 +-------+--------------------------------------------------------------+
 | ID    | Kebutuhan Non-Fungsional                                     |
@@ -2243,33 +2317,33 @@ API publik. Pemilihan sumber data ini diturunkan secara langsung dari
 rumusan masalah penelitian guna menangkap konteks perjalanan yang
 menyuluruh. Rincian API yang digunakan disajikan pada Tabel III.8.
 
-[]{#_Toc214305279 .anchor}Tabel III.8 Spesifikasi Integrasi Data dan API
+[]{#_Toc214880955 .anchor}Tabel III.8 Spesifikasi Integrasi Data dan API
 
   -------------------------------------------------------------------------
    No.   Sumber Data      API yang       Data Point yang        Tujuan
                           Digunakan          Diambil       Penggunaan dalam
                                                                 Model
   ----- ------------- ----------------- ------------------ ----------------
-    1       Cuaca      OpenWeatherMap   Suhu, kelembaban,   Context-aware
-         *Real-time*         API           curah hujan,    filtering untuk
+    1       Cuaca      OpenWeatherMap   Suhu, kelembaban,   *Context-aware
+         *Real-time*         API           curah hujan,    filtering* untuk
                                          kecepatan angin,     destinasi
                                            visibility,        outdoor vs
                                           kondisi cuaca         indoor
 
     2   Lalu Lintas &   Data Simulasi      Kondisi lalu      Optimalisasi
           Mobilitas     (Google Maps          lintas         routing dan
-                       Traffic Logic)     (Macet/Lancar)    accessibility
-                                                               scoring
+                       Traffic Logic)     (Macet/Lancar)    *accessibility
+                                                               scoring*
 
-    3   Media Sosial    Data Simulasi    Trending Topic &  Popularity trend
-                           (Trends          Viral Tags        detection
+    3   Media Sosial    Data Simulasi    Trending Topic &    *Popularity
+                           (Trends          Viral Tags     trend detection*
                          Injection)                        
 
-    4    Kalender &    Google Calendar      Hari libur         Seasonal
-            Event            API         nasional/daerah,   adjustment dan
-                                         festival lokal,     event-based
+    4    Kalender &     Calenderafic        Hari libur        *Seasonal
+            Event                        nasional/daerah,  adjustment* dan
+                                         festival lokal,     *event-based
                                           event musiman     recommendation
-                                                               boosting
+                                                              boosting*
   -------------------------------------------------------------------------
 
 Pada tahap implementasi penelitian ini, modul integrasi untuk *Traffic*
@@ -2296,17 +2370,12 @@ sesungguhnya.
 
 ### Desain Model *Machine Learning* (MAB-MMR)
 
-Model yang diusulkan dalam penelitian ini dirancang untuk bekerja
-seperti sebuah tim ahli perjalanan yang cerdas dan adaptif. Proses
-kerjanya dibagi menjadi dua langkah utama: pertama, menghasilkan daftar
-kandidat destinasi yang relevan (Generasi Kandidat) dan kedua
+Model yang diusulkan dalam penelitian ini dirancang untuk beroperasi
+sebagai sistem rekomendasi yang adaptif terhadap preferensi dan konteks.
+Proses kerjanya dibagi menjadi dua langkah utama: pertama, menghasilkan
+daftar kandidat destinasi yang relevan (Generasi Kandidat) dan kedua
 menyempurnakan daftar tersebut secara dinamis untuk menyeimbangkan
-berbagai tujuan (Optimisasi Adaptif), seperti yang ditunjukan pada
-gambar III.3:
-
-![[]{#_Toc214313532 .anchor}Gambar III.3 Desain Model Machine
-Learning](media/image6.svg){width="5.267361111111111in"
-height="5.680555555555555in"}
+berbagai tujuan (Optimisasi Adaptif).
 
 Langkah 1: Generasi Kandidat dengan Model Hibrida
 
@@ -2343,19 +2412,44 @@ dengan:
 > Nilai ini bisa berubah-ubah; misalnya saat cuaca buruk, bobot α
 > Context​ akan ditingkatkan secara otomatis.
 
+Fungsi *composite reward* mengombinasikan 50% NDCG, 30% Diversity, dan
+20% Novelty untuk menyeimbangkan tiga objektif yang saling berkompetisi.
+Prioritas 50% untuk akurasi (NDCG) dipilih karena relevansi tetap
+fundamental dalam domain eksplorasi, sejalan dengan temuan Shi dkk.
+(2023) bahwa bobot akurasi \<40% menurunkan user engagement, sementara
+\>70% gagal mencapai diversifikasi (Abdollahpouri dkk., 2020). Bobot ini
+ditentukan, dengan alokasi 30% *Diversity* dan 20% *Novelty* memberikan
+nilai yang cukup untuk eksplorasi tanpa mengorbankan relevansi.
+
 Langkah 2: Optimisasi Adaptif dengan MAB-MMR
 
 Setelah mendapatkan daftar kandidat, sistem tidak langsung
-menampilkannya. Daftar tersebut akan disempurnakan melalui proses
-\"editorial\" cerdas yang merupakan inti inovasi penelitian ini.
+menampilkannya. Daftar tersebut dioptimasi melalui mekanisme penyesuaian
+bobot dinamis yang menjadi kontribusi utama penelitian ini.
 
 1.  Penentuan Strategi oleh MAB
 
 > Pertama, sistem harus menentukan strategi rekomendasi yang paling
 > tepat untuk situasi saat ini. Apakah harus fokus pada akurasi, atau
-> lebih mementingkan keberagaman? Proses pemilihan strategi ini
-> menggunakan algoritma *Upper Confidence Bound* (UCB) yang dihitung
-> berdasarkan persamaan III.2:
+> lebih mementingkan keberagaman? MAB bertugas memilih parameter λ
+> optimal dari 5 arms diskrit \[0.0, 0.3, 0.5, 0.7, 1.0\] yang
+> merepresentasikan spektrum strategi dari \"relevansi murni\" (λ=0.0)
+> hingga \"keberagaman murni\" (λ=1.0).
+>
+> Pemilihan 5 nilai diskrit ini didasarkan pada pertimbangan strategis:
+
+- spektrum penuh dari relevansi murni (λ=0.0) hingga keberagaman murni
+  (λ=1.0).
+
+- interval 0.2-0.3 yang cukup diskriminatif berdasarkan eksperimen
+  pendahuluan.
+
+- efisiensi eksplorasi sejalan dengan literatur (Qassimi dan
+  Rakrak, 2025) yang menunjukkan 3-7 arms sebagai optimal untuk
+  *contextual bandits*.
+
+> Proses pemilihan strategi ini menggunakan algoritma *Upper Confidence
+> Bound* (UCB) yang dihitung berdasarkan persamaan III.2:
 
   ------------------------------------------------------------------------
   $$UCB(t,k)\  = \ \mu\hat{}(t,k)\  + \ c\sqrt{}(ln(t)/N(k))$$   (III.2)
@@ -2369,8 +2463,8 @@ menampilkannya. Daftar tersebut akan disempurnakan melalui proses
 > memilih strategi dengan skor tertinggi.
 >
 > $\mu\hat{}(t,k)$: Rata-rata *reward* atau keberhasilan strategi k di
-> masa lalu. Ini adalah komponen eksploitasi, yang memanfaatkan strategi
-> yang sudah terbukti berhasil.
+> masa lalu. Komponen ini merepresentasikan eksploitasi, yang
+> memanfaatkan strategi dengan riwayat keberhasilan tertinggi.
 >
 > $c\sqrt{}(ln(t)/N(k))$: \"Bonus rasa penasaran\". Nilai bonus ini akan
 > tinggi untuk strategi yang jarang dicoba. Ini adalah komponen
@@ -2415,10 +2509,11 @@ menampilkannya. Daftar tersebut akan disempurnakan melalui proses
 
 Langkah 3: Menjaga Model Tetap Relevan (Adaptasi Jangka Panjang)
 
-Model *machine learning* bisa menjadi \"ketinggalan zaman\". Dunia
-pariwisata dan selera pengguna terus berubah, sehingga model yang dibuat
-hari ini mungkin tidak akan akurat lagi di masa depan. Oleh karena itu,
-penelitian ini merancang agar model bisa beradaptasi seiring waktu.
+Model machine learning rentan mengalami penurunan performa akibat
+kadaluwarsa data. Dunia pariwisata dan selera pengguna terus berubah,
+sehingga model yang dibuat hari ini mungkin tidak akan akurat lagi di
+masa depan. Oleh karena itu, penelitian ini merancang agar model bisa
+beradaptasi seiring waktu.
 
 Untuk menangani perubahan preferensi pengguna (*Concept Drift*) dalam
 jangka panjang, sistem dirancang dengan kapabilitas Model Retraining.
@@ -2440,7 +2535,7 @@ kapabilitas pembelajaran berkelanjutan. Proses operasional sistem, dari
 permintaan awal hingga penyajian rekomendasi, dieksekusi melalui alur
 kerja berikut:
 
-[]{#_Toc214313533 .anchor}Gambar III.4 Arsitektur Aliran Data
+[]{#_Toc214882434 .anchor}Gambar III.4 Arsitektur Aliran Data
 
 1.  Tahap 1: Pengumpulan Data: Proses dimulai dengan mengambil dua
     kategori data. Data *real-time* mencakup cuaca, lalu lintas, tren
@@ -2477,7 +2572,7 @@ kerja berikut:
     (0.0, 0.3, 0.5, 0.7, 1.0) menggunakan *Upper Confidence Bound
     policy*. Layer kedua: *Maximal Marginal Relevance* menggunakan λ
     terpilih untuk me-rerank kandidat dengan menyeimbangkan relevansi
-    dan *diversity* secara dinamis, serta mengimplementasikan modul
+    dan *Diversity* secara dinamis, serta mengimplementasikan modul
     koreksi bias untuk memitigasi *popularity bias* dan mempromosikan
     destinasi yang kurang terekspos.
 
@@ -2485,22 +2580,13 @@ kerja berikut:
     telah teroptimalkan disajikan kepada pengguna melalui sebuah
     endpoint API.
 
-7.  Tahap 7: Siklus Pembelajaran MAB: Interaksi pengguna (click, dwell
-    time, rating) dikonversi menjadi reward signal untuk MAB. Sistem
-    menghitung composite reward dengan persamaan III.1:
-
-> $\alpha \cdot CTR\  + \ \beta \cdot Diversity\_ gain\  + \ \gamma \cdot Coverage\_ improvement\ $
-> (III.1)
->
-> untuk setiap pilihan λ. Data reward ini digunakan MAB untuk
-> memperbarui estimasi performa setiap arm, menciptakan pembelajaran
-> berkelanjutan yang mengoptimalkan parameter λ seiring waktu, sehingga
-> membentuk sebuah siklus pembelajaran berkelanjutan. Penentuan bobot β
-> dan γ dalam fungsi *composite reward* akan dilakukan melalui proses
-> *hyperparameter tuning* pada tahap awal eksperimen. Nilai-nilai ini
-> akan dijaga konstan selama evaluasi untuk memastikan perbandingan yang
-> adil antar model, namun diakui sebagai parameter yang dapat
-> dioptimalkan lebih lanjut dalam penelitian mendatang.
+7.  Tahap 7: Siklus Pembelajaran MAB: Interaksi dikonversi menjadi
+    reward signal untuk MAB. Data reward ini digunakan MAB untuk
+    memperbarui estimasi performa setiap arm, menciptakan pembelajaran
+    berkelanjutan yang mengoptimalkan parameter λ seiring waktu,
+    sehingga membentuk sebuah siklus pembelajaran berkelanjutan.
+    Penentuan bobot β dan γ dalam fungsi *composite reward* sudah
+    ditetapkan sebelumnya.
 
 8.  Untuk mendukung kapabilitas adaptif *real-time*, Arsitektur sistem
     dirancang menggunakan pendekatan Microservices berbasis
@@ -2521,7 +2607,7 @@ kerja berikut:
 
 ### Alur Interaksi Sistem (*Sequence Diagram*)
 
-[]{#_Toc214313534 .anchor}Gambar III.5 Tahap 1: Permintaan Rekomendasi
+[]{#_Toc214882435 .anchor}Gambar III.5 Tahap 1: Permintaan Rekomendasi
 
 Alur pertama, yang ditunjukkan pada Gambar III.5, adalah proses
 permintaan rekomendasi. Alur ini diinisiasi ketika Pengguna mengakses
@@ -2532,7 +2618,7 @@ orkestrator utama: ia memanggil Layanan Konteks untuk mengumpulkan data
 parameter λ optimal (Tahap 5), dan mengeksekusi Model Hibrida untuk
 menghasilkan daftar rekomendasi final (Tahap 3, 4, 5).
 
-[]{#_Toc214313535 .anchor}Gambar III.6 Tahap 6-7: Interaksi &
+[]{#_Toc214882436 .anchor}Gambar III.6 Tahap 6-7: Interaksi &
 Pembelajaran
 
 Kedua alur ini permintaan dan umpan balik secara bersama-sama membentuk
@@ -2554,13 +2640,13 @@ rating dan review berfungsi sebagai tabel perantara (*junction tables*).
 Setiap entri dalam tabel ini mencatat satu interaksi unik antara seorang
 pengguna dengan sebuah destinasi. Struktur logis dan hubungan antar
 semua entitas ini divisualisasikan secara lengkap dalam
-*Entity-Relationship Diagram* (ERD) yang disajikan pada Gambar.
+*Entity-Relationship Diagram* (ERD) yang disajikan pada Gambar III.7.
 
 ![A diagram of a computer AI-generated content may be
-incorrect.](media/image10.png){width="5.504399606299213in"
+incorrect.](media/image8.png){width="5.504399606299213in"
 height="3.2875in"}
 
-[]{#_Toc214313536 .anchor}Gambar III.7 *Entity-Relationship Diagram*
+[]{#_Toc214882437 .anchor}Gambar III.7 *Entity-Relationship Diagram*
 (ERD)
 
 Berikut ini disajikan spesifikasi teknis untuk setiap tabel yang
@@ -2568,7 +2654,7 @@ menyusun basis data. Detail pada tabel-tabel di bawah ini merinci setiap
 kolom, termasuk tipe data yang digunakan dan keterangan fungsionalnya,
 yang berfungsi sebagai *blueprint* untuk implementasi.
 
-[]{#_Toc214305280 .anchor}Tabel III.9 Struktur Tabel User
+[]{#_Toc214880956 .anchor}Tabel III.9 Struktur Tabel User
 
   -----------------------------------------------------------------------
         Nama Kolom               Tipe Data              Keterangan
@@ -2592,7 +2678,7 @@ yang berfungsi sebagai *blueprint* untuk implementasi.
                                                          otomatis.
   -----------------------------------------------------------------------
 
-[]{#_Toc214305281 .anchor}Tabel III.10 Struktur Tabel rating
+[]{#_Toc214880957 .anchor}Tabel III.10 Struktur Tabel rating
 
   -----------------------------------------------------------------------
         Nama Kolom               Tipe Data              Keterangan
@@ -2616,7 +2702,7 @@ yang berfungsi sebagai *blueprint* untuk implementasi.
                                                          otomatis.
   -----------------------------------------------------------------------
 
-[]{#_Toc214305282 .anchor}Tabel III.11 Struktur Tabel Destination
+[]{#_Toc214880958 .anchor}Tabel III.11 Struktur Tabel Destination
 
   -----------------------------------------------------------------------
         Nama Kolom               Tipe Data              Keterangan
@@ -2643,7 +2729,7 @@ yang berfungsi sebagai *blueprint* untuk implementasi.
                                                         destinasi.
   -----------------------------------------------------------------------
 
-[]{#_Toc214305283 .anchor}Tabel III.12 Struktur Tabel
+[]{#_Toc214880959 .anchor}Tabel III.12 Struktur Tabel
 destination_categories
 
   -----------------------------------------------------------------------
@@ -2658,7 +2744,7 @@ destination_categories
                                                       categories(id).
   -----------------------------------------------------------------------
 
-[]{#_Toc214305284 .anchor}Tabel III.13 Struktur Tabel Categories
+[]{#_Toc214880960 .anchor}Tabel III.13 Struktur Tabel Categories
 
   -----------------------------------------------------------------------
         Nama Kolom               Tipe Data              Keterangan
@@ -2675,7 +2761,7 @@ destination_categories
                                                          tersebut.
   -----------------------------------------------------------------------
 
-[]{#_Toc214305285 .anchor}Tabel III.14 Struktur Tabel review
+[]{#_Toc214880961 .anchor}Tabel III.14 Struktur Tabel review
 
   -----------------------------------------------------------------------
         Nama Kolom               Tipe Data              Keterangan
@@ -2726,9 +2812,9 @@ pendekatan desain:
 > nol atau netral karena ketiadaan tetangga (*neighbors*) yang valid.
 > Dengan desain ini, skor rekomendasi akhir secara otomatis didominasi
 > oleh komponen *Content-Based* (CB) yang tetap berfungsi optimal
-> berdasarkan kesesuaian fitur item. Mekanisme ini menciptakan jaring
-> pengaman (*fallback*) otomatis tanpa memerlukan penyesuaian parameter
-> manual yang kompleks.
+> berdasarkan kesesuaian fitur item. Mekanisme ini berfungsi sebagai
+> prosedur mitigasi (fallback) otomatis tanpa memerlukan penyesuaian
+> parameter manual yang kompleks.
 
 3.  *Contextual Boosting* sebagai Sinyal Tambahan:
 
@@ -2751,38 +2837,57 @@ Kabupaten Sumedang.
 
 ### Skenario Demonstrasi
 
-Demonstrasi sistem akan dilakukan melalui simulasi berbagai skenario
-yang mencerminkan kondisi operasional sesungguhnya dalam domain
-pariwisata Kabupaten Sumedang:
+Demonstrasi sistem dilaksanakan melalui simulasi skenario terkontrol
+yang mencerminkan kondisi operasional nyata dalam domain pariwisata
+Kabupaten Sumedang. Tujuan demonstrasi adalah memvalidasi tiga
+kapabilitas inti sistem adaptif: (1) personalisasi akurat dalam kondisi
+normal, (2) responsivitas terhadap perubahan konteks eksternal, dan (3)
+kemampuan diversifikasi untuk pemerataan distribusi.
 
-1.  Skenario 1: Simulasi cuaca hujan di Sumedang. Bayangkan seorang
-    turis sedang merencanakan kunjungan ke Paralayang Batu Dua.
-    Tiba-tiba, sistem mendeteksi prediksi hujan lebat dalam satu jam ke
-    depan dari API cuaca. Dalam skenario ini, sistem diuji kemampuannya
-    untuk beradaptasi. Harapannya, rekomendasi Paralayang akan otomatis
-    turun peringkatnya, dan sistem akan menaikkan prioritas destinasi
-    dalam ruangan yang relevan di sekitarnya, seperti Museum Prabu
-    Geusan Ulun atau kafe-kafe unik di pusat kota.
+Untuk mencapai tujuan tersebut, evaluasi akan difokuskan pada *case
+study* pengguna representatif dengan tiga skenario kontekstual yang
+kontras:
 
-2.  Skenario 2: Simulasi sedang ada event musiman dan festival. Simulasi
-    kondisi saat festival budaya berlangsung, di mana kepadatan
-    wisatawan di destinasi tertentu meningkat drastis. Sistem diharapkan
-    mampu mendiversifikasi rekomendasi ke destinasi alternatif yang
-    sejenis untuk mengurangi overcrowding.
+1.  Skenario 1 - *Baseline Performance* (Kondisi Ideal):
 
-3.  Skenario 3: Simulasi terhadap apa yang sedang viral. Melihat
-    responsivitas sistem terhadap hal-hal yang viral dalam social media
-    untuk destinasi tertentu, mengevaluasi kemampuan sistem dalam
-    menangani antara merespons trend dan mempertahankan diversitas.
+> Menguji kemampuan sistem mempertahankan personalisasi akurat pada
+> kondisi tanpa kendala kontekstual (cuaca cerah, kepadatan normal).
+> Sistem diharapkan merekomendasikan destinasi yang sesuai preferensi
+> historis pengguna dengan parameter λ rendah untuk memaksimalkan
+> relevansi. Validasi fokus pada akurasi pencocokan profil pengguna
+> dengan karakteristik destinasi.
+
+2.  Skenario 2 - *Context Responsiveness* (Perubahan Drastis):
+
+> Menguji responsivitas sistem terhadap perubahan konteks lingkungan
+> yang signifikan (misalnya: cuaca ekstrem, gangguan lalu lintas).
+> Sistem diharapkan mampu melakukan intervensi adaptif dengan
+> mengalihkan rekomendasi ke kategori alternatif yang lebih sesuai
+> kondisi. Validasi fokus pada kemampuan sistem memprioritaskan
+> kenyamanan dan keselamatan pengguna.
+
+3.  Skenario 3 - *Diversity Optimization* (Kondisi Crowded):
+
+> Menguji kemampuan sistem mendiversifikasi rekomendasi saat terjadi
+> konsentrasi wisatawan tinggi. Sistem diharapkan meningkatkan parameter
+> λ untuk mempromosikan destinasi alternatif yang beragam, sejalan
+> dengan tujuan penelitian mencegah *overtourism*. Validasi fokus pada
+> variasi geografis dan kategori destinasi yang direkomendasikan.
+
+Pemilihan pengguna sampel dan parameter skenario spesifik (misalnya:
+preferensi historis pengguna, jenis konteks yang disimulasikan) akan
+didasarkan pada analisis eksplorasi data untuk memastikan
+representativitas dan kemampuan validasi yang optimal.
 
 ## Evaluasi
 
-Tahap Evaluasi dilakukan untuk menilai sejauh mana artefak sistem
-rekomendasi memenuhi tujuan yang telah ditetapkan. Evaluasi dilakukan
-menggunakan metrik kuantitatif seperti akurasi, keberagaman rekomendasi,
-kecepatan respons, dan stabilitas pemrosesan data. Evaluasi kualitatif
-dilakukan melalui survei atau wawancara terhadap pengguna untuk mengukur
-persepsi terhadap kegunaan dan kepuasan penggunaan sistem.
+Tahap Evaluasi bertujuan untuk memvalidasi kinerja artefak sistem dalam
+memenuhi tujuan rekomendasi memenuhi tujuan yang telah ditetapkan.
+Evaluasi dilakukan menggunakan metrik kuantitatif seperti akurasi,
+keberagaman rekomendasi, kecepatan respons, dan stabilitas pemrosesan
+data. Evaluasi kualitatif dilakukan melalui survei atau wawancara
+terhadap pengguna untuk mengukur persepsi terhadap kegunaan dan kepuasan
+penggunaan sistem.
 
 Sebagai pembanding, sistem ini dievaluasi terhadap pendekatan
 rekomendasi statis guna menyoroti keunggulan adaptivitas *real-time*.
@@ -2801,9 +2906,10 @@ Keberagaman dan Cakupan, serta Kebaruan.
     rekomendasi.
 
 - *Precision@K*: Mengukur proporsi item relevan dalam K item teratas
-  yang direkomendasikan (Ricci dkk., 2022). Metrik ini lebih praktis
-  daripada precision tradisional karena fokus pada top-K recommendations
-  yang benar-benar dilihat pengguna. Dihitung dengan persamaan III.5:
+  yang direkomendasikan (Ricci dkk., 2022). Metrik ini dipilih karena
+  relevansinya yang lebih tinggi dibandingkan *precision* tradisional
+  dalam konteks fokus pada top-K recommendations yang benar-benar
+  dilihat pengguna. Dihitung dengan persamaan III.5:
 
 +-----------------------------------------------------------------------------------+---------+
 | $$Precision@K\  = \ $$                                                            | (III.5) |
@@ -2818,7 +2924,7 @@ Keberagaman dan Cakupan, serta Kebaruan.
   maksimum adalah 1.0. Dihitung dengan persamaan III.6:
 
   ----------------------------------------------------------------
-  $NDCG@K\  = \ DCG@K\ /\ IDCG@K$                        (III.6)
+  $$NDCG@K\  = \ DCG@K\ /\ IDCG@K$$                      (III.6)
   ------------------------------------------------------ ---------
 
   ----------------------------------------------------------------
@@ -2908,16 +3014,64 @@ Keberagaman dan Cakupan, serta Kebaruan.
 >
 > pop(i) = *popularity* score dari item i.
 
-4.  Validasi Signifikansi Statistik digunakan untuk mengevaluasi apakah
-    perbedaan kinerja antar model yang diamati bukan hanya hasil
-    kebetulan, akan dilakukan uji signifikansi statistik. Karena setiap
-    model dievaluasi pada himpunan pengguna yang sama, metode yang
-    paling tepat adalah paired t-test (Ricci dkk., 2022).
+4.  Validasi Signifikansi Statistik: Untuk mengevaluasi apakah perbedaan
+    kinerja antar model yang diamati bukan hanya hasil kebetulan, akan
+    dilakukan uji signifikansi statistik. Karena setiap model dievaluasi
+    pada himpunan pengguna yang sama, metode yang paling tepat adalah
+    *Paired t-test*. Statistik $t\ $dihitung berdasarkan persamaan
+    III.11.
 
-5.  Analisis *Pareto frontier* menemukan solusi Pareto optimal membantu
-    dalam menentukan pilihan terbaik ketika ada pertukaran (*trade-off*)
-    antara metrik yang berbeda, seperti akurasi versus keragaman
-    (*novelty* dan *diversity*) (Ricci dkk., 2022).
++---------------------------------------------------------+----------+
+| > $$t = \ \frac{\overline{d}}{\frac{s_{d}}{\sqrt{n}}}$$ | (III.11) |
++=========================================================+==========+
+
+> dengan:
+>
+> $\overline{d}\ $= rata-rata selisih kinerja antar pasangan model
+>
+> $s_{d}$ = standar deviasi dari selisih tersebut
+>
+> $n$ adalah jumlah total sampel pengguna yang dievaluasi.
+>
+> Nilai $p$ \< 0.05 akan digunakan sebagai ambang batas untuk menentukan
+> perbedaan yang signifikan secara statistik
+
+5.  Analisis ini digunakan untuk menemukan solusi optimal ketika
+    terdapat pertukaran (*trade-off*) antara dua metrik yang saling
+    bertentangan, yaitu Akurasi $(f_{1})$ dan Keberagaman $(f_{1})$.
+    Persamaan III.12 membuktukan sebuah model $A$ dikatakan mendominasi
+    model $B$ jika:
+
++--------------------------------------------------------------------+----------+
+| > $$f_{1}(A) \geq f_{1}(B){\ \bigwedge\ f}_{2}(A){\geq f}_{2}(B)$$ | (III.12) |
++====================================================================+==========+
+
+> dengan ketaksamaan ketat pada setidaknya salah satu metrik. Himpunan
+> solusi yang tidak didominasi oleh model lain membentuk Pareto
+> Frontier, yang merepresentasikan pilihan efisiensi terbaik.
+
+6.  Untuk melengkapi uji signifikansi statistik, *Cohen\'s d* akan
+    dihitung untuk mengukur besarnya perbedaan praktis antar model
+    (Cohen, 1988). Metrik ini memberikan interpretasi yang lebih
+    substantif dibandingkan *p-value* semata, karena menunjukkan
+    magnitudo perbedaan yang independen dari ukuran sampel (Ricci dkk.,
+    2022). Dihitung dengan persamaan III.13
+
++----------------------------------------------------------------------+----------+
+| > $$d = \ \frac{\overline{x_{1}} - \ \overline{x_{2}}}{S_{pooled}}$$ | (III.11) |
++======================================================================+==========+
+
+> dengan:
+>
+> $\overline{x_{1}} - \ \overline{x_{2}}$ = *mean* metrik untuk dua
+> model yang dibandingkan
+>
+> $S_{pooled}$ = *pooled standard deviation*
+>
+> Interpretasi mengikuti konvensi Cohen (1988):
+>
+> *small effect* $(d\  \approx 0.2)$, *medium effect*
+> $(d\  \approx 0.5)$, *large effect* $(d\  \approx 0.8)$.
 
 ### Evaluasi Kualitatif 
 
@@ -2932,16 +3086,16 @@ Instrumen yang akan digunakan adalah:
     sistem yang dibangun (Brooke, 1996). Terdapat 10 pertanyaan dengan
     responden menjawab dengan skala Likert satu hingga lima yaitu 1
     sangat tidak setuju, 2 tidak setuju, 3 netral, 4 setuju, dan 5
-    sangat setuju.
+    sangat setuju seperti yang diperlihatkan pada Tabel III.15.
 
-[]{#_Toc214305286 .anchor}Tabel III.15 Daftar Pernyataan *System
+[]{#_Toc214880962 .anchor}Tabel III.15 Daftar Pernyataan *System
 Usability Scale*
 
 +----+------------------------------------------------------+---------------------------------------+
 | No | Pernyataan                                           | Tanggapan                             |
 |    |                                                      +-------+-------+-------+-------+-------+
 |    |                                                      | 1     | 2     | 3     | 4     | 5     |
-+----+------------------------------------------------------+-------+-------+-------+-------+-------+
++:==:+======================================================+=======+=======+=======+=======+=======+
 | 1  | Saya berpikir akan menggunakan sistem ini secara     |       |       |       |       |       |
 |    | teratur                                              |       |       |       |       |       |
 +----+------------------------------------------------------+-------+-------+-------+-------+-------+
@@ -2968,7 +3122,7 @@ Usability Scale*
 +----+------------------------------------------------------+-------+-------+-------+-------+-------+
 | 10 | Saya perlu mempelajari banyak hal sebelum dapat      |       |       |       |       |       |
 |    | menggunakan sistem ini                               |       |       |       |       |       |
-+====+======================================================+=======+=======+=======+=======+=======+
++----+------------------------------------------------------+-------+-------+-------+-------+-------+
 
 > Adapun cara menghitung hasil pengukuran *system usability
 > scale *yaitu:
@@ -3023,9 +3177,9 @@ menjadi tiga kategori:
   50:50) tanpa melibatkan fitur kontekstual *real-time*, digunakan untuk
   mengukur kontribusi murni dari hibridisasi.
 
-2.  Kategori 2: Baseline Static Diversification (dengan Konteks)
+2.  Kategori 2: *Baseline Static Diversification* (dengan Konteks)
 
-> Kelompok ini menggunakan model *Hybrid Context-Aware* sebagai basis,
+> Kelompok ini menggunakan model Hybrid *Context-Aware* sebagai basis,
 > kemudian menerapkan re-ranking MMR dengan parameter statis untuk
 > memvalidasi keunggulan adaptasi dinamis (Hipotesis 1):
 
@@ -3045,31 +3199,31 @@ menjadi tiga kategori:
 
 3.  Kategori 3: Model Usulan
 
-- Hybrid+MAB-MMR (*Proposed*): Model hibrida *context-aware* dengan
+- Hybrid+MAB-MMR (*Proposed*): Model hybrid *context-aware* dengan
   seleksi parameter λ yang adaptif menggunakan *Multi-Armed Bandit*.
 
-Tahap 2: User testing
+4.  Tahap 2: User testing
 
-Pengujian pada user dilakukan untuk memvalidasi pengalaman pengguna
-dalam kondisi operasional dengan integrasi data kontekstual *real-time*.
+> Pengujian pada user dilakukan untuk memvalidasi pengalaman pengguna
+> dalam kondisi operasional dengan integrasi data kontekstual
+> *real-time*.
 
-Integrasi dan Triangulasi Hasil
+5.  Integrasi dan Triangulasi Hasil
 
-Hasil dari kedua tahap pengujian akan diintegrasikan dalam Bab 4 untuk
-memberikan validasi:
+> Hasil dari kedua tahap pengujian akan diintegrasikan dalam Bab 4 untuk
+> memberikan validasi:
 
-1.  Konvergensi: Bila evaluasi *offline* menunjukkan tingkat keberagaman
-    rekomendasi tinggi dan pengujian pengguna mencatat kepuasan yang
-    baik, maka hal ini menjadi bukti kuat efektivitas pendekatan yang
-    diusulkan.
+- Konvergensi: Bila evaluasi *offline* menunjukkan tingkat keberagaman
+  rekomendasi tinggi dan pengujian pengguna mencatat kepuasan yang baik,
+  maka hal ini menjadi bukti kuat efektivitas pendekatan yang diusulkan.
 
-2.  Divergensi: Jika ditemukan ketidaksesuaian misalnya metrik teknis
-    tinggi namun skor SUS rendah maka perbedaan tersebut akan dianalisis
-    secara mendalam untuk mengidentifikasi penyebab dan implikasinya.
+- Divergensi: Jika ditemukan ketidaksesuaian misalnya metrik teknis
+  tinggi namun skor SUS rendah maka perbedaan tersebut akan dianalisis
+  secara mendalam untuk mengidentifikasi penyebab dan implikasinya.
 
-3.  Komplementaritas: Data kuantitatif menjelaskan apa yang terjadi,
-    sedangkan umpan balik kualitatif membantu menjelaskan mengapa hal
-    itu terjadi.
+- Komplementaritas: Data kuantitatif menguraikan pola kinerja sistem,
+  sedangkan umpan balik kualitatif memberikan konteks interpretatif
+  terhadap pola tersebut.
 
 Melalui triangulasi ini, penelitian berupaya memastikan bahwa alat ukur
 benar-benar mengukur hal yang dimaksud dan bahwa hasilnya dapat
@@ -3105,13 +3259,12 @@ aktif untuk memastikan reprodusibilitas penelitian.
 
 Rincian lengkap teknologi yang digunakan disajikan pada Tabel IV.1.
 Pemilihan Python sebagai bahasa utama didasarkan pada ekosistem *library
-machine learning* yang matang (surprise, scikit-learn, pandas). FastAPI
-dipilih untuk API *framework* karena performa tinggi (ASGI-based) dan
-dokumentasi otomatis. PostgreSQL digunakan untuk mendukung data
-relasional, sementara Docker memastikan *environment consistency* untuk
-reprodusibilitas penelitian.
+machine learning* yang matang (*surprise, scikit-learn, pandas*).
+FastAPI dipilih untuk API *framework*. PostgreSQL digunakan untuk
+mendukung data relasional, sementara Docker memastikan *environment
+consistency* untuk reprodusibilitas penelitian.
 
-Tabel IV.1 Stack Teknologi Penelitian
+[]{#_Toc214880963 .anchor}Tabel IV.1 Stack Teknologi Penelitian
 
   ----------------------------------------------------------------------------
    No       Kategori         Teknologi      Versi     Peran dalam Penelitian
@@ -3176,7 +3329,7 @@ antarmuka web.
 
 Arsitektur *pipeline* rekomendasi mengikuti desain tiga tahap yang
 terintegrasi, seperti yang diilustrasikan pada Gambar IV.1. Tahap
-pertama adalah Candidate Generation, di mana sistem mengintegrasikan
+pertama adalah *Candidate Generation*, di mana sistem mengintegrasikan
 skor dari tiga komponen: *Collaborative Filtering* (NMF) untuk menangkap
 pola preferensi kolaboratif, *Content-Based Filtering* (TF-IDF) untuk
 *similarity* berbasis metadata kategori, dan *Context-Aware Component*
@@ -3199,8 +3352,8 @@ menyeimbangkan relevansi item dengan keberagaman (perbedaan dari item
 yang sudah terpilih). *Output* akhir adalah daftar top-10 destinasi yang
 dipersonalisasi dan beragam, siap disajikan kepada pengguna.
 
-![[]{#_Toc214313537 .anchor}Gambar IV.1 Arsitektur Pipeline Rekomendasi
-MAB-MMR](media/image11.png){width="5.513888888888889in"
+![[]{#_Toc214882438 .anchor}Gambar IV.1 Arsitektur Pipeline Rekomendasi
+MAB-MMR](media/image9.png){width="5.513888888888889in"
 height="2.473611111111111in"}
 
 ### Deskripsi Dataset dan Eksperimen
@@ -3215,23 +3368,44 @@ karakteristik statistik sebagai berikut:
 
 2.  Volume Data:
 
-    - Total Destinasi: 224 *Point of Interest* (POI).
+    - Total Destinasi: 224 ODTW
 
     - Total Pengguna Unik: 27.431 pengguna.
 
     - Total Interaksi (*Ratings*): 36.992 ulasan.
 
 3.  Kepadatan Data (*Sparsity*): Tercatat sebesar 0.602%. Nilai ini
-    mengindikasikan matriks interaksi yang sangat jarang (*sparse*),
-    yang merepresentasikan tantangan nyata dalam sistem rekomendasi
+    mengindikasikan tingkat kelangkaan data (*sparsity*) yang tinggi,
+    yang menegaskan kompleksitas permasalahan dalam sistem rekomendasi
     pariwisata.
 
 4.  Distribusi Interaksi: Analisis distribusi menunjukkan bahwa 99,69%
     pengguna memiliki kurang dari 10 ulasan. Kondisi ini mengonfirmasi
     adanya masalah *cold-start* yang ekstrem pada dataset.
 
+Analisis lebih lanjut dilakukan terhadap distribusi interaksi pengguna
+untuk memvalidasi keberadaan fenomena *popularity bias* pada *dataset*.
+Visualisasi distribusi rating per destinasi (diurutkan dari yang
+terpopuler) menunjukkan pola Distribusi Pangkat (*Power Law*) yang
+sangat tajam, sebagaimana terlihat pada Gambar IV.2.
+
+![[]{#_Toc214882439 .anchor}Gambar IV.2 Distribusi Interaksi Pengguna
+Asli (*Long-Tail*) pada Dataset\
+Pariwisata
+Sumedang](media/image10.png){alt="A graph with a red line AI-generated content may be incorrect."
+width="5.513888888888889in" height="2.9902777777777776in"}
+
+Grafik di atas mengonfirmasi ketimpangan yang ekstrem dalam data
+kunjungan. Area yang diarsir merah menunjukkan dominasi *head items*, di
+mana sebagian kecil destinasi populer menerima mayoritas interaksi,
+sementara kurva yang melandai panjang ke kanan (*long-tail*)
+merepresentasikan ratusan destinasi lain yang jarang mendapatkan
+*rating*. Struktur data yang timpang ini menegaskan urgensi penerapan
+algoritma yang mampu mengangkat item di area *tail* tanpa bergantung
+semata pada popularitas historis.
+
 Skema Pembagian Data (Data Splitting): Untuk keperluan evaluasi yang
-realistis, dataset dibagi dengan rasio 80::
+realistis, dataset dibagi dengan rasio 80:
 
 1.  *Training Set* (80%): 6.120 interaksi terawal (untuk melatih model).
 
@@ -3326,20 +3500,7 @@ adalah DestinationCard, komponen visual *reusable* untuk setiap
 destinasi, yang menampilkan gambar (dengan *lazy loading*), *badge*
 kategori, rating bintang, dan deskripsi singkat.
 
-Komponen ketiga, FeedbackModal, sangat krusial untuk *pipeline* adaptif.
-Komponen ini muncul sebagai *overlay* untuk mengumpulkan umpan balik
-(rating 1-5 bintang) dari pengguna. Data umpan balik ini dikirim ke
-*backend* melalui *endpoint* /api/feedback dan digunakan untuk dua
-tujuan: (1) melatih ulang model CF dengan data interaksi terbaru, dan
-(2) memperbarui statistik *reward* MAB, yang secara langsung
-mempengaruhi pemilihan λ di masa depan. Desain *responsive*
-diimplementasikan menggunakan *breakpoints* Tailwind, memastikan
-pengalaman optimal pada *desktop* dan *mobile*. Gambar IV.2 menunjukkan
-tampilan halaman utama dan modal umpan balik.
-
-\*\* *Gambar IV.2 Tampilan Antarmuka Pengguna (UI): (a) Halaman utama
-dengan grid rekomendasi destinasi, dan (b) Modal untuk pengumpulan umpan
-balik (rating) pengguna*.
+[]{#_Toc214882440 .anchor}Gambar IV.3 Tampilan Halaman Utama
 
 ## Hasil Evaluasi Kuantitatif
 
@@ -3354,8 +3515,9 @@ ini dirancang untuk menjawab tiga rumusan masalah utama:
 RM1**:** Kemampuan optimasi dinamis parameter $\lambda$ dalam
 meningkatkan keberagaman tanpa mengorbankan akurasi.
 
-RM2**:** Dampak integrasi data real-time terhadap pemerataan distribusi
-kunjungan.
+RM2**:** Seberapa besar pengaruh integrasi data kontekstual dinamis
+(cuaca dan kalender secara real-time, serta model simulasi traffic dan
+social media trends).
 
 RM3**:** Peningkatan eksposur destinasi kurang populer dibandingkan
 sistem konvensional.
@@ -3369,7 +3531,7 @@ konvensional yang tidak mengimplementasikan mekanisme diversifikasi,
 sebagaimana diidentifikasi dalam analisis permasalahan (Subbab III.2.1).
 Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 
-[]{#_Toc214305287 .anchor}Tabel IV.2 Perbandingan Kinerja Model
+[]{#_Toc214880964 .anchor}Tabel IV.2 Perbandingan Kinerja Model
 *Baseline Non-Diversified*
 
   ------------------------------------------------------------------------------------------------
@@ -3400,12 +3562,12 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 > Paradoksnya, model ini mencatat *Diversity* (0.9111) yang tinggi dan
 > Gini (0.2397) yang rendah. Metrik ini tinggi secara artifisial, bukan
 > karena strategi diversifikasi, tetapi murni karena 10 item terpopuler
-> tersebut kebetulan memiliki kategori yang berbeda. Metrik Coverage
+> tersebut kebetulan memiliki kategori yang berbeda. Metrik *Coverage*
 > (4.46%) dan *Novelty* (0.3794) yang sangat rendah menunjukkan
 > kegagalan total model ini dalam hal eksplorasi.
 >
 > Implikasinya, model ini adalah baseline yang buruk untuk mengukur
-> coverage atau *Novelty*. Namun, ia menjadi baseline akurasi yang
+> *coverage* atau *Novelty*. Namun, ia menjadi baseline akurasi yang
 > ironisnya sulit dikalahkan, yang membuktikan bahwa sifat data uji
 > lebih menguntungkan popularitas daripada personalisasi.
 
@@ -3414,23 +3576,23 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 > Model *Collaborative Filtering* (NMF) menunjukkan kegagalan akurasi
 > yang signifikan, dengan NDCG@10 hanya 0.0169. Performa ini adalah yang
 > terburuk kedua, hanya sedikit di atas model acak, dan secara drastis
-> lebih rendah dari baseline Popularity (0.1327) maupun CB (0.0461).
+> lebih rendah dari *baseline Popularity* (0.1327) maupun CB (0.0461).
 >
 > Penyebab kegagalan ini dapat diatribusikan langsung pada dua
-> karakteristik data: data sparsity yang ekstrem (hanya 0.602% rating
+> karakteristik data: data *sparsity* yang ekstrem (hanya 0.602% rating
 > matrix terisi) dan masalah cold-start masif (99.69% pengguna memiliki
 > \< 10 rating). Tanpa data interaksi yang cukup, NMF tidak dapat
 > mempelajari pola laten pengguna atau item yang bermakna.
 >
 > Kegagalan akurasi ini memaksa model untuk memberikan rekomendasi yang
 > semi-acak, yang secara artifisial menghasilkan metrik sekunder
-> tertinggi: *Diversity* (0.8911), *Novelty* (0.8625), dan Coverage
+> tertinggi: *Diversity* (0.8911), *Novelty* (0.8625), dan *Coverage*
 > (82.14%). Angka-angka ini bukanlah cerminan dari strategi eksplorasi
 > yang cerdas, melainkan artefak dari ketidakmampuan total model untuk
 > melakukan personalisasi.
 >
 > Implikasi utamanya adalah bahwa model CF murni sama sekali tidak cocok
-> untuk skenario cold-start ekstrem seperti ini. Model ini gagal
+> untuk skenario *cold-start* ekstrem seperti ini. Model ini gagal
 > menemukan sinyal apa pun dari data interaksi yang sangat sedikit dan
 > pada dasarnya tidak berguna dalam sistem ini.
 
@@ -3438,11 +3600,11 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 
 > Model *Content-Based* (CB), yang menggunakan kategori item (TF-IDF),
 > menunjukkan akurasi (NDCG@10 = 0.0461) yang jauh lebih superior
-> daripada CF (0.0169). Meskipun masih di bawah baseline Popularity,
+> daripada CF (0.0169). Meskipun masih di bawah baseline *Popularity*,
 > performanya hampir 3x lipat lebih baik daripada CF, membuktikan
 > relevansinya.
 >
-> Ini adalah temuan kunci: dalam skenario cold-start ekstrem, metadata
+> Ini adalah temuan kunci: dalam skenario *cold-start* ekstrem, metadata
 > (kategori) jauh lebih berguna daripada data interaksi yang langka.
 > Analisis dari notebook (Section 2, CELL 15.5) mendukung ini,
 > menunjukkan bahwa 56.54% pengguna memang memiliki preferensi kategori
@@ -3450,9 +3612,9 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 > CB untuk bekerja.
 >
 > Seperti yang diperkirakan, model ini terjebak dalam filter bubble. Ia
-> menghasilkan *Diversity* (0.0565) terendah kedua dan Coverage (40.18%)
-> yang terbatas. Model ini cenderung merekomendasikan item yang sangat
-> mirip (dalam kategori yang sama) dengan apa yang sudah disukai
+> menghasilkan *Diversity* (0.0565) terendah kedua dan *Coverage*
+> (40.18%) yang terbatas. Model ini cenderung merekomendasikan item yang
+> sangat mirip (dalam kategori yang sama) dengan apa yang sudah disukai
 > pengguna, sehingga mengorbankan eksplorasi.
 >
 > Implikasinya, CB adalah strategi yang valid dan penting dalam skenario
@@ -3467,7 +3629,7 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 > (0.0461), namun secara signifikan lebih dekat ke performa CF yang
 > buruk daripada CB yang lebih baik.
 >
-> Penyebab utamanya adalah pembobotan 50/50. Dalam skenario sparsity
+> Penyebab utamanya adalah pembobotan 50/50. Dalam skenario *sparsity*
 > ekstrem, skor CF yang sangat rendah (mendekati nol atau acak) secara
 > efektif \"menarik ke bawah\" dan merusak skor CB yang sebenarnya lebih
 > relevan. Sinyal yang buruk dari CF menetralkan sinyal yang baik dari
@@ -3475,7 +3637,7 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 >
 > Namun, model ini berhasil memperbaiki kelemahan utama CB. Dengan
 > memasukkan komponen CF yang (meskipun tidak akurat) merekomendasikan
-> secara acak, model ini mencapai *Diversity* (0.5801) dan Coverage
+> secara acak, model ini mencapai *Diversity* (0.5801) dan *Coverage*
 > (78.13%) yang jauh lebih sehat, memecah filter bubble yang diciptakan
 > oleh CB murni.
 >
@@ -3484,10 +3646,10 @@ Hasil evaluasi keempat model baseline disajikan pada Tabel IV.2.
 > mendapatkan eksplorasi dan coverage katalog yang jauh lebih baik. Ini
 > adalah penyeimbang, meskipun tidak optimal secara akurasi.
 
-Untuk mengisolasi nilai tambah konteks, model Hybrid (No Context)
+Untuk mengisolasi nilai tambah konteks, model Hybrid (*No Context*)
 dievaluasi:
 
-1.  Hybrid (No Context): NDCG = 0.0241, Diversity = 0.5411
+1.  Hybrid (*No Context*): NDCG = 0.0241, *Diversity* = 0.5411
 
 2.  Hybrid (Dengan Konteks): NDCG = 0.0244, *Diversity* = 0.5801
 
@@ -3498,17 +3660,17 @@ Meskipun peningkatannya kecil, ini memvalidasi bahwa penggunaan
 rekomendasi.
 
 Hasil evaluasi ketiga model *baseline* mengonfirmasi eksistensi
-*accuracy-diversity trade-off* yang ekstrem. Model *Content-Based* (CB)
+*accuracy-Diversity trade-off* yang ekstrem. Model *Content-Based* (CB)
 mencapai akurasi personalisasi tertinggi (NDCG@10 = 0.0461), namun
 dengan konsekuensi terjebak dalam *filter bubble* dan menghasilkan
-*diversity* terendah (0.0565). Sebaliknya, model *Collaborative
+*Diversity* terendah (0.0565). Sebaliknya, model *Collaborative
 Filtering* (CF) menunjukkan pola sebaliknya: akurasi gagal total
 (NDCG@10 = 0.0169) akibat *data sparsity*, namun menghasilkan
-*diversity* (0.8911) dan *coverage* (82.14%) tertinggi secara
+*Diversity* (0.8911) dan *coverage* (82.14%) tertinggi secara
 artifisial.
 
-[]{#_Toc214313538 .anchor}Gambar IV.2 Perbandingan Rata-rata Metrik
-Model Baseline Non-Diversified
+[]{#_Toc214882441 .anchor}Gambar IV.4 Perbandingan Rata-rata Metrik
+Model Baseline *Non-Diversified*
 
 Gambar IV.1 memvisualisasikan perbandingan kinerja ketiga model
 *baseline* ini secara komprehensif. Kesenjangan kinerja (*gap*) yang
@@ -3522,7 +3684,7 @@ diversifikasi adaptif yang mampu:
 
 2.  Meningkatkan *Diversity* secara Signifikan: Mengatasi
     *over-specialization* ekstrem dari model CB (*Diversity* 0.0565) dan
-    mencapai level *diversity* yang sehat, idealnya mendekati apa yang
+    mencapai level *Diversity* yang sehat, idealnya mendekati apa yang
     dicapai CF (0.8911) namun dengan cara yang relevan, bukan acak.
 
 3.  Meningkatkan Paparan Destinasi *Long-Tail*: Mengatasi kegagalan
@@ -3542,7 +3704,7 @@ Bagian ini membandingkan:
 2.  MAB-MMR Adaptif yang diusulkan (λ dipilih dinamis oleh *Multi-Armed
     Bandit*).
 
-[]{#_Toc214305288 .anchor}Tabel IV.3 Performa MMR dengan Berbagai Nilai
+[]{#_Toc214880965 .anchor}Tabel IV.3 Performa MMR dengan Berbagai Nilai
 λ Statis
 
   ----------------------------------------------------------------------------------------------------
@@ -3570,7 +3732,7 @@ mengindikasikan peningkatan fokus pada keberagaman metrik akurasi
 (NDCG@10) mengalami penurunan yang linear, dari 0.0244 (pada λ =0.0)
 menjadi 0.0155 (pada λ =1.0). Sebaliknya, metrik *Diversity* meningkat
 secara drastis dari 0.5801 menjadi 0.9776. Kuantifikasi *trade-off* ini
-sangat signifikan: untuk mencapai *diversity* maksimum (peningkatan
+sangat signifikan: untuk mencapai *Diversity* maksimum (peningkatan
 +68.5% dari λ =0.0 ke λ =1.0), sistem harus mengorbankan 36.5% dari
 akurasi awalnya.
 
@@ -3585,7 +3747,7 @@ bertujuan untuk memilih λ terbaik secara dinamis untuk setiap pengguna
 dalam konteks spesifik mereka, dengan tujuan memaksimalkan fungsi
 *reward* gabungan (NDCG, *Diversity*, dan *Novelty*).
 
-[]{#_Toc214305289 .anchor}Tabel IV.4 Perbandingan MAB-MMR (Adaptif) vs
+[]{#_Toc214880966 .anchor}Tabel IV.4 Perbandingan MAB-MMR (Adaptif) vs
 MMR- λ =0.5 (Statis)
 
   --------------------------------------------------------------------------------
@@ -3607,10 +3769,10 @@ statis (MMR- λ =0.5) dalam semua metrik akurasi, mencatatkan peningkatan
 *bagaimana* MAB mencapai peningkatan ini: MAB-MMR justru mengorbankan
 *Diversity*, yang turun sebesar -19.6% dibandingkan *baseline* statis.
 
-Interpretasi dari hasil yang kontraintuitif ini adalah inti dari
-keberhasilan MAB. Model MAB belajar dari karakteristik data yang
-sesungguhnya. Dalam dataset yang sangat *sparse* dan didominasi pengguna
-*cold-start* ini, pengguna tidak merespons dengan baik terhadap
+Hasil yang kontraintuitif ini merefleksikan efektivitas mekanisme
+adaptasi pada algoritma MAB. Model MAB belajar dari karakteristik data
+yang sesungguhnya. Dalam dataset yang sangat *sparse* dan didominasi
+pengguna *cold-start* ini, pengguna tidak merespons dengan baik terhadap
 rekomendasi yang terlalu beragam (seperti pada λ =0.5 atau λ =0.7)
 karena akurasinya terlalu rendah, sehingga menghasilkan *reward* yang
 rendah. Untuk memaksimalkan fungsi *reward* (yang 50% bobotnya adalah
@@ -3619,7 +3781,7 @@ merusak akurasi. Bukti empiris dari perilaku adaptif ini terlihat jelas
 pada distribusi pemilihan λ oleh MAB, seperti yang dirangkum pada Tabel
 IV.5
 
-[]{#_Toc214305290 .anchor}Tabel IV.5 Distribusi Pemilihan Parameter λ
+[]{#_Toc214880967 .anchor}Tabel IV.5 Distribusi Pemilihan Parameter λ
 oleh MAB-MMR
 
   -----------------------------------------------------------------------
@@ -3646,18 +3808,19 @@ mengutamakan relevansi. MAB menemukan bahwa strategi \"seimbang\" (λ
 strategi yang suboptimal untuk dataset ini dan hanya dipilih dalam 2.63%
 kasus.
 
-MAB berhasil mengoptimalkan parameter λ secara adaptif. Ia \"belajar\"
-bahwa untuk dataset *sparse* ini, strategi diversifikasi agresif
-(seperti λ =0.5 λ) merugikan performa *reward* secara keseluruhan karena
-mengorbankan terlalu banyak akurasi. Dengan secara cerdas memilih λ
-rendah, MAB-MMR (NDCG 0.0237) berhasil \"menyelamatkan\" akurasi,
-membawanya kembali ke level yang hampir identik dengan model Hybrid
-murni (NDCG 0.0244). Pada saat yang sama, model ini tetap mempertahankan
-*Diversity* (0.6003) yang sedikit lebih baik daripada Hybrid murni
-(0.5801), membuktikan kemampuannya menemukan titik optimal yang lebih
-baik daripada *baseline* statis mana pun.
+Algoritma MAB berhasil mengoptimalkan parameter λ secara adaptif. Proses
+pembelajaran algoritma mengidentifikasi bahwa pada kondisi dataset
+sparse, strategi diversifikasi agresif (seperti λ =0.5 λ) merugikan
+performa *reward* secara keseluruhan karena mengorbankan terlalu banyak
+akurasi. Dengan secara cerdas memilih λ rendah, MAB-MMR (NDCG 0.0237)
+berhasil \"menyelamatkan\" akurasi, membawanya kembali ke level yang
+hampir identik dengan model Hybrid murni (NDCG 0.0244). Pada saat yang
+sama, model ini tetap mempertahankan *Diversity* (0.6003) yang sedikit
+lebih baik daripada Hybrid murni (0.5801), membuktikan kemampuannya
+menemukan titik optimal yang lebih baik daripada *baseline* statis mana
+pun.
 
-### Statistical validation kontribusi MAB
+### *Statistical Validation* Kontribusi MAB
 
 Untuk memvalidasi signifikansi statistik dari perbedaan kinerja yang
 teramati dan menjawab secara tegas apakah strategi adaptif MAB-MMR
@@ -3666,122 +3829,143 @@ uji *paired t-test* antara model yang diusulkan dengan setiap
 *baseline*. Pengujian dilakukan pada 1.714 pengguna *eligible* dengan
 tingkat signifikansi α = 0.05 (Ricci dkk., 2022).
 
-[]{#_Toc214305291 .anchor}Tabel IV.6 Hasil Uji Statistik (Paired t-test,
-N=1714 users)
+[]{#_Toc214880968 .anchor}Tabel IV.6 Hasil Uji Statistik (*Paired
+t-test*, N=1714 *users*)
 
-  --------------------------------------------------------------------------------------------
-     Perbandingan       Metrik    Mean Diff    95% CI     t-statistic   p-value   Signifikan?
-  ------------------- ----------- --------- ------------ ------------- --------- -------------
-     MAB vs Hybrid      NDCG@10    -0.0007   \[-0.0017,      -1.28      0.1998    Tidak (ns)
-                                              0.0004\]                           
+  ---------------------------------------------------------------------------------------------------------
+     Perbandingan        Metrik     Mean Diff    95% CI     t-statistic  Cohen\'s d  p-value   Signifikan?
+  ------------------- ------------- --------- ------------ ------------- ---------- --------- -------------
+     MAB vs Hybrid       NDCG@10     -0.0007   \[-0.0017,      -1.28       -0.03     0.1998    Tidak (ns)
+                                                0.0004\]                                      
 
-      (Baseline)       Diversity   +0.0201   \[+0.0173,      13.72     \< 0.001    Ya (*)*\*
-                                             +0.0230\]                           
+      (Baseline)       *Diversity*   +0.0201   \[+0.0173,      13.72       +0.33    \< 0.001   Ya (\*\*\*)
+                                               +0.0230\]                                      
 
-   MAB vs MMR- λ 0.5    NDCG@10    +0.0036   \[+0.0010,      2.70       0.0070     Ya (\*\*)
-                                             +0.0062\]                           
+    MAB vs MMR-λ0.5      NDCG@10     +0.0036   \[+0.0010,      2.70        +0.07     0.0070     Ya (\*\*)
+                                               +0.0062\]                                      
 
-   (Statis-Seimbang)   Diversity   -0.1466   \[-0.1526,     -48.15     \< 0.001   Ya (\*\*\*)
-                                             -0.1406\]                           
+   (Statis-Seimbang)   *Diversity*   -0.1466   \[-0.1526,     -48.15       -1.16    \< 0.001   Ya (\*\*\*)
+                                               -0.1406\]                                      
 
-       MAB vs CF        NDCG@10    +0.0069   \[+0.0012,      2.38       0.0173      Ya (\*)
-                                             +0.0125\]                           
+       MAB vs CF         NDCG@10     +0.0069   \[+0.0012,      2.38        +0.06     0.0173      Ya (\*)
+                                               +0.0125\]                                      
 
-  (Akurasi Terendah)   Diversity   -0.2908   \[-0.2981,     -78.47     \< 0.001   Ya (\*\*\*)
-                                             -0.2835\]                           
+  (Akurasi Terendah)   *Diversity*   -0.2908   \[-0.2981,     -78.47       -1.90    \< 0.001   Ya (\*\*\*)
+                                               -0.2835\]                                      
 
-       MAB vs CB        NDCG@10    -0.0224   \[-0.0307,      -5.26     \< 0.001   Ya (\*\*\*)
-                                             -0.0140\]                           
+       MAB vs CB         NDCG@10     -0.0224   \[-0.0307,      -5.26       -0.13    \< 0.001   Ya (\*\*\*)
+                                               -0.0140\]                                      
 
-      (Diversity       Diversity   +0.5438   \[+0.5332,     101.08     \< 0.001    Ya (*)*\*
-       Terendah)                             +0.5543\]                           
-  --------------------------------------------------------------------------------------------
+     (*Diversity*      *Diversity*   +0.5438   \[+0.5332,     101.08       +2.44    \< 0.001   Ya (\*\*\*)
+       Terendah)                               +0.5543\]                                      
+  ---------------------------------------------------------------------------------------------------------
 
-Interpretasi Hasil Uji Statistik pada Tabel IV.6:
+Interpretasi Hasil Uji Statistik dan Ukuran Efek (*Effect Size*) pada
+Tabel IV.6:
 
 1.  Keberagaman (*Diversity*)
 
-> Validasi statistik pada metrik diversity mengonfirmasi bahwa perbedaan
-> kinerja yang teramati pada Subbab IV.3.3 adalah nyata dan signifikan
-> secara statistik.
->
-> MAB vs CB & Hybrid: Perbedaan *diversity* terbukti sangat signifikan
-> (p \< 0.001). MAB-MMR menghasilkan rekomendasi yang jauh lebih beragam
-> daripada baseline CB (Mean Diff = +0.5438) dan juga secara signifikan
-> lebih beragam daripada baseline Hybrid (Mean Diff = +0.0201).
->
-> MAB vs CF & MMR (λ=0.5): Di sisi lain, MAB-MMR juga menunjukkan
-> defisit diversitas yang sangat signifikan (p \< 0.001) bila
-> dibandingkan dengan CF (Mean Diff = -0.2908) dan baseline MMR
-> statis-seimbang (λ =0.5) (Mean Diff = -0.1466).
->
-> Temuan ini bukanlah kegagalan, melainkan bukti bahwa MAB-MMR bekerja
-> sebagai optimizer. MAB belajar bahwa strategi diversifikasi ekstrem
-> (seperti pada CF atau MMR- λ =0.5) terlalu merusak fungsi reward (yang
-> juga mencakup akurasi) dalam konteks data sparse ini. Oleh karena itu,
-> MAB secara cerdas memilih *trade-off* yang lebih moderat.
+> Validasi statistik pada metrik Diversity mengonfirmasi bahwa perbedaan
+> kinerja yang teramati pada Subbab IV.3.3 adalah nyata, signifikan
+> secara statistik, dan memiliki dampak praktis yang substansial.
+
+- MAB vs CB & Hybrid: Perbedaan *Diversity* terbukti sangat signifikan
+  ($p$ \< 0.001). MAB-MMR menghasilkan rekomendasi yang jauh lebih
+  beragam daripada *baseline* CB (Mean Diff = +0.5438) dengan ukuran
+  efek yang sangat besar (*huge effect*, $d$ = 2.44). Dibandingkan
+  dengan *baseline* Hybrid, peningkatan diversitas juga signifikan
+  (*Mean Diff* = +0.0201) dengan efek sedang ($d$ = 0.33), yang
+  menunjukkan bahwa peningkatan +3.5% bukanlah fluktuasi acak melainkan
+  perbaikan yang konsisten.
+
+- MAB vs CF & MMR (λ =0.5): Di sisi lain, MAB-MMR menunjukkan defisit
+  diversitas yang sangat signifikan ($p$ \< 0.001) bila dibandingkan
+  dengan CF (*Mean Diff* = -0.2908, $d$ = -1.90) dan *baseline* MMR
+  statis-seimbang (*Mean Diff* = -0.1466, $d$ = -1.16). Efek negatif
+  yang besar ini bukanlah kegagalan, melainkan bukti bahwa MAB-MMR
+  bekerja sebagai *optimizer* yang cerdas. MAB belajar bahwa strategi
+  diversifikasi ekstrem (seperti pada CF atau MMR- λ =0.5) terlalu
+  merusak fungsi *reward* gabungan dalam konteks *data sparse* ini,
+  sehingga ia secara aktif menghindari wilayah tersebut.
 
 2.  Akurasi (NDCG@10)
 
 > Temuan paling krusial dari uji-t terletak pada metrik akurasi
-> (NDCG@10), yang memvalidasi efektivitas strategi adaptif MAB:
+> (NDCG@10), yang memvalidasi efektivitas strategi adaptif MAB dengan
+> dukungan ukuran efek:
 
-- MAB vs Hybrid (p=0.1998): Temuan kunci adalah tidak adanya perbedaan
-  signifikan secara statistik antara akurasi MAB-MMR dan baseline Hybrid
-  (yang berfokus pada relevansi, setara λ =0.0). Nilai p-value (0.1998)
-  jauh di atas ambang batas \$\\alpha=0.05\$. Ini adalah hasil yang
-  baik, karena membuktikan bahwa MAB-MMR mampu meningkatkan diversity
-  secara signifikan (poin A) tanpa mengorbankan akurasi (NDCG).
+- MAB vs Hybrid ($p$=0.1998): Temuan kunci adalah tidak adanya perbedaan
+  signifikan secara statistik antara akurasi MAB-MMR dan *baseline*
+  Hybrid. Nilai *Cohen\'s d* yang sangat kecil ($d$ = -0.03)
+  mengonfirmasi bahwa perbedaan ini dapat diabaikan (*negligible*). Ini
+  adalah hasil yang sangat positif, membuktikan bahwa MAB-MMR mampu
+  meningkatkan *Diversity* dengan efek sedang ($d$ = 0.33) tanpa
+  mengorbankan akurasi (efek penurunan nol).
 
-- MAB vs MMR (λ=0.5) (p=0.0070): Ini adalah validasi terkuat untuk RM1.
-  MAB-MMR terbukti secara signifikan lebih akurat daripada baseline
-  statis-seimbang (MMR- λ =0.5). Ini membuktikan bahwa strategi adaptif
-  MAB yang belajar untuk menghindari λ tinggi dan lebih sering memilih λ
-  rendah (0.0 atau 0.3) adalah keputusan yang tepat dan menghasilkan
-  akurasi yang lebih superior.
+- MAB vs MMR (λ =0.5) ($p$=0.0070): Ini adalah validasi terkuat untuk
+  RM1. MAB-MMR terbukti secara signifikan lebih akurat daripada
+  *baseline* statis-seimbang. Meskipun ukuran efeknya kecil ($d$ =
+  0.07), signifikansi statistiknya ($p$ \< 0.01) membuktikan konsistensi
+  strategi adaptif MAB dalam menghindari skenario λ tinggi yang merusak
+  akurasi, sebuah keunggulan robust dibandingkan penetapan parameter
+  statis.
 
-- MAB vs CF (p=0.0173): MAB-MMR juga secara signifikan lebih akurat
-  daripada model CF murni.
+- MAB vs CF ($p$=0.0173): MAB-MMR juga secara signifikan lebih akurat
+  daripada model CF murni dengan efek positif kecil ($d$ = 0.06).
 
-- MAB vs CB (p\<0.001): Seperti yang diperkirakan, model CB (yang fokus
-  pada relevansi konten dalam skenario *cold-start*) tetap unggul dalam
-  akurasi murni. Ini adalah *trade-off* yang diterima oleh MAB-MMR untuk
-  mendapatkan peningkatan diversity yang masif (+0.5438).
+- MAB vs CB ($p$ \< 0.001): Seperti yang diperkirakan, model CB tetap
+  unggul dalam akurasi murni dengan efek kecil ($d$ = -0.13). Ini adalah
+  *trade-off* yang diterima secara sadar oleh MAB-MMR untuk mendapatkan
+  lonjakan *Diversity* yang masif ($d\ $= 2.44).
 
-3.  Precision@10 & Recall@10
+3.  *Precision*\@10 & *Recall*\@10
 
-> Pola serupa teramati pada metrik Precision@10 dan Recall@10. MAB-MMR
-> secara signifikan mengungguli MMR- λ =0.5 pada Precision@10 (p=0.0018)
-> dan CF pada Recall@10 (p=0.0127). Hal ini mengkonfirmasi bahwa
-> strategi adaptif MAB secara konsisten lebih baik dalam menjaga
-> relevansi top-k dibandingkan dengan strategi diversifikasi statis atau
-> kegagalan personalisasi CF.
+> Pola serupa teramati pada metrik *Precision*\@10 dan *Recall*\@10.
+> MAB-MMR secara signifikan mengungguli MMR- λ =0.5 pada *Precision*\@10
+> ($p$=0.0018) dan CF pada *Recall*\@10 ($p$=0.0127). Hal ini
+> mengkonfirmasi bahwa strategi adaptif MAB secara konsisten lebih baik
+> dalam menjaga relevansi top-k dibandingkan dengan strategi
+> diversifikasi statis atau kegagalan personalisasi CF.
 
 4.  Kesimpulan Validasi Statistik
 
-> Validasi statistik memberikan dua kesimpulan utama. Pertama, semua
-> perbedaan performa *Diversity* (baik positif maupun negatif) adalah
-> nyata dan terverifikasi secara statistik, membuktikan MAB secara aktif
-> mengelola *trade-off*.
->
-> Kedua, dan yang paling penting, perbedaan performa Akurasi (NDCG)
-> adalah temuan kunci. Hasil evaluasi menunjukkan bahwa MAB-MMR bukan
-> identik dengan λ =0.0. Sebaliknya, MAB-MMR adalah optimizer yang
-> cerdas:
+> Validasi statistik dengan Cohen\'s d memberikan dua kesimpulan utama
+> yang kokoh:
 
-- Model menjaga akurasi setara dengan baseline Hybrid (p=0.1998).
+- MAB secara aktif mengelola *trade-off* dengan dampak nyata.
+  Peningkatan *Diversity* terhadap Hybrid memiliki dampak praktis sedang
+  ($d$=0.33), sementara pergeseran dari CB memiliki dampak fundamental
+  ($d$=2.44).
 
-- Model meningkatkan diversity (signifikan vs Hybrid, p\<0.001).
+- Kedua, dan yang paling penting, strategi optimasi akurasi (NDCG)
+  terbukti cerdas. Hasil evaluasi menunjukkan bahwa MAB-MMR berhasil
+  mempertahankan akurasi setara *baseline* relevansi (Hybrid) dengan
+  selisih yang tidak bermakna ($d$=-0.03), sekaligus secara signifikan
+  mengungguli strategi statis-seimbang ($p$=0.007). Ini membuktikan
+  secara statistik bahwa MAB berhasil menemukan *sweet spot* memilih λ
+  rendah untuk menjaga akurasi kompetitif dalam kondisi *sparse*, namun
+  tetap menyisipkan diversitas yang signifikan secara statistik.
 
-- Model mengalahkan strategi statis-seimbang MMR- λ =0.5\$ (signifikan
-  lebih akurat, p=0.0070).
+Selain validasi statistik akhir, efektivitas mekanisme adaptif
+*Multi-Armed Bandit* (MAB) juga dievaluasi melalui analisis proses
+pembelajaran (*learning curve*) sepanjang episode interaksi. Kinerja
+algoritma dalam memaksimalkan fungsi *reward* gabungan (kombinasi NDCG,
+*Diversity*, dan *Novelty*) divisualisasikan pada Gambar IV.3.
 
-> Ini adalah bukti statistik terkuat yang mengonfirmasi temuan dari
-> Subbab IV.3.3 MAB-MMR berhasil menemukan sweet spot yang tidak bisa
-> ditemukan model statis. Model belajar dari data sparsity ekstrem bahwa
-> akurasi harus diprioritaskan, memilih λ rendah (mayoritas 0.0 dan 0.3)
-> untuk menjaga NDCG tetap kompetitif (setara dengan Hybrid), dan
-> menghindari λ =0.5 yang terbukti merusak akurasi secara signifikan.
+![[]{#_Toc214882442 .anchor}Gambar IV.5 Kurva Pembelajaran MAB:
+Peningkatan Rata-rata Reward Seiring\
+Waktu](media/image13.png){width="5.513888888888889in"
+height="3.029861111111111in"}
+
+Grafik tersebut menunjukkan tren peningkatan *reward* yang konsisten,
+terutama setelah fase eksplorasi awal (episode 0-250). Garis biru
+merepresentasikan *moving average* (jendela 50 episode) yang bergerak
+naik dan kemudian stabil, mengindikasikan bahwa algoritma MAB berhasil
+\"belajar\" mengenali pola preferensi pengguna dan mengonvergensi
+pilihan parameter λ ke arah yang paling optimal. Stabilitas kurva di
+paruh kedua eksperimen menunjukkan bahwa sistem telah mencapai
+keseimbangan yang efektif antara eksploitasi strategi terbaik dan
+eksplorasi peluang baru.
 
 ### Pareto frontier analysis & *trade-off* interpretation 
 
@@ -3790,15 +3974,9 @@ space, dilakukan analisis Pareto frontier. Analisis ini memplot
 *trade-off* antara dua objektif utama yang saling bertentangan: akurasi
 (diukur dengan NDCG@10) dan keberagaman (diukur dengan *Diversity*).
 
-[]{#_Toc214313539 .anchor}Gambar IV.3 *Trade-off* Akurasi (NDCG@10) vs.
+[]{#_Toc214882443 .anchor}Gambar IV.6 *Trade-off* Akurasi (NDCG@10) vs.
 Keberagaman\
 (*Diversity*)
-
-Secara metodologi, sebuah model $M_{1}$dikatakan \"mendominasi\" model
-$M_{2}$ jika $M_{1}$ lebih baik atau sama dengan $M_{2}$ di semua
-objektif, dan setidaknya lebih baik secara ketat di salah satu objektif.
-Model yang tidak didominasi oleh model lain dianggap berada pada Pareto
-frontier.
 
 Visualisasi *trade-off* pada Gambar IV.2 mengungkap beberapa zona dan
 anomali yang berbeda. Pertama, terdapat Zona Artefak, di mana model
@@ -3806,7 +3984,7 @@ anomali yang berbeda. Pertama, terdapat Zona Artefak, di mana model
 Div 0.0565) berada jauh dari model lainnya. Popularity secara tak
 terduga mendominasi 8 model lain, namun ini adalah artefak dari bias
 ekstrem dalam test set. *Content-Based* juga menjadi outlier dengan
-akurasi personalisasi tertinggi, namun diversity hampir nol (0.0565)
+akurasi personalisasi tertinggi, namun *Diversity* hampir nol (0.0565)
 akibat filter bubble.
 
 Kedua, Zona Diversifikasi (Pareto Frontier Terluar) menunjukkan bahwa
@@ -3831,37 +4009,94 @@ dari model yang diusulkan:
 
 Model MAB-MMR yang diusulkan tidak didominasi oleh baseline utama. Jika
 dibandingkan dengan Hybrid (MMR- λ =0.0), MAB-MMR memiliki akurasi yang
-sedikit lebih rendah (-2.9%) namun menghasilkan diversity yang lebih
+sedikit lebih rendah (-2.9%) namun menghasilkan *Diversity* yang lebih
 baik (+3.5%). Jika dibandingkan dengan MMR- λ =0.5 (baseline seimbang),
-MAB-MMR memiliki diversity yang lebih rendah (-19.6%) namun berhasil
+MAB-MMR memiliki *Diversity* yang lebih rendah (-19.6%) namun berhasil
 \"menyelamatkan\" akurasi secara signifikan (+17.9%).
 
-Fakta bahwa MAB-MMR tidak berada tepat di frontier terluar (seperti MMR-
-λ =1.0) bukanlah sebuah kegagalan. Sebaliknya, ini adalah bukti
-keberhasilan strategi adaptifnya. Berbeda dengan model statis yang
-terkunci pada satu titik di plot, posisi agregat MAB-MMR (0.0237,
-0.6003) merepresentasikan rata-rata tertimbang dari semua keputusan
-dinamisnya. Seperti yang ditunjukkan pada Tabel IV.5, MAB belajar bahwa
-untuk dataset ini, strategi diversifikasi agresif (seperti λ =0.5 atau λ
-=0.7) adalah suboptimal karena terlalu merusak akurasi.
+Posisi MAB-MMR yang tidak berada tepat pada frontier terluar (seperti
+MMR- λ =1.0) merupakan konsekuensi logis dari strategi penyeimbangan
+(*trade-off*). Sebaliknya, ini adalah bukti keberhasilan strategi
+adaptifnya. Berbeda dengan model statis yang terkunci pada satu titik di
+plot, posisi agregat MAB-MMR (0.0237, 0.6003) merepresentasikan
+rata-rata tertimbang dari semua keputusan dinamisnya. Seperti yang
+ditunjukkan pada Tabel IV.5, MAB belajar bahwa untuk dataset ini,
+strategi diversifikasi agresif (seperti λ =0.5 atau λ =0.7) adalah
+suboptimal karena terlalu merusak akurasi.
 
 Oleh karena itu, MAB-MMR secara cerdas menggeser operasinya ke λ yang
 lebih rendah (mayoritas 0.0 dan 0.3) untuk mengutamakan relevansi.
-Posisi akhirnya pada plot Pareto membuktikan bahwa MAB berhasil
-menemukan \"titik belok\" (knee point) yang efisien: ia mencapai akurasi
+Posisi akhir pada plot Pareto menunjukkan bahwa MAB berhasil
+mengidentifikasi titik ekuilibrium yang efisien: ia mencapai akurasi
 yang hampir identik dengan baseline relevansi murni (Hybrid), namun
-tetap berhasil memberikan peningkatan diversity yang bermakna. Ini
+tetap berhasil memberikan peningkatan *Diversity* yang bermakna. Ini
 menunjukkan bahwa MAB-MMR mencapai keseimbangan *trade-off* yang lebih
 unggul dan lebih robust daripada baseline statis mana pun.
+
+### Validasi Strategi *Cold-Start* Melalui Stratifikasi Pengguna
+
+Untuk memvalidasi ketahanan strategi *cold-start* (Bab III.4.8),
+dilakukan analisis stratifikasi berdasarkan panjang riwayat rating
+pengguna dalam data latih (*user history length*). Dari total pengguna
+yang dievaluasi dalam analisis ini, populasi terbagi menjadi tiga strata
+valid: *Extreme Cold-Start* (3-5 rating, n=746, 83,6%), *Moderate
+Cold-Start* (6-10 rating, n=112, 12,6%), dan *Warm Users* (\>10 rating,
+n=34, 3,8%). Dominasi kelompok *Extreme Cold-Start* menegaskan urgensi
+mekanisme rekomendasi yang tidak hanya bergantung pada kolaborasi
+rating.
+
+[]{#_Toc214880969 .anchor}Tabel IV.7 Performa Model (NDCG@10) per Strata
+Pengguna
+
++-------------+-------------+-------------+-------------+-------------+
+| Model       | Strata      | n           | NDCG@10     | Keterangan  |
++:===========:+:===========:+:===========:+:===========:+:===========:+
+| CF          | Extreme     | 746         | 0.0184      | Baseline    |
+|             | (3-5)       |             |             | (Rentan)    |
+|             +-------------+-------------+-------------+             |
+|             | Moderate    | 112         | 0.0092      |             |
+|             | (6-10)      |             |             |             |
+|             +-------------+-------------+-------------+             |
+|             | Warm (\>10) | 34          | 0.0279      |             |
++-------------+-------------+-------------+-------------+-------------+
+| CB          | Extreme     | 746         | 0.0479      | Performa    |
+|             | (3-5)       |             |             | Terbaik     |
+|             +-------------+-------------+-------------+             |
+|             | Moderate    | 112         | 0.0467      |             |
+|             | (6-10)      |             |             |             |
+|             +-------------+-------------+-------------+             |
+|             | Warm (\>10) | 34          | 0.0871      |             |
++-------------+-------------+-------------+-------------+-------------+
+| Hybrid      | Extreme     | 746         | 0.0235      | Proposed    |
+| (MAB-MMR)   | (3-5)       |             |             | Method      |
+|             +-------------+-------------+-------------+             |
+|             | Moderate    | 112         | 0.0285      |             |
+|             | (6-10)      |             |             |             |
+|             +-------------+-------------+-------------+             |
+|             | Warm (\>10) | 34          | 0.0202      |             |
++-------------+-------------+-------------+-------------+-------------+
+
+Hasil evaluasi menunjukkan bahwa model *Collaborative Filtering* (CF)
+murni mengalami kesulitan signifikan pada kondisi *extreme cold-start*
+dengan skor NDCG hanya 0,0184. Sebaliknya, model *Content-Based* (CB)
+menunjukkan stabilitas tinggi (NDCG 0.0479 pada *extreme*), membuktikan
+bahwa fitur konten destinasi adalah sinyal paling andal ketika data
+interaksi minim.
+
+Model Hybrid MAB-MMR berhasil memitigasi kegagalan CF dengan mencatatkan
+NDCG sebesar 0.0235 pada strata *Extreme Cold-Start*. Hal ini
+merepresentasikan peningkatan kinerja sebesar +27,48% dibandingkan model
+CF murni. Temuan ini mengonfirmasi efektivitas mekanisme *fallback* pada
+arsitektur Hybrid: ketika data historis pengguna sangat terbatas (3-5
+rating), sistem secara efektif memanfaatkan komponen konten (CB) dan
+popularitas untuk menjaga relevansi rekomendasi, mencegah \"kolaps\"
+performa yang dialami oleh algoritma CF standar.
 
 ### Analisis Distribusi dan *Long-Tail*
 
 Analisis ini mengukur dampak MAB-MMR terhadap pemerataan distribusi dan
 promosi item non-populer, dimulai dengan metrik *Gini Coefficient* untuk
 mengukur pemerataan frekuensi rekomendasi.
-
-[]{#_Toc214305292 .anchor}Tabel IV.7 Perbandingan *Gini Coefficient*
-(Pemerataan Frekuensi)
 
   -----------------------------------------------------------------------
         Model             *Gini       Perbedaan (MAB -      Hasil Uji
@@ -3875,7 +4110,10 @@ mengukur pemerataan frekuensi rekomendasi.
   Hybrid (Baseline)      0.6414           Baseline          Baseline
   -----------------------------------------------------------------------
 
-Hasil pada Tabel IV.7 menunjukkan bahwa MAB-MMR (Gini 0.6401) mencapai
+  : []{#_Toc214880970 .anchor}Tabel IV.8 Perbandingan *Gini Coefficient*
+  (Pemerataan Frekuensi)
+
+Hasil pada Tabel IV.8 menunjukkan bahwa MAB-MMR (Gini 0.6401) mencapai
 distribusi frekuensi yang hampir identik dengan Hybrid (0.6414). Seperti
 yang dikonfirmasi oleh uji *paired bootstrap*, perbedaan yang sangat
 kecil ini (-0.19%) tidak signifikan secara statistik (p ≥ 0.05). Ini
@@ -3884,10 +4122,10 @@ mengindikasikan bahwa MAB-MMR, dalam memprioritaskan relevansi (akibat
 rekomendasi secara keseluruhan dibandingkan baseline Hybrid.
 
 Meskipun pemerataan frekuensi secara agregat tidak berubah signifikan,
-analisis *coverage* (item unik apa yang dijangkau) pada Tabel IV.8
+analisis *coverage* (item unik apa yang dijangkau) pada Tabel IV.9
 menunjukkan gambaran yang lebih detail untuk menjawab RM3.
 
-[]{#_Toc214305293 .anchor}Tabel IV.8 Analisis *Coverage* dan *Long-Tail*
+[]{#_Toc214880971 .anchor}Tabel IV.9 Analisis *Coverage* dan *Long-Tail*
 
   --------------------------------------------------------------------------
       Metrik         Hybrid        MAB-MMR     Δ (Perbedaan)    Peringkat
@@ -3912,11 +4150,11 @@ menggeser frekuensi rekomendasi secara halus, mengurangi paparan item
 \'Head\' (populer) sebesar -0.37% dan meningkatkannya untuk item
 \'Tail\' (non-populer) sebesar +1.22%.
 
-![[]{#_Toc214313540 .anchor}Gambar IV.4 Visualisasi metrik *long-tail*:
+![[]{#_Toc214882444 .anchor}Gambar IV.7 Visualisasi metrik *long-tail*:
 (a) Jangkauan (*Coverage*) per segmen,\
 (b) Rasio *Head-Tail*, (c) *Aggregate Diversity* (Jangkauan Katalog),\
 dan (d) *Expected Popularity Complement*
-(EPC)](media/image14.png){alt="A group of graphs with text AI-generated content may be incorrect."
+(EPC)](media/image15.png){alt="A group of graphs with text AI-generated content may be incorrect."
 width="5.513888888888889in" height="4.105555555555555in"}
 
 Visualisasi pada Gambar IV.4 merangkum perbandingan metrik *long-tail*
@@ -3925,7 +4163,7 @@ mencapai *Tail Coverage* (panel kiri atas) yang jauh lebih tinggi
 daripada model CB, serta rasio *Head-Tail* (panel kanan atas) yang lebih
 seimbang (lebih rendah), yang mengindikasikan pemerataan lebih baik.
 
-[]{#_Toc214305294 .anchor}Tabel IV.9 Top 5 Destinasi *Long-Tail* dengan
+[]{#_Toc214880972 .anchor}Tabel IV.10 Top 5 Destinasi *Long-Tail* dengan
 Boost Tertinggi (MAB vs. Hybrid)
 
   ----------------------------------------------------------------------------
@@ -3950,7 +4188,7 @@ Boost Tertinggi (MAB vs. Hybrid)
   Naga Panorama                                                       
   ----------------------------------------------------------------------------
 
-Tabel IV.9 menunjukkan dampak praktis dari pergeseran ini. MAB-MMR
+Tabel IV.10 menunjukkan dampak praktis dari pergeseran ini. MAB-MMR
 secara signifikan meningkatkan eksposur item *long-tail* berkualitas
 tinggi. Contohnya, destinasi dengan rating tinggi seperti \"Curug
 Pasirwangi\" (Rating 4.47/5) mendapat boost frekuensi +52.78% dan
@@ -3965,10 +4203,10 @@ besar pada destinasi *long-tail* berkualitas.
 Metrik *Novelty* mengukur seberapa \"baru\" (*non-populer*) rekomendasi
 yang diberikan, melengkapi analisis *long-tail* untuk RM3.
 
-[]{#_Toc214305295 .anchor}Tabel IV.10 Perbandingan Skor *Novelty*
+[]{#_Toc214880973 .anchor}Tabel IV.11 Perbandingan Skor *Novelty*
 
   -----------------------------------------------------------------------
-        Model         Novelty Score     Δ dari Hybrid     Interpretasi
+        Model        *Novelty Score*    Δ dari Hybrid     Interpretasi
   ----------------- ----------------- ----------------- -----------------
      MMR- λ =0.7         0.9144            +3.99%         Sangat Tinggi
                                                         (Akurasi rendah)
@@ -3978,9 +4216,10 @@ yang diberikan, melengkapi analisis *long-tail* untuk RM3.
                                                             akurasi)
 
        MAB-MMR           0.8818            +0.28%       Terbaik di antara
-     (Proposed)                                           model akurat
+    (*Proposed*)                                          model akurat
 
-  Hybrid (Baseline)      0.8793           Baseline          Baseline
+       Hybrid            0.8793           Baseline          Baseline
+    (*Baseline*)                                        
 
          CF              0.8625            -1.91%           Moderate
 
@@ -3988,15 +4227,15 @@ yang diberikan, melengkapi analisis *long-tail* untuk RM3.
                                                             bubble*)
   -----------------------------------------------------------------------
 
-Analisis *Novelty* pada Tabel IV.9 menunjukkan bahwa MAB-MMR (0.8818)
+Analisis *Novelty* pada Tabel IV.11 menunjukkan bahwa MAB-MMR (0.8818)
 konsisten merekomendasikan item yang lebih non-populer, sedikit
 mengungguli Hybrid (0.8793) dan jauh melampaui CB (0.7402). Temuan ini
 didukung oleh dua analisis statistik penting.
 
-![[]{#_Toc214313541 .anchor}Gambar IV.5 Stabilitas *Novelty* seiring
+![[]{#_Toc214882445 .anchor}Gambar IV.8 Stabilitas *Novelty* seiring
 waktu: (a) Skor *Novelty* dengan 50-episode\
 moving average, dan (b) Rata-rata Novelty per boks
-episode](media/image15.png){alt="A close-up of a graph AI-generated content may be incorrect."
+episode](media/image16.png){alt="A close-up of a graph AI-generated content may be incorrect."
 width="5.513888888888889in" height="2.004166666666667in"}
 
 Pertama, *novelty* tetap stabil dari waktu ke waktu. Uji statistik
@@ -4007,8 +4246,8 @@ stabilitas ini, di mana skor *novelty* MAB-MMR (garis biru) tetap tinggi
 dan stabil sepanjang 1714 episode pengguna, sejajar dengan *baseline*
 Hybrid dan jauh di atas CB.
 
-![[]{#_Toc214313542 .anchor}Gambar IV.6 Heatmap Korelasi Metrik
-MAB-MMR](media/image16.png){alt="A screenshot of a graph AI-generated content may be incorrect."
+![[]{#_Toc214882446 .anchor}Gambar IV.9 *Heatmap* Korelasi Metrik
+MAB-MMR](media/image17.png){alt="A screenshot of a graph AI-generated content may be incorrect."
 width="5.513888888888889in" height="4.717361111111111in"}
 
 Kedua, korelasi Pearson antara *Novelty* dan Akurasi (NDCG) sangat lemah
@@ -4016,8 +4255,8 @@ Kedua, korelasi Pearson antara *Novelty* dan Akurasi (NDCG) sangat lemah
 memvalidasi bahwa strategi promosi *long-tail* (RM3) dapat diterapkan
 dengan aman tanpa merusak akurasi (NDCG) secara signifikan. *Heatmap*
 korelasi pada Gambar IV.6 memperkuat temuan ini. Angka korelasi antara
-\'NDCG@10\' dan \'Novelty\' (baris 5, kolom 1) menunjukkan nilai -0.07,
-yang sangat mendekati nol dan mengonfirmasi tidak adanya hubungan
+\'NDCG@10\' dan *\'Novelty\'* (baris 5, kolom 1) menunjukkan nilai
+-0.07, yang sangat mendekati nol dan mengonfirmasi tidak adanya hubungan
 negatif yang kuat antara kedua metrik tersebut.
 
 ### Rangkuman Validasi Tujuan Penelitian
@@ -4028,12 +4267,12 @@ Keseimbangan), mekanisme MAB terbukti berhasil mengoptimalkan parameter
 λ secara adaptif. Menghadapi *data sparse* (0.602%) dan pengguna
 *cold-start* (99.69%), MAB belajar bahwa strategi diversifikasi agresif
 (seperti λ =0.5 atau λ =0.7) merusak akurasi (NDCG) dan menghasilkan
-reward yang buruk. Oleh karena itu, MAB secara cerdas belajar untuk
-memprioritaskan relevansi guna memaksimalkan reward pengguna. Ini
+*reward* yang buruk. Oleh karena itu, MAB secara cerdas belajar untuk
+memprioritaskan relevansi guna memaksimalkan *reward* pengguna. Ini
 dibuktikan dengan distribusi pemilihan λ, di mana 78.30% memilih λ =0.0
-dan 18.61% memilih λ =0.3. Hasilnya, MAB-MMR (NDCG=0.0237) berhasil
-\"menyelamatkan\" akurasi, mengungguli baseline seimbang MMR- λ =0.5
-(NDCG=0.0201) secara signifikan.
+dan 18.61% memilih λ =0.3. Hasilnya, model MAB-MMR (NDCG=0.0237) mampu
+mempertahankan stabilitas akurasi, mengungguli baseline seimbang MMR- λ
+=0.5 (NDCG=0.0201) secara signifikan.
 
 Kedua, untuk Tujuan 2 & 3 (Pemerataan dan Eksposur *Long-Tail*),
 meskipun MAB belajar untuk tidak mendiversifikasi secara agresif (yang
@@ -4049,32 +4288,34 @@ boost frekuensi untuk item *long-tail* berkualitas tinggi, seperti
 ### Evaluasi Performa Sistem (*Latency Analysis*)
 
 Untuk memvalidasi kapabilitas operasional sistem dalam skenario
-*real-time*, dilakukan pengukuran waktu respons (*response time*) pada
+real-time, dilakukan pengukuran waktu respons (response time) pada
 endpoint rekomendasi utama. Pengukuran dilakukan terhadap 100 permintaan
 inferensi acak untuk menghitung rata-rata waktu pemrosesan internal
-sistem (termasuk *candidate generation*, pemilihan parameter MAB, dan
-*re-ranking* MMR).
+sistem (termasuk candidate generation, pemilihan parameter MAB, dan
+re-ranking MMR).
 
 Hasil pengujian menunjukkan bahwa rata-rata waktu inferensi sistem
-adalah 197,31 ms (SD = 45 ms). Waktu ini berada jauh di bawah ambang
-batas toleransi 500 ms yang ditetapkan dalam kebutuhan non-fungsional
-(KNF01), membuktikan bahwa algoritma MAB-MMR yang diusulkan memiliki
-kompleksitas komputasi yang efisien dan layak untuk diimplementasikan
-dalam skenario interaksi pengguna interaktif (*real-time interactive
-response*). Angka ini merepresentasikan latensi pemrosesan algoritmik
-murni dan belum memperhitungkan *network overhead* dari sisi klien.
+adalah 197,31 ms (SD = 45 ms). Waktu respons rata-rata 197,31 ms ini
+melampaui target KNF01 (3 detik) dengan margin yang signifikan (lebih
+dari 15x lebih cepat). Pencapaian ini membuktikan bahwa algoritma
+MAB-MMR yang diusulkan memiliki kompleksitas komputasi yang efisien dan
+layak untuk diimplementasikan dalam skenario interaksi pengguna
+interaktif (*real-time interactive response*). Angka ini
+merepresentasikan latensi pemrosesan algoritmik murni dan belum
+memperhitungkan network overhead dari sisi klien.
 
 ### Demonstrasi Adaptabilitas Skenario (*Case Studies*)
 
-Untuk memvalidasi kemampuan adaptif sistem dalam lingkungan dinamis,
-dilakukan simulasi terhadap pengguna sampel (User ID 1) yang secara
-historis memiliki preferensi pada kategori Wisata Buatan/Rekreasi dan
-Wisata Budaya.
+Berdasarkan rancangan demonstrasi di Bab III.5.1, implementasi
+difokuskan pada pengguna sampel (User ID 1) yang memiliki preferensi
+historis pada kategori Wisata Buatan/Rekreasi dan Wisata Budaya.
+Pemilihan ini didasarkan pada analisis bahwa profil pengguna tersebut
+representatif untuk memvalidasi ketiga kapabilitas inti sistem.
 
-Tabel IV.11 memperlihatkan bagaimana sistem menyeimbangkan preferensi
+Tabel IV.12 memperlihatkan bagaimana sistem menyeimbangkan preferensi
 historis tersebut dengan kendala konteks *real-time*.
 
-[]{#_Toc214305296 .anchor}Tabel IV.11 Demonstrasi Perubahan Rekomendasi
+[]{#_Toc214880974 .anchor}Tabel IV.12 Demonstrasi Perubahan Rekomendasi
 pada Berbagai Skenario\
 Konteks
 
@@ -4117,12 +4358,12 @@ Analisis Hasil Demonstrasi:
 
 > Saat parameter konteks diubah menjadi \'Hujan\', sistem melakukan
 > intervensi cerdas. Meskipun pengguna menyukai Wisata Buatan (yang
-> sebagian besar bersifat outdoor di Sumedang), sistem \"menahan\"
-> rekomendasi tersebut dan menggantinya dengan Wisata Kuliner (seperti
-> RM Cahaya Sari dan Ponyo Resto).
+> sebagian besar bersifat outdoor di Sumedang), sistem meminimalisir
+> prioritas rekomendasi tersebut dan mensubstitusinya dengan Wisata
+> Kuliner (seperti RM Cahaya Sari dan Ponyo Resto).
 >
 > Perubahan drastis ini (4 dari 5 rekomendasi menjadi kuliner)
-> menunjukkan bahwa sistem tidak bekerja secara kaku (context-blind),
+> menunjukkan bahwa sistem tidak bekerja secara kaku (*context-blind*),
 > melainkan mampu memprioritaskan kenyamanan pengguna di atas preferensi
 > historis saat kondisi lingkungan tidak mendukung.
 
@@ -4148,610 +4389,420 @@ Sub-bab ini mendokumentasikan metodologi dan hasil dari *user testing*
 yang dilakukan untuk mengukur aspek-aspek pengalaman pengguna (UX)
 tersebut.
 
-### Metodologi *User Testing*
-
-Evaluasi kualitatif ini menggunakan pendekatan *between-subjects* (A/B
-testing) untuk membandingkan pengalaman pengguna antara sistem yang
-diusulkan dan sistem *baseline*.
-
-1.  Partisipan: Sebanyak 28 partisipan direkrut menggunakan *purposive
-    sampling*.
-
-2.  Kriteria Inklusi:
-
-- Usia 18-65 tahun.
-
-- Pernah menggunakan platform pariwisata digital (Google Maps,
-  Traveloka, TripAdvisor) setidaknya 1 kali dalam 6 bulan terakhir.
-
-- Tidak memiliki latar belakang di bidang ilmu komputer atau sistem
-  rekomendasi.
-
-- Tidak memiliki hubungan langsung dengan peneliti.
-
-- Demografi: Partisipan terdiri dari 15 laki-laki dan 13 perempuan,
-  dengan rentang usia 20-51 tahun (rata-rata usia 29.5 tahun).
-
-Tabel IV.12 menunjukkan bahwa karakteristik demografis dan pengalaman
-partisipan terdistribusi merata antara Grup A dan Grup B (semua
-p\>0.05), memastikan validitas komparasi *between-subjects*.
-
-[]{#_Toc214305297 .anchor}Tabel IV.12 Karakteristik Demografis
-Partisipan (N=28)
-
-  ------------------------------------------------------------------------
-    Karakteristik      Grup A        Grup B      Total        p-value
-                      (Hybrid)     (MAB-MMR)               (homogeneity)
-  ----------------- ------------ -------------- -------- -----------------
-  Total Partisipan       14            14          28           \-
-
-       Gender                                               p=0.71 (ns)
-
-    \- Laki-laki      7 (50%)       8 (57%)     15 (54%) 
-
-    \- Perempuan      7 (50%)       6 (43%)     13 (46%) 
-
-        Usia                                                p=0.79 (ns)
-
-    \- Mean ± SD     29.1 ± 8.2    29.9 ± 7.8    29.5 ±  
-                                                  7.9    
-
-     \- Rentang        20-48         22-51       20-51   
-
-  Travel Frequency                                          p=0.70 (ns)
-
-     \- Frequent      6 (43%)       7 (50%)     13 (46%) 
-    (\>5x/tahun)                                         
-
-      \- Casual       8 (57%)       7 (50%)     15 (54%) 
-    (\<5x/tahun)                                         
-  ------------------------------------------------------------------------
-
-3.  Protokol Pengujian: Partisipan dibagi secara acak menjadi dua
-    kelompok:
-
-- Grup A (Control, 14 partisipan): Berinteraksi dengan sistem Hybrid
-  (Baseline).
-
-- Grup B (Treatment, 14 partisipan): Berinteraksi dengan sistem MAB-MMR
-  (Proposed).
-
-4.  Prosedur Pengujian: Setiap sesi pengujian (dilakukan secara *remote*
-    dan dimoderasi) berlangsung sekitar 20-25 menit dan mengikuti alur
-    berikut:
-
-    - Briefing (5 menit): Penjelasan tujuan sesi tanpa menyebutkan
-      perbedaan model.
-
-    - Skenario Tugas (10-15 menit): \"Anda berencana melakukan
-      perjalanan 3 hari 2 malam ke Sumedang bersama keluarga/teman.
-      Gunakan sistem ini untuk menemukan 5-7 destinasi yang menarik
-      untuk dikunjungi.\" Partisipan diminta think-aloud selama
-      eksplorasi.
-
-    - Survei Pasca-Uji (5 menit): SUS dan kuesioner persepsi.
-
-    - Wawancara Semi-Terstruktur (5 menit): Pertanyaan terbuka tentang
-      kesan, penemuan, dan saran.-Terstruktur (5 menit): Peneliti
-      mengajukan pertanyaan terbuka mengenai kesan umum, penemuan
-      destinasi baru, dan saran perbaikan.
-
 ### Hasil SUS (*System Usability Scale*)
 
-*System Usability Scale (SUS)* adalah instrumen standar industri untuk
-mengukur usability.
+Pengukuran *usability* sistem dilakukan menggunakan instrumen standar
+System Usability Scale (SUS) terhadap 30 responden. Skor rata-rata
+keseluruhan yang diperoleh sistem MAB-MMR adalah 79.1 (SD = 12.1).
 
-Skor Keseluruhan**:**
+Berdasarkan skala interpretasi standar (Bangor dkk., 2008), skor 79.1
+menempatkan sistem dalam kategori \"Good\" (Baik) dan mendekati ambang
+batas \"Excellent\". Pencapaian ini juga menempatkan sistem pada
+*percentile rank* ke-85, yang berarti MAB-MMR dinilai lebih mudah
+digunakan dibandingkan 85% sistem perangkat lunak lain yang pernah
+dievaluasi. Standar deviasi sebesar 12.1 menunjukkan persepsi pengguna
+yang cukup seragam mengenai kemudahan sistem.
 
-- MAB-MMR (Grup B): 75.5 (SD = 10.2)
+Rincian analisis untuk setiap butir pertanyaan SUS disajikan dalam Tabel
+IV.13 di bawah ini.
 
-- Hybrid (Grup A): 74.2 (SD = 11.4)
+[]{#_Toc214880975 .anchor}Tabel IV.13 Analisis Per-Item *System
+Usability Scale* (MAB-MMR, n=30)
 
-Menurut skala interpretasi standar (Brooke, 1996), skor 75.5 untuk
-MAB-MMR termasuk dalam kategori \"Good\" (Baik) dengan *adjective
-rating* \"Grade B\". Skor ini menempatkan sistem pada *percentile rank*
-\~74, yang berarti MAB-MMR lebih *usable* daripada 74% sistem yang
-pernah dievaluasi menggunakan SUS. Skor ini berada di atas rata-rata
-prototipe penelitian (rata-rata 65-70) dan aplikasi web komersial
-(rata-rata 68), menunjukkan *usability* yang kuat.
+  ---------------------------------------------------------------------------
+   Item             Pertanyaan              Mean        SD      Interpretasi
+  ------- ------------------------------- --------- ---------- --------------
+     1       Saya berpikir akan sering      4.30       0.60    Potensi adopsi
+              menggunakan sistem ini                               tinggi
 
-Untuk mengonfirmasi perbedaan antar grup secara statistik, dilakukan uji
-independent samples t-test yang dirangkum dalam Tabel IV.13.
+     2    Saya merasa sistem ini terlalu    2.00       0.59        Sistem
+                   kompleks (R)                                  sederhana
 
-[]{#_Toc214305298 .anchor}Tabel IV.13 Hasil Uji Statistik Evaluasi
-Kualitatif (Independent t-test, n=14\
-per grup)
+     3      Saya pikir sistem ini mudah     4.43       0.57    Kekuatan Utama
+                     digunakan                                 
 
-  ------------------------------------------------------------------------------------
-     Metrik     MAB-MMR    Hybrid    t-statistic   p-value   Cohen\'s d   Signifikan?
-                (Grup B)  (Grup A)                                       
-  ------------ ---------- --------- ------------- --------- ------------ -------------
-   SUS Score     75.5 ±    74.2 ±       0.31        0.755       0.12      Tidak (ns)
-                  10.2      11.4                                         
+     4    Saya membutuhkan bantuan teknis   1.83       0.53       Pengguna
+           untuk menggunakan sistem ini                           mandiri
+                        (R)                                    
 
-   Perceived   4.1 ± 0.7  3.2 ± 0.9     2.91        0.007       0.98          Ya
-   Diversity                                                             
+     5    Saya merasa berbagai fungsi di    4.30       0.53      Alur mulus
+          sistem ini terintegrasi dengan                       
+                       baik                                    
 
-   Discovery     78.6%      42.9%    \[χ²=4.00\]    0.046    \[Φ=0.38\]       Ya
-    Rate (%)    (11/14)    (6/14)                                        
+     6    Saya merasa ada terlalu banyak    2.00       0.37        Sangat
+          inkonsistensi di sistem ini (R)                        konsisten
 
-  Interest in  4.2 ± 0.6  3.9 ± 0.8     0.87        0.401       0.41      Tidak (ns)
-   New Items     (n=11)     (n=6)                                        
-  ------------------------------------------------------------------------------------
+     7     Saya merasa orang akan cepat     4.30       0.65        Mudah
+          belajar menggunakan sistem ini                         dipelajari
 
-Tabel IV.12 mengkonfirmasi tidak ada perbedaan signifikan dalam SUS
-scores antara kedua grup (p=0.755, Cohen\'s d=0.12), memvalidasi bahwa
-mekanisme diversifikasi adaptif tidak mengurangi kemudahan penggunaan
-sistem. Namun, Perceived Diversity menunjukkan perbedaan sangat
-signifikan (4.1 vs 3.2, p=0.007, Cohen\'s d=0.98). Effect size yang
-besar (d\>0.8) menunjukkan pengguna benar-benar merasakan perbedaan
-keberagaman rekomendasi, sejalan dengan peningkatan Diversity
-kuantitatif +3.5% (p\<0.001, Tabel IV.6).
+     8     Saya merasa sistem ini sangat    1.97       0.61     Tidak rumit
+             rumit untuk digunakan (R)                         
 
-Discovery Rate juga berbeda signifikan: 78.6% partisipan MAB-MMR
-menemukan destinasi baru vs 42.9% Hybrid (χ²=4.00, p=0.046), artinya
-MAB-MMR 1.8x lipat lebih efektif memperkenalkan destinasi baru. Tingkat
-ketertarikan terhadap penemuan baru juga tinggi (MAB-MMR: 4.2/5 vs
-Hybrid: 3.9/5), meskipun tidak signifikan (p=0.401). Skor 4.2/5
-menunjukkan destinasi *long-tail* yang direkomendasikan bukan sekadar
-obscure, tetapi genuinely attractive, memvalidasi bahwa algoritma secara
-cerdas mempromosikan hidden gems berkualitas tinggi
+     9    Saya merasa sangat percaya diri   4.20       0.71         User
+              menggunakan sistem ini                             confidence
+                                                                   tinggi
 
-[]{#_Toc214305299 .anchor}Tabel IV.14 Analisis Per-Item System Usability
-Scale (MAB-MMR, n=14)
+    10     Saya perlu belajar banyak hal    2.10       0.55    Kurva belajar
+          sebelum bisa menggunakan sistem                          rendah
+                      ini (R)                                  
+  ---------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------
-      Item                 Pertanyaan               Mean ± SD   Kategori
-  ------------ ----------------------------------- ----------- -----------
-       1            Saya berpikir akan sering       3.8 ± 0.9   Moderate
-                     menggunakan sistem ini                    
+Analisis Hasil: Hasil analisis per-item seperti yang terlihat pada Tabel
+IV.13 menunjukkan beberapa temuan kunci:
 
-       2         Saya merasa sistem ini terlalu     4.1 ± 0.8   Kekuatan
-                          kompleks (R)                         
+1.  Kemudahan Penggunaan (*Ease of Use*): Skor tertinggi pada tabel di
+    atas terdapat pada Item 3 (\"Mudah digunakan\") dengan nilai 4.43.
+    Hal ini didukung oleh Item 5 mengenai integrasi fungsi yang juga
+    mendapat skor sangat tinggi (4.30), memvalidasi bahwa antarmuka
+    pengguna berhasil menyajikan rekomendasi yang kompleks dengan cara
+    yang sederhana dan terintegrasi.
 
-       3           Saya pikir sistem ini mudah      4.3 ± 0.7   Kekuatan
-                            digunakan                          
+2.  Kurva Pembelajaran (*Learnability*): Merujuk pada Item 7 dan Item 10
+    dalam Tabel IV.13, terlihat bahwa pengguna merasa sistem sangat
+    mudah dipelajari (Skor Item 7: 4.30) dan tidak memerlukan
+    pembelajaran awal yang berat (Skor Item 10: 2.10). Hal ini juga
+    diperkuat oleh rendahnya kebutuhan akan bantuan teknis (Item 4:
+    1.83).
 
-       4         Saya membutuhkan bantuan teknis    4.2 ± 0.9   Kekuatan
-                untuk menggunakan sistem ini (R)               
+3.  Evaluasi Kualitatif Tambahan: Selain metrik SUS, data kualitatif
+    menunjukkan performa sistem yang sangat positif dalam aspek
+    *utility*:
 
-       5         Saya merasa berbagai fungsi di     2.9 ± 1.1   Kelemahan
-               sistem ini terintegrasi dengan baik             
+    - *Discovery Rate*: Sebesar 96.7% responden berhasil menemukan
+      destinasi wisata baru.
 
-       6         Saya merasa ada terlalu banyak     3.9 ± 0.8   Moderate
-                 inkonsistensi di sistem ini (R)               
+    - Minat & Keberagaman: Pengguna memberikan rating tinggi (4.3/5.0)
+      untuk tingkat ketertarikan destinasi baru dan persepsi keberagaman
+      rekomendasi.
 
-       7          Saya merasa orang akan cepat      4.2 ± 0.7   Kekuatan
-                 belajar menggunakan sistem ini                
-
-       8       Saya merasa sistem ini sangat rumit  4.0 ± 0.9   Kekuatan
-                       untuk digunakan (R)                     
-
-       9         Saya merasa sangat percaya diri    3.7 ± 1.0   Moderate
-                     menggunakan sistem ini                    
-
-       10         Saya perlu belajar banyak hal     4.1 ± 0.8   Kekuatan
-               sebelum bisa menggunakan sistem ini             
-                               (R)                             
-  ------------------------------------------------------------------------
-
-Temuan kunci dari analisis per-item pada Tabel IV.14 adalah:
-
-Kekuatan Utama: *Ease of use* (Item 3: 4.3) dan *Learnability* (Item 7:
-4.2) mendapat skor tertinggi, menunjukkan sistem intuitif bahkan untuk
-pengguna pertama kali.
-
-Kelemahan Utama: *Integration of functions* (Item 5: 2.9) menunjukkan
-bahwa pengguna merasa beberapa fitur kurang terintegrasi atau alurnya
-kurang *seamless*.
+Secara keseluruhan, hasil evaluasi menegaskan bahwa MAB-MMR bukan hanya
+efektif dalam memberikan rekomendasi *novelty*, tetapi juga
+mempertahankan standar *usability* yang tinggi bagi pengguna akhir.
 
 ### Triangulasi Kualitatif-Kuantitatif
 
 Evaluasi kualitatif berhasil memvalidasi hipotesis RM3 dan memberikan
 makna kontekstual pada data kuantitatif. Konvergensi yang kuat diamati
-antara metrik algoritmik dan persepsi pengguna aktual.
+antara metrik algoritmik offline dan persepsi pengguna aktual.
 
 Temuan kuantitatif (Sub-bab IV.3.6) menunjukkan MAB-MMR meningkatkan
-Long-tail Coverage +1.78% (menjadi 69.64%, tertinggi) dan mem-boost
-destinasi berkualitas tinggi seperti \"Curug Pasirwangi\" (+52.78%) dan
-\"Curug Cirengganis\" (+33.77%). Temuan kualitatif mengonfirmasi
-perubahan ini terasa oleh pengguna: Discovery Rate 78.6% sejalan dengan
-Long-tail Coverage 69.64%, dan Perceived Diversity yang signifikan lebih
-tinggi (4.1 vs 3.2, p=0.007) memvalidasi bahwa peningkatan Diversity
-kuantitatif +3.5% meaningful bagi end-user.
+*Long-tail Coverage* hingga 69.64% (tertinggi di antara semua baseline)
+dan secara signifikan mem-*boost* eksposur destinasi berkualitas tinggi
+yang sebelumnya tersembunyi, seperti \"Curug Pasirwangi\" (boost
+frekuensi +52.78%) dan \"Curug Cirengganis\" (+33.77%). Temuan
+kualitatif mengonfirmasi bahwa pergeseran distribusi ini nyata dirasakan
+oleh pengguna, *Discovery Rate* mencapai 96.7% (29 dari 30 partisipan
+menemukan destinasi baru) angka yang sangat tinggi yang memvalidasi
+efektivitas *Long-tail Coverage*. Selain itu, skor *Perceived Diversity*
+sebesar 4.3/5.0 sejalan dengan peningkatan metrik *Diversity* *offline*
+(+3.5%), membuktikan bahwa variasi rekomendasi yang dihasilkan algoritma
+adalah *meaningful* bagi pengguna akhir.
 
-Wawancara memberikan bukti anekdotal yang menghubungkan langsung kedua
-hasil evaluasi. Partisipan B-04 (MAB-MMR) secara spesifik menyebut:
-*\"Saya kaget ada Curug Cirengganis dan Curug Pasirwangi**\...**
-kelihatannya bagus sekali. Kalau pakai sistem biasa \[Google Maps\],
-mungkin tidak akan pernah muncul.\"* Kutipan ini mengonfirmasi destinasi
-yang algoritmik di-boost tertinggi juga empiris diterima sebagai
-penemuan berharga**.** Partisipan B-11 (MAB-MMR) menghargai variasi
-dalam list rekomendasi: *\"Sistemnya tidak hanya kasih tempat populer,
-tapi mix dengan yang unik. Ada yang familiar, ada yang baru. Jadi saya
-punya banyak pilihan untuk di-explore.\"* Ini memvalidasi bahwa
-mekanisme diversifikasi berhasil menyeimbangkan item populer dan
-long-tail dalam pengalaman browsing pengguna.
+Bukti dari kolom komentar partisipan memperkuat hubungan ini. Salah satu
+partisipan menyebutkan: *\"Banyak tempat di sekitar kampus yang baru aku
+tahu ternyata bagus\"*, yang secara langsung mengonfirmasi nilai dari
+peningkatan *coverage*. Partisipan lain menyoroti penemuan spesifik:
+*\"Kampung Karuhun. Aku kira cuma taman biasa, ternyata ada air
+terjunnya juga\"*. Kutipan ini memvalidasi bahwa algoritma berhasil
+mengangkat destinasi *hidden gem* yang relevan, bukan sekadar
+menampilkan item acak. Komentar lain seperti *\"Tempatnya instagrammable
+banget\"* dan *\"* *Ternyata banyak spot alam yang bagus dan belum
+pernah saya dengar.\"* menunjukkan apresiasi terhadap keberagaman
+kategori (*Diversity*) yang ditawarkan sistem.
 
-Sebagai kontras, Partisipan A-02 **(**Hybrid) menyatakan:
-*\"Rekomendasinya\... ya, standar. Sebagian besar saya sudah tahu\...
-Cukup aman tapi membosankan.\"* Feedback ini mencerminkan Long-tail
-Coverage dan Novelty yang lebih rendah pada baseline.
-
-Temuan ini menjawab kekhawatiran *diversity-accuracy trade-off*: dalam
-domain eksplorasi seperti pariwisata, pengguna aktif mencari dan
-menghargai serendipitous discovery. Meskipun Precision@10 hanya 0.65%,
-skor SUS 75.5 dan Perceived Diversity 4.1/5 menunjukkan pengguna merasa
-sistem \"intuitif\" dan \"menawarkan variasi menarik\", bukan \"tidak
-akurat\" atau \"frustrating\". Konvergensi evaluasi kuantitatif dan
-kualitatif memberikan validitas triangulasi yang kuat: MAB-MMR berhasil
-secara algoritmik dan praktis dalam memberikan pengalaman pengguna yang
-superior.
+Temuan ini menjawab kekhawatiran mengenai *diversity--accuracy
+trade-off* dalam sistem rekomendasi pariwisata. Alih-alih menafsirkan
+diversifikasi sebagai penurunan kualitas hasil, pengguna justru
+mengapresiasi penemuan baru yang tak terduga namun relevan. Meskipun
+secara teoritis akurasi (*Precision@10*) sering kali turun saat
+diversifikasi ditingkatkan, skor SUS yang tinggi (79.1) dan *Interest
+Score* terhadap destinasi baru yang mencapai 4.3/5.0 membuktikan bahwa
+pengguna tidak merasa sistem \"tidak akurat\". Sebaliknya, mereka
+menilai sistem ini intuitif dan inspiratif. Konvergensi ini memberikan
+validitas triangulasi yang kuat: MAB-MMR berhasil secara teknis
+meningkatkan paparan *long-tail* dan secara praktis memberikan kepuasan
+eksplorasi bagi pengguna.
 
 ### Kesimpulan Evaluasi Kualitatif
 
-Evaluasi kualitatif melalui user testing dengan 28 partisipan secara
-komprehensif memvalidasi RM3 dan mengkonfirmasi bahwa peningkatan metrik
-offline (Diversity, Novelty, Long-tail Coverage) berhasil diterjemahkan
-menjadi pengalaman pengguna yang superior.
+Evaluasi kualitatif melalui *user testing* dengan 30 partisipan secara
+komprehensif memvalidasi RM3 dan mengonfirmasi bahwa peningkatan metrik
+*offline* (*Diversity*, *Novelty*, *Long-tail Coverage*) berhasil
+diterjemahkan menjadi pengalaman pengguna yang superior.
 
-Skor SUS 75.5 (\"Good\", Grade B, percentile rank \~74) membuktikan
-bahwa mekanisme diversifikasi adaptif tidak mengorbankan kemudahan
-penggunaan sistem. Uji statistik menunjukkan tidak ada perbedaan
-signifikan dengan baseline Hybrid (75.5 vs 74.2, p=0.755, Cohen\'s
-d=0.12), mengkonfirmasi bahwa kompleksitas algoritmik MAB-MMR tidak
-meningkatkan cognitive load atau confusion bagi pengguna. Lebih penting
-lagi, pengguna MAB-MMR merasakan rekomendasi lebih beragam dibanding
-Hybrid (4.1 vs 3.2, p=0.007, Cohen\'s d=0.98 large effect), memvalidasi
-bahwa peningkatan Diversity kuantitatif +3.5% (p\<0.001) bukan sekadar
-angka statistik, tetapi meaningful dan noticeable dalam interaksi
-real-world.
+Skor SUS sebesar 79.1 (SD = 12.1) menempatkan sistem dalam kategori
+\"Good\" (mendekati *Excellent*). Pencapaian ini membuktikan bahwa
+mekanisme diversifikasi adaptif yang kompleks di *backend* tidak
+membebani pengguna dengan antarmuka yang rumit. Sebaliknya, pengguna
+merasa sistem sangat mudah digunakan (*mean score* item *\'Easy to
+Use*\' = 4.43). Persepsi keberagaman (*Perceived Diversity*) yang tinggi
+(4.3/5.0) memvalidasi bahwa peningkatan *Diversity* kuantitatif
+benar-benar dirasakan manfaatnya dalam interaksi dunia nyata.
 
-Dari perspektif discovery effectiveness, MAB-MMR hampir 2x lipat lebih
-efektif dalam memperkenalkan destinasi baru (78.6% vs 42.9%, p=0.046),
-dengan destinasi tersebut dinilai menarik (4.2/5). Ini mengonfirmasi
-bahwa Long-tail Coverage 69.64% (tertinggi) bukan hanya metrik
-algoritmik, tetapi benar-benar menghasilkan user discovery yang
-meaningful. Triangulasi antara temuan kuantitatif dan kualitatif
-tervalidasi dengan kuat melalui kutipan partisipan yang secara spesifik
-menyebut destinasi long-tail seperti \"Curug Cirengganis\" (boost
-+33.77%) dan \"Curug Pasirwangi\" (boost +52.78%), memberikan bukti
-anekdotal yang menghubungkan langsung peningkatan algoritmik dengan
-pengalaman pengguna aktual.
+Dari perspektif efektivitas penemuan (*discovery effectiveness*), sistem
+terbukti sangat sukses dengan 96.7% pengguna menemukan destinasi baru.
+Destinasi-destinasi baru ini juga dinilai sangat menarik (*Interest
+Score* 4.3/5.0), yang mengonfirmasi bahwa *Long-tail Coverage* 69.64%
+bukan hanya angka statistik, tetapi representasi dari rekomendasi yang
+berkualitas. Partisipan secara eksplisit mengapresiasi rekomendasi lokal
+yang mendetail, seperti *\"Kampung Karuhun\"* dan *\"Curug Gorobog\"*,
+yang mungkin tidak muncul di platform populer lain.
 
-Implikasi dari temuan ini adalah bahwa dalam domain eksplorasi seperti
-pariwisata, pengguna secara aktif mencari dan menghargai penemuan
-serendipitous, memvalidasi bahwa diversity adalah sebuah fitur yang
-diinginkan, bukan kekurangan yang harus diminimalkan. Meskipun
-Precision@10 MAB-MMR hanya 0.65%, kombinasi SUS score yang tinggi (75.5)
-dan Perceived Diversity yang superior (4.1/5) menunjukkan bahwa pengguna
-tidak merasa sistem \"tidak akurat\" atau \"frustrating\", melainkan
-\"intuitif\" dan \"menawarkan variasi menarik\". Konvergensi antara
-evaluasi offline dan online ini memberikan validitas yang kuat untuk
-kesimpulan bahwa model MAB-MMR berhasil secara algoritmik dan praktis
-dalam meningkatkan eksposur destinasi kurang populer tanpa mengorbankan
-user satisfaction.
+Implikasi utamanya adalah bahwa *Diversity* dalam sistem rekomendasi
+pariwisata adalah fitur krusial yang diinginkan pengguna. Kombinasi
+antara *usability* yang sangat baik (SUS 79.1) dan kepuasan konten yang
+tinggi (*Interest* 4.3) menunjukkan bahwa MAB-MMR berhasil
+menyeimbangkan dua tujuan yang sering bertentangan: mempromosikan
+destinasi wisata yang kurang populer untuk pemerataan ekonomi, sekaligus
+memberikan pengalaman liburan yang memuaskan dan penuh kejutan positif
+bagi wisatawan.
 
 ## **Diskusi dan Implikasi**
 
-Sub-bab ini membahas interpretasi temuan utama dari evaluasi kuantitatif
-dan kualitatif, kontribusi penelitian terhadap body of knowledge,
-implikasi praktis, serta keterbatasan yang perlu diakui.
+Sub-bab ini menguraikan interpretasi mendalam terhadap hasil evaluasi.
+Diskusi mencakup kontribusi penelitian, implikasi praktis, serta
+keterbatasan studi.
 
 ### **Interpretasi Temuan Utama**
 
-Hasil evaluasi menunjukkan bahwa model MAB-MMR yang diusulkan berhasil
-menjawab ketiga rumusan masalah penelitian dengan temuan yang konsisten
-antara evaluasi offline dan online.
+Hasil evaluasi secara keseluruhan mengindikasikan bahwa model MAB-MMR
+berhasil menjawab ketiga rumusan masalah penelitian dengan konsistensi
+antara hasil pengujian algoritma secara *offline* dan validasi pengguna
+secara *online*. Keseimbangan optimal antara akurasi dan keberagaman
+terbukti tercapai, di mana model MAB-MMR menghasilkan nilai NDCG@10
+sebesar 0,0237 yang secara statistik setara dengan baseline Hybrid,
+namun dengan peningkatan *Diversity* yang signifikan sebesar +3,5%.
+Temuan ini memvalidasi hipotesis bahwa optimasi parameter λ secara
+adaptif menggunakan *Multi-Armed Bandit* mampu menemukan titik
+ekuilibrium tanpa mengorbankan akurasi secara substansial. Distribusi
+pemilihan parameter yang terpusat pada nilai rendah mengindikasikan
+bahwa dalam kondisi data yang sangat *sparse*, strategi yang
+memprioritaskan relevansi merupakan pendekatan yang paling optimal untuk
+menjaga kepuasan pengguna.
 
-Keseimbangan Akurasi-Diversity (RM1): Model MAB-MMR mencapai NDCG@10
-sebesar 0.0237, yang secara statistik setara dengan baseline Hybrid
-(0.0244, p=0.1998), sambil meningkatkan Diversity sebesar +3.5% (dari
-0.5801 menjadi 0.6003, p\<0.001). Temuan ini memvalidasi hipotesis bahwa
-optimasi parameter λ secara adaptif menggunakan Multi-Armed Bandit dapat
-menemukan keseimbangan optimal tanpa mengorbankan akurasi secara
-signifikan. Distribusi pemilihan λ yang bias terhadap nilai rendah
-(78.30% memilih λ=0.0, 18.61% memilih λ=0.3) menunjukkan bahwa dalam
-kondisi data sparse (0.602%), strategi yang lebih konservatif (prioritas
-relevansi) adalah optimal---sebuah pembelajaran penting yang tidak dapat
-dicapai oleh pendekatan λ statis.
+Peran data kontekstual terkonfirmasi melalui hasil evaluasi, di mana
+integrasi variabel konteks memberikan peningkatan *Diversity* sebesar
++7,21%. Hal ini memvalidasi bahwa pemrosesan data kontekstual secara
+*real-time* berkontribusi signifikan terhadap variasi rekomendasi.
+Selain itu, kapabilitas sistem dalam mempromosikan destinasi wisata yang
+kurang populer (*long-tail*) tervalidasi melalui pencapaian metrik
+*Long-tail Coverage* tertinggi sebesar 69,64%. Peningkatan kinerja
+algoritmik ini terbukti berdampak langsung pada pengalaman pengguna,
+ditandai dengan tingkat penemuan destinasi baru (*Discovery Rate*) yang
+mencapai 96,7% dan persepsi keberagaman yang dinilai tinggi. Konvergensi
+antara data log sistem dan pengakuan pengguna terhadap destinasi
+spesifik yang direkomendasikan memberikan bukti validitas yang kuat.
 
-Kontribusi Konteks (RM2): Ablation study mengkonfirmasi bahwa integrasi
-data kontekstual meningkatkan Diversity sebesar +7.21%, memvalidasi
-nilai pemrosesan kontekstual data real-time. Meskipun peningkatan NDCG
-hanya +1.24%, improvement pada Diversity yang signifikan menunjukkan
-bahwa konteks terutama berkontribusi pada variasi rekomendasi daripada
-precision murni. Variasi pemilihan λ rata-rata antar konteks (misalnya
-Sunny+Weekend: 0.0639 vs Rainy+Weekday: 0.0834) menunjukkan bahwa model
-secara cerdas menyesuaikan strategi diversifikasi berdasarkan situasi
-pengguna, meskipun adaptasi ini tidak seagresif yang dihipotesiskan.
-
-Promosi *Long-Tail* (RM3): Model berhasil mencapai *Long-tail Coverage*
-tertinggi (69.64%) dan *Gini Coefficient* terendah (0.6401) di antara
-semua model dengan coverage tinggi, memvalidasi kemampuan mempromosikan
-destinasi kurang populer. Yang lebih penting, triangulasi
-kualitatif-kuantitatif menunjukkan bahwa improvement algoritmik ini
-diterjemahkan menjadi pengalaman pengguna yang positif: 78.6% partisipan
-MAB-MMR menemukan destinasi baru (vs 42.9% Hybrid, p=0.046) dengan
-*Perceived Diversity* yang signifikan lebih tinggi (4.1 vs 3.2, p=0.007,
-Cohen\'s d=0.98). Kutipan partisipan yang secara spesifik menyebut
-destinasi yang di-boost tinggi (\"Curug Cirengganis\", \"Curug
-Pasirwangi\") memberikan bukti anekdotal kuat untuk validitas konvergen.
-
-Temuan Tak Terduga: Skor akurasi absolut yang rendah (Precision@10 =
-0.0065) awalnya mengkhawatirkan, namun tidak berdampak negatif pada user
-satisfaction (SUS 75.5 \"Good\"). Ini mengkonfirmasi argumen teoretis
-bahwa dalam exploration-oriented domains seperti pariwisata, pengguna
-menghargai discovery dan variety lebih dari precision murni. Temuan ini
-menantang asumsi umum dalam literatur recommender systems yang sering
-memprioritaskan metrik akurasi di atas segalanya.
-
-Ketangguhan pada Kondisi *Data Sparsity* (Representasi *Cold-Start*):
-Salah satu temuan krusial adalah kemampuan sistem bertahan pada kondisi
-kelangkaan data ekstrem, di mana 99,69% pengguna memiliki kurang dari 10
-riwayat interaksi. Meskipun evaluasi menggunakan pembobotan *Hybrid*
-yang seimbang ($\alpha_{CF}$=0.5, $\alpha_{CB}$=0.5), model MAB-MMR
-mampu mempertahankan akurasi (NDCG 0.0237) yang kompetitif. Hal ini
-membuktikan bahwa integrasi komponen *Content-Based* dan *Context-Aware*
-berperan vital dalam menutupi kelemahan *Collaborative Filtering* pada
-pengguna dengan riwayat minim (*Cold-Start*), tanpa memerlukan mekanisme
-penyesuaian bobot yang kompleks.
+Fenomena signifikan lain yang teramati adalah skor akurasi absolut
+(*Precision*\@10) yang relatif rendah tidak berkorelasi negatif dengan
+kepuasan pengguna, yang justru mencatatkan skor *System Usability Scale*
+(SUS) sebesar 79,1 atau kategori \"Baik\". Hal ini mengonfirmasi argumen
+teoretis bahwa dalam domain pariwisata yang berorientasi pada
+eksplorasi, aspek penemuan dan variasi lebih dihargai oleh pengguna
+dibandingkan tingkat presisi murni. Selanjutnya, ketangguhan sistem
+teruji pada kondisi kelangkaan data yang ekstrem, di mana model mampu
+mempertahankan kinerja kompetitif meskipun mayoritas pengguna adalah
+pengguna baru (*cold-start*). Keberhasilan ini membuktikan bahwa
+integrasi komponen berbasis konten dan konteks berperan vital dalam
+memitigasi keterbatasan data interaksi historis.
 
 ### **Kontribusi terhadap *Body of Knowledge***
 
-Penelitian ini memberikan beberapa kontribusi penting untuk literatur
-sistem rekomendasi dan pariwisata:
+Penelitian ini berkontribusi secara signifikan terhadap literatur sistem
+rekomendasi dengan mendemonstrasikan efektivitas *Multi-Armed Bandit*
+dalam mengoptimasi *trade-off* parameter diversifikasi secara dinamis.
+Studi ini mengisi kesenjangan pada penelitian terdahulu yang didominasi
+oleh metode optimasi statis, dengan membuktikan bahwa mekanisme adaptif
+lebih responsif terhadap karakteristik data yang dinamis. Selain itu,
+penelitian ini memvalidasi bahwa pemrosesan kontekstual data multimodal
+secara terukur meningkatkan relevansi dan keberagaman rekomendasi,
+memperkuat landasan teoretis mengenai urgensi integrasi data real-time.
 
-Optimasi Parameter Adaptif: Mendemonstrasikan bahwa *Multi-Armed Bandit*
-dapat secara efektif mengoptimasi trade-off parameter (λ) secara dinamis
-berdasarkan konteks dan karakteristik data, melangkah lebih jauh dari
-pendekatan optimasi statis yang dominan dalam literatur MMR (Yalcin dan
-Bilge, 2021; Abdollahpouri dkk., 2021). Distribusi pemilihan λ yang
-data-driven memberikan insights tentang strategi diversifikasi optimal
-untuk dataset dengan karakteristik berbeda.
-
-Integrasi Konteks Real-Time: Memvalidasi nilai pemrosesan kontekstual
-data multimodal (cuaca, lalu lintas, kalender, media sosial) dalam
-meningkatkan relevansi dan keberagaman rekomendasi, memperluas
-penelitian sebelumnya tentang context-aware recommendations (Yoon dan
-Choi, 2023 dan Massimo dan Ricci, 2022). Kontribusi konteks yang terukur
-(+7.21% *Diversity*) menjustifikasi investasi infrastruktur data
-real-time.
-
-Mitigasi Bias dalam Pariwisata: Menyediakan bukti empiris bahwa
-intervensi algoritmik dapat mengurangi popularity bias dan mempromosikan
-distribusi pariwisata yang lebih berkelanjutan (Gini -3.31%, Long-tail
-Coverage +1.78%), merespons kekhawatiran yang diangkat oleh Pencarelli
-(2020) dan Ricci dkk. (2022). Boost individual hingga +52.78% untuk
-destinasi berkualitas tinggi menunjukkan potensi impact ekonomi yang
-signifikan.
-
-Kerangka Evaluasi Holistik: Menggabungkan metrik kuantitatif (akurasi,
-diversity, coverage) dengan validasi kualitatif (user testing, SUS,
-triangulasi), mendemonstrasikan pentingnya paradigma evaluasi \"beyond
-accuracy\" (Choi dkk., 2021 dan Shambour dkk., 2024). Konvergensi temuan
-offline dan online memberikan validitas yang lebih kuat dibanding
-pendekatan evaluasi tunggal.
+Dari perspektif dampak sosial, penelitian ini menyediakan bukti empiris
+bahwa intervensi algoritmik mampu mereduksi bias popularitas dan
+mendukung distribusi pariwisata yang lebih merata, sebagaimana
+ditunjukkan oleh penurunan Koefisien Gini dan peningkatan cakupan
+katalog. Penerapan kerangka evaluasi holistik yang menggabungkan metrik
+kuantitatif dengan validasi kualitatif juga mendemonstrasikan pentingnya
+paradigma evaluasi \"*beyond accuracy*\", di mana konvergensi temuan
+*offline* dan *online* memberikan validitas penelitian yang lebih kokoh
+dibandingkan pendekatan evaluasi tunggal.
 
 ### **Implikasi Praktis**
 
-Untuk Industri Pariwisata:
+Temuan penelitian ini memiliki implikasi praktis bagi industri
+pariwisata sebagai instrumen strategis untuk menyeimbangkan kepuasan
+wisatawan dengan pemerataan ekonomi lokal. Platform digital dan pemangku
+kepentingan pariwisata dapat memanfaatkan teknologi ini untuk
+mempromosikan destinasi potensial yang belum terekspos (*hidden gems*)
+tanpa bergantung sepenuhnya pada anggaran pemasaran, sekaligus sebagai
+upaya mitigasi teknis terhadap masalah *overtourism*. Melalui mekanisme
+boosting algoritmik ini, destinasi wisata skala kecil yang memiliki
+kualitas pengalaman baik memperoleh peluang visibilitas yang lebih adil.
 
-Platform rekomendasi dapat mengimplementasikan MAB-MMR untuk mencapai
-keseimbangan yang lebih baik antara kepuasan pengguna dan distribusi
-yang merata. Dinas Pariwisata dapat memanfaatkan sistem untuk
-mempromosikan destinasi yang kurang dikenal dan mengatasi overtourism di
-destinasi populer. Operator destinasi long-tail mendapat kesempatan
-untuk meningkatkan visibilitas tanpa bergantung pada aggressive
-marketing, selama kualitas pengalaman wisata tetap terjaga (rating
-tinggi).
-
-Untuk Pengembangan Sistem:
-
-Algoritma adaptif viable untuk production deployment dengan
-computational overhead yang acceptable (inference time 197.31ms \< 500ms
-threshold untuk b*atch processing*). Integrasi konteks memberikan nilai
-terukur (+7.21% *Diversity*), menjustifikasi investasi dalam
-infrastruktur data *real-time*. Strategi *cold-start* (*preference
-elicitation + content-based bootstrapping*) terbukti efektif untuk
-pengguna baru dalam skenario *data sparse*.
+Ditinjau dari aspek pengembangan sistem, algoritma adaptif yang
+dikembangkan terbukti layak secara teknis untuk diimplementasikan pada
+lingkungan produksi dengan efisiensi komputasi yang memadai (waktu
+inferensi rata-rata 197,31 ms). Lebih lanjut, strategi penanganan
+pengguna baru (*cold-start*) melalui kombinasi elisitasi preferensi dan
+komponen berbasis konten terbukti efektif, sehingga pendekatan ini dapat
+diadopsi sebagai standar praktik terbaik dalam pengembangan aplikasi
+yang menghadapi tantangan kelangkaan data interaksi awal.
 
 ### Keterbatasan Penelitian
 
-Meskipun hasil eksperimen menunjukkan temuan yang positif, penelitian
-ini memiliki beberapa keterbatasan teknis dan metodologis yang perlu
-diakui sebagai batasan ruang lingkup dan peluang pengembangan di masa
-depan:
+Meskipun eksperimen telah menunjukkan hasil yang positif, penelitian ini
+memiliki beberapa keterbatasan teknis dan metodologis yang perlu diakui
+sebagai batasan ruang lingkup serta peluang pengembangan di masa depan:
 
-1.  Simulasi Data Kontekstual Sekunder: Sementara data cuaca dan
-    kalender diintegrasikan secara *live*, data untuk *Kondisi Lalu
-    Lintas* dan *Tren Media Sosial* pada eksperimen ini menggunakan
-    injeksi data statis yang mensimulasikan pola respons API
-    (*mocking*). Hal ini dilakukan karena kendala biaya dan akses pada
-    API tingkat *Enterprise*. Oleh karena itu, evaluasi berfokus pada
-    validasi logika adaptasi algoritma terhadap variabel tersebut, bukan
-    pada stabilitas koneksi infrastruktur pihak ketiga.
+1.  Penggunaan Data Simulasi: Variabel tren media sosial dan kondisi
+    lalu lintas dalam penelitian ini masih menggunakan data simulasi
+    (*mock data*). Hal ini disebabkan oleh batasan aksesibilitas (rate
+    limit dan biaya) pada API enterprise untuk kedua platform tersebut
+    dalam lingkup penelitian akademis.
 
-2.  Arsitektur *Pseudo-Streaming*: Sistem saat ini menerapkan mekanisme
-    inferensi *on-demand* (berbasis *request* API), bukan pemrosesan
-    aliran data kontinu (*continuous stream processing*) menggunakan
-    *engine* seperti Apache Kafka. Meskipun arsitektur ini terbukti
-    memadai untuk skala eksperimen, penerapan pada volume pengguna masif
-    (*production scale*) akan memerlukan migrasi ke arsitektur
-    *streaming* penuh untuk menangani *throughput* yang lebih tinggi.
+2.  Arsitektur Pemrosesan Data: Sistem saat ini masih berbasis model
+    *request-response* standar. Untuk implementasi skala besar dengan
+    jutaan pengguna, arsitektur perlu ditingkatkan menggunakan teknologi
+    *stream processing* (seperti Apache Kafka) guna menangani throughput
+    data yang lebih tinggi.
 
-3.  Ukuran Sampel Pengujian Pengguna: Pengujian pengguna (*User
-    Testing*) melibatkan 28 partisipan. Meskipun jumlah ini cukup untuk
-    mendeteksi ukuran efek besar (*large effect sizes*, Cohen\'s d \>
-    0.8) dan memvalidasi *usability* (SUS), kekuatan statistik
-    (*statistical power*) mungkin terbatas untuk mendeteksi fenomena
-    perilaku yang lebih halus (*small effects*) atau melakukan
-    segmentasi pengguna yang lebih mendalam.
+3.  Jumlah Sampel Pengguna: Pengujian validasi melibatkan 30 partisipan.
+    Meskipun jumlah ini memadai untuk mengukur aspek *usability* (SUS)
+    dan validasi fungsional awal, studi perilaku pengguna yang lebih
+    mendalam memerlukan jumlah sampel yang lebih besar untuk
+    meningkatkan kekuatan statistik (statistical power).
 
-4.  Karakteristik Dataset & *Sparsity*: Kinerja model sangat dipengaruhi
-    oleh karakteristik dataset yang memiliki tingkat kelangkaan
-    (*sparsity*) ekstrem (0,602%) dan dominasi pengguna *cold-start*
-    (99,69%). Hasil performa mungkin berbeda jika model diterapkan pada
-    ekosistem digital yang lebih matang dengan densitas interaksi
-    pengguna yang lebih tinggi.
+4.  Karakteristik Data (*Sparsity*): Dataset yang digunakan memiliki
+    tingkat kelangkaan data (*sparsity*) yang ekstrem (0,602%). Performa
+    model mungkin menunjukkan karakteristik berbeda jika diterapkan pada
+    aplikasi komersial yang memiliki densitas interaksi data lebih
+    padat.
 
-5.  Desain *Reward Function*: Fungsi imbalan komposit (50% NDCG + 30%
-    Diversity + 20% Novelty) ditentukan secara manual (*heuristic*)
-    berdasarkan eksplorasi awal. Penerapan *automated tuning*
-    menggunakan optimasi hiperparameter atau algoritma evolusioner
-    multi-objektif berpotensi meningkatkan keseimbangan kinerja model
-    lebih lanjut.
+5.  Penentuan Bobot *Reward*: Penentuan bobot komponen dalam fungsi
+    reward MAB (50% NDCG, 30% *Diversity*, 20% *Novelty*) masih
+    ditentukan secara heuristik berdasarkan asumsi peneliti. Belum
+    dilakukan optimasi parameter otomatis untuk menemukan kombinasi
+    bobot yang paling ideal.
 
-6.  Cakupan Geografis: Validasi dilakukan spesifik pada destinasi wisata
-    di Kabupaten Sumedang yang didominasi wisata alam. Generalisabilitas
-    efektivitas strategi diversifikasi ke wilayah urban atau destinasi
-    dengan karakteristik pariwisata berbeda memerlukan validasi empiris
-    lebih lanjut.
+6.  Cakupan Geografis: Studi kasus terbatas pada destinasi wisata di
+    Kabupaten Sumedang yang didominasi oleh wisata alam. Generalisasi
+    hasil terhadap destinasi wisata dengan karakteristik berbeda
+    (misalnya wisata perkotaan di Jakarta) memerlukan validasi lebih
+    lanjut.
 
 ## **Rangkuman Bab**
 
-Bab IV telah mendokumentasikan secara komprehensif proses implementasi
-sistem dan hasil evaluasi yang menjawab ketiga rumusan masalah
-penelitian. Evaluasi dilakukan menggunakan pendekatan hybrid yang
-menggabungkan offline evaluation (dataset real-world) dan online
-evaluation (user testing dengan 28 partisipan).
+Bab IV ini telah mendokumentasikan seluruh rangkaian proses implementasi
+sistem serta hasil evaluasi komprehensif yang ditujukan untuk menjawab
+ketiga rumusan masalah penelitian. Pendekatan evaluasi hibrida
+diterapkan dengan menggabungkan evaluasi *offline* menggunakan dataset
+riil dan evaluasi online melalui pengujian pengguna untuk memastikan
+validitas hasil dari perspektif teknis maupun pengalaman pengguna.
 
-Hasil evaluasi kuantitatif menunjukkan bahwa sistem MAB-MMR yang
-diusulkan berhasil mencapai keseimbangan optimal antara akurasi dan
-keberagaman. Model mencapai NDCG@10 sebesar 0.0237 (secara statistik
-setara dengan baseline Hybrid, p=0.1998) sambil meningkatkan Diversity
-sebesar +3.5% (p\<0.001). Long-tail Coverage mencapai 69.64% (tertinggi
-di antara semua model), dan Gini Coefficient sebesar 0.6401 (paling
-merata), memvalidasi efektivitas dalam mempromosikan destinasi kurang
-populer.
+Berdasarkan hasil evaluasi kuantitatif, model MAB-MMR terbukti berhasil
+mencapai keseimbangan optimal antara akurasi dan keberagaman. Model ini
+mencatatkan nilai NDCG@10 yang kompetitif dan setara secara statistik
+dengan baseline, namun dengan peningkatan diversitas yang signifikan.
+Efektivitas model dalam mempromosikan destinasi yang kurang populer juga
+tervalidasi melalui pencapaian metrik *Long-tail Coverage* tertinggi dan
+distribusi rekomendasi yang paling merata dibandingkan model pembanding
+lainnya.
 
-Hasil evaluasi kualitatif mengkonfirmasi bahwa improvement algoritmik
-berhasil diterjemahkan menjadi pengalaman pengguna yang positif. Skor
-SUS 75.5 (\"Good\") menunjukkan usability yang kuat tanpa trade-off.
-Perceived Diversity signifikan lebih tinggi (4.1 vs 3.2, p=0.007), dan
-Discovery Rate hampir 2x lipat lebih tinggi (78.6% vs 42.9%, p=0.046),
-menunjukkan bahwa model secara efektif memperkenalkan destinasi baru
-yang menarik bagi pengguna.
-
-Triangulasi antara temuan kuantitatif dan kualitatif memberikan
-validitas konvergen yang kuat. Kutipan partisipan yang secara spesifik
-menyebut destinasi yang algoritmik di-boost tertinggi (\"Curug
-Cirengganis\" +33.77%, \"Curug Pasirwangi\" +52.78%) menjadi bukti
-anekdotal bahwa hidden gems berkualitas tinggi berhasil mendapat
-eksposur yang lebih baik.
-
-Penelitian ini memberikan kontribusi penting dalam mendemonstrasikan
-viabilitas adaptive parameter optimization menggunakan Multi-Armed
-Bandit, memvalidasi nilai integrasi data kontekstual real-time, dan
-menyediakan bukti empiris untuk mitigasi popularity bias dalam sistem
-rekomendasi pariwisata. Meskipun ada keterbatasan dalam cakupan
-geografis dan sample size, temuan yang konsisten antara evaluasi offline
-dan online memberikan fondasi yang kuat untuk deployment praktis dan
-penelitian lanjutan.
+Hasil evaluasi kualitatif memperkuat temuan tersebut dengan
+mengonfirmasi bahwa peningkatan kinerja algoritmik berhasil
+diterjemahkan menjadi pengalaman pengguna yang positif. Skor *System
+Usability Scale* (SUS) yang tinggi menempatkan sistem dalam kategori
+\"Baik\", sementara tingkat penemuan destinasi baru (*Discovery Rate*)
+yang mencapai 96,7% mengindikasikan efektivitas model dalam
+memperkenalkan destinasi wisata baru yang relevan. Triangulasi antara
+temuan kuantitatif dan kualitatif menunjukkan validitas konvergen yang
+kuat, di mana destinasi yang mendapatkan prioritas algoritma terbukti
+mendapatkan apresiasi positif dari pengguna. Secara keseluruhan,
+penelitian ini menyimpulkan bahwa optimasi parameter adaptif menggunakan
+*Multi-Armed Bandit* merupakan pendekatan yang viabel, efektif, dan
+teruji untuk mengatasi bias popularitas serta meningkatkan kualitas
+pengalaman dalam sistem rekomendasi pariwisata.
 
 # Kesimpulan dan Saran
 
-Bab ini menyajikan kesimpulan dari penelitian yang telah dilakukan dan
-saran untuk pengembangan lebih lanjut, baik dari perspektif akademik
-maupun implementasi praktis
+Bab ini merangkum temuan utama penelitian yang telah dilakukan dan saran
+merekomendasikan arahan pengembangan lanjutan, baik dari perspektif
+akademik maupun implementasi praktis
 
 ## Kesimpulan
 
-Penelitian ini mengembangkan sistem rekomendasi pariwisata adaptif yang
-mengoptimasi parameter *Maximal Marginal Relevance* secara dinamis
-menggunakan *Multi-Armed Bandit*, dengan integrasi data kontekstual
-*real-time* untuk meningkatkan keberagaman rekomendasi dan eksposur
-destinasi kurang populer. Melalui evaluasi komprehensif yang
-menggabungkan *offline evaluation* dan online user testing, penelitian
-ini berhasil memvalidasi hipotesis bahwa pendekatan adaptif dapat
-menyeimbangkan *trade-off* antara akurasi dan keberagaman sambil
-mempromosikan distribusi pariwisata yang lebih merata.
+Berdasarkan evaluasi menyeluruh yang menggabungkan pengujian data
+historis (*offline*) dan pengujian langsung dengan pengguna (*user
+testing*), hipotesis penelitian ini dapat diterima. Bukti empiris
+menunjukkan bahwa penerapan *Multi-Armed Bandit* (MAB) untuk
+mengoptimalkan parameter secara otomatis pada sistem rekomendasi
+terbukti efektif. Pendekatan ini berhasil memecahkan masalah ketimpangan
+kunjungan (*popularity bias*) dan meningkatkan keberagaman rekomendasi,
+sekaligus mempromosikan destinasi wisata berkualitas yang selama ini
+kurang terekspos (*hidden gems*) tanpa mengurangi kenyamanan pengguna.
 
-Model MAB-MMR yang diusulkan menunjukkan kemampuan mengoptimasi
-parameter λ secara cerdas berdasarkan karakteristik data dan konteks
-pengguna. Dalam kondisi data sparse (0.602% density) dengan dominasi
-*cold-start users* (99.69% memiliki \<10 rating), model secara adaptif
-memilih strategi yang lebih konservatif dengan memprioritaskan relevansi
-(78.30% memilih λ=0.0, 18.61% memilih λ=0.3) untuk menghindari penurunan
-akurasi yang dialami oleh pendekatan diversifikasi agresif. Strategi ini
-membuahkan hasil: model mencapai NDCG@10 sebesar 0.0237 yang secara
-statistik setara dengan baseline Hybrid (p=0.1998), sambil meningkatkan
-*Diversity* sebesar +3.5% yang signifikan (p\<0.001). Distribusi
-pemilihan parameter yang data-driven ini menunjukkan bahwa pendekatan
-adaptif mampu menemukan keseimbangan optimal yang tidak dapat dicapai
-oleh pendekatan λ statis, di mana MMR-λ0.5 menghasilkan akurasi yang
-lebih rendah (NDCG 0.0201) meskipun diversity-nya lebih tinggi (0.7468).
+Berikut adalah rincian kesimpulan yang menjawab rumusan masalah
+penelitian:
 
-Integrasi data kontekstual *real-time* terbukti memberikan kontribusi
-signifikan terhadap kualitas rekomendasi. *Ablation study*
-mengkonfirmasi bahwa penambahan komponen konteks (cuaca, hari, kondisi
-lalu lintas, event) meningkatkan *Diversity* sebesar +7.21% dan NDCG
-sebesar +1.24% dibandingkan model tanpa konteks. Lebih dari sekadar
-peningkatan metrik, model menunjukkan adaptivitas nyata terhadap situasi
-pengguna yang berbeda, dengan pemilihan parameter λ rata-rata yang
-bervariasi antar konteks misalnya λ=0.0639 untuk Sunny+Weekend
-(prioritas relevansi) versus λ=0.0834 untuk Rainy+Weekday (lebih
-diverse). Responsivitas kontekstual ini memvalidasi bahwa pemrosesan
-kontekstual *real-time* bukan hanya menambah kompleksitas sistem, tetapi
-memberikan nilai tambah yang terukur dalam personalisasi rekomendasi.
+1.  Keseimbangan Adaptif antara Akurasi dan Keberagaman: Model MAB-MMR
+    yang dikembangkan terbukti mampu menyesuaikan strategi rekomendasi
+    secara otomatis terhadap kondisi yang dihadapi. Dalam situasi di
+    mana data interaksi sangat minim (*data sparse* 0,602%) dan
+    mayoritas pengguna adalah pengunjung baru, sistem secara mandiri
+    memilih strategi yang mengutamakan relevansi (parameter λ rendah).
+    Mekanisme adaptasi ini memberikan hasil yang efektif: sistem mampu
+    mempertahankan akurasi yang setara dengan model pembanding (baseline
+    Hybrid) dengan skor NDCG@10 sebesar 0,0237, namun di saat yang sama
+    memberikan rekomendasi yang 3,5% lebih beragam. Hal ini membuktikan
+    bahwa sistem dapat menemukan titik temu terbaik antara akurasi dan
+    keberagaman tanpa intervensi manual.
 
-Dari perspektif pemerataan distribusi dan promosi destinasi kurang
-populer, model mencapai hasil yang konsisten antara metrik algoritmik
-dan persepsi pengguna. Model berhasil mencapai *Long-tail Coverage*
-tertinggi (69.64%) dan *Gini Coefficient* terendah (0.6401) di antara
-semua model dengan *coverage* tinggi, menunjukkan distribusi rekomendasi
-yang paling merata. Yang lebih penting, evaluasi kualitatif
-mengkonfirmasi bahwa improvement algoritmik ini diterjemahkan menjadi
-pengalaman pengguna yang superior: 78.6% partisipan yang menggunakan
-MAB-MMR menemukan destinasi baru dibandingkan hanya 42.9% pada baseline
-Hybrid (p=0.046), dengan *Perceived Diversity* yang signifikan lebih
-tinggi (4.1 vs 3.2, p=0.007, Cohen\'s d=0.98). Triangulasi
-kualitatif-kuantitatif memberikan validitas konvergen yang kuat
-destinasi yang secara algoritmik di-boost tertinggi seperti \"Curug
-Pasirwangi\" (+52.78%) dan \"Curug Cirengganis\" (+33.77%) juga secara
-eksplisit disebutkan oleh partisipan sebagai penemuan berharga yang
-\"tidak akan pernah muncul\" di sistem konvensional.
+2.  Kontribusi Integrasi Data Kontekstual terhadap Distribusi: Integrasi
+    variabel kontekstual (seperti cuaca dan waktu) terbukti meningkatkan
+    relevansi dan pemerataan rekomendasi secara terukur. Hasil evaluasi
+    menunjukkan bahwa penambahan komponen konteks meningkatkan nilai
+    keberagaman (*Diversity*) sebesar +7,21% dan akurasi (NDCG) sebesar
+    +1,24% dibandingkan model tanpa konteks. Dari perspektif distribusi,
+    sistem mencatatkan penurunan ketimpangan (Gini Coefficient 0,6401)
+    dan perluasan cakupan rekomendasi. Secara spesifik, cakupan katalog
+    (*Catalog Coverage*) meningkat menjadi 79,46% dan jangkauan terhadap
+    destinasi *long-tail* mencapai 69,64%. Hal ini mengindikasikan bahwa
+    sistem memfasilitasi pergeseran frekuensi rekomendasi dari destinasi
+    populer (*Head*) menuju destinasi alternatif (*Tail*) secara
+    efektif.
 
-Temuan penting lainnya adalah bahwa dalam domain eksplorasi seperti
-pariwisata, pengguna menghargai *diversity* dan *discovery* lebih dari
-precision murni. Meskipun Precision@10 MAB-MMR hanya 0.0065 (0.65%),
-skor SUS 75.5 (\"Good\", percentile rank \~74) menunjukkan usability
-yang kuat dan tidak ada perbedaan signifikan dengan baseline (p=0.755).
-Ini mengkonfirmasi argumen teoretis bahwa untuk *exploration-oriented
-domains*, *diversity* adalah fitur yang diinginkan, bukan bug yang harus
-diminimalkan. Pengguna tidak merasa sistem \"tidak akurat\" atau
-\"frustrating\", melainkan \"intuitif\" dan \"menawarkan variasi
-menarik\", memvalidasi bahwa *trade-off* akurasi-*diversity* dapat
-diterima dengan baik oleh *end-users* selama rekomendasi tetap relevan
-dan menarik.
+3.  Peningkatan Eksposur Destinasi dan Evaluasi Pengguna Implementasi
+    algoritma ini berdampak langsung pada peningkatan visibilitas
+    destinasi yang sebelumnya kurang terekspos. Analisis frekuensi
+    menunjukkan peningkatan rekomendasi yang signifikan pada destinasi
+    berkualitas tinggi namun jarang dikunjungi, seperti \"Curug
+    Pasirwangi\" (+52,78%) dan \"Curug Cirengganis\" (+33,77%).
 
-Secara keseluruhan, penelitian ini memberikan kontribusi penting dalam
-beberapa aspek. Pertama, mendemonstrasikan viabilitas *Multi-Armed
-Bandit* untuk adaptive parameter optimization dalam sistem rekomendasi,
-melangkah lebih jauh dari pendekatan optimasi statis yang dominan dalam
-literatur. Kedua, memvalidasi nilai pemrosesan kontekstual data
-kontekstual multimodal dalam meningkatkan personalisasi rekomendasi
-pariwisata. Ketiga, menyediakan bukti empiris bahwa intervensi
-algoritmik dapat mengurangi *popularity bias* dan mempromosikan
-distribusi yang lebih berkelanjutan, dengan implikasi ekonomi yang
-signifikan untuk destinasi long-tail (boost individual hingga +52.78%).
-Keempat, menunjukkan pentingnya evaluasi holistik yang menggabungkan
-*offline metrics* dan *online user testing* untuk validitas yang lebih
-kuat. Konvergensi temuan antara kedua jenis evaluasi ini memberikan
-confidence bahwa model tidak hanya berhasil secara algoritmik, tetapi
-juga secara praktis dalam memberikan pengalaman pengguna yang superior
-dan meaningful
+> Temuan ini sejalan dengan hasil evaluasi pengguna (n=30), yang
+> mencatat tingkat penemuan destinasi baru (*Discovery Rate*) sebesar
+> 96,7%. Responden juga memberikan penilaian positif terhadap variasi
+> rekomendasi (*Perceived Diversity* skor 4,3/5,0) dan aspek kegunaan
+> sistem, yang ditunjukkan oleh skor *System Usability Scale* (SUS)
+> sebesar 79,1 (kategori \"Baik\"). Data ini mengonfirmasi bahwa upaya
+> pemerataan distribusi dapat dilakukan tanpa mengurangi tingkat
+> penerimaan pengguna terhadap sistem.
+
+Secara keseluruhan, penelitian ini menyimpulkan bahwa pendekatan adaptif
+yang diusulkan berhasil menjadi solusi kompromi yang optimal: sistem
+mampu mendukung pemerataan ekonomi pariwisata lokal melalui algoritma,
+namun tetap memastikan wisatawan mendapatkan rekomendasi liburan yang
+relevan dan memuaskan.
 
 ## Saran 
 
 Berdasarkan hasil dan temuan dalam penelitian ini, beberapa saran untuk
 pengembangan dan penelitian lanjutan adalah sebagai berikut:
 
-1.  Ekspansi cakupan evaluasi: Sistem dapat dievaluasi pada destinasi
-    dengan karakteristik berbeda dan periode yang lebih panjang untuk
-    mengkonfirmasi generalisabilitas model serta menangkap seasonal
-    variations dan long-term impact terhadap distribusi kunjungan
-    aktual.
+1.  Ekspansi Multi-Regional untuk Validasi Generalisabilitas: Dataset
+    Sumedang memiliki karakteristik spesifik (78% wisata
+    alam/petualangan, *sparsity* 0,602%). Generalisabilitas strategi
+    adaptasi perlu divalidasi pada destinasi dengan profil berbeda.
 
 2.  Peningkatan sample size user testing: Eksperimen dapat diperluas
     dengan jumlah partisipan yang lebih besar (n≥50 per grup) untuk
@@ -4775,218 +4826,209 @@ pengembangan dan penelitian lanjutan adalah sebagai berikut:
 # DAFTAR PUSTAKA
 
 Abdollahpouri, H. (2019). Popularity bias in ranking and recommendation.
-*AIES 2019 - Proceedings of the 2019 AAAI/ACM Conference on AI, Ethics,
-and Society*, 529--530. https://doi.org/10.1145/3306618.3314309
+AIES 2019 - Proceedings of the 2019 AAAI/ACM Conference on AI, Ethics,
+and Society, 529--530. https://doi.org/10.1145/3306618.3314309
 
 Abdollahpouri, H., Mansoury, M., Burke, R., & Mobasher, B. (2020). The
 Connection between Popularity Bias, Calibration, and Fairness in
-Recommendation. *RecSys 2020 - 14th ACM Conference on Recommender
-Systems*, 726--731. https://doi.org/10.1145/3383313.3418487
+Recommendation. RecSys 2020 - 14th ACM Conference on Recommender
+Systems, 726--731. https://doi.org/10.1145/3383313.3418487
 
 Abdollahpouri, H., Mansoury, M., Burke, R., Mobasher, B., & Malthouse,
 E. (2021). User-centered evaluation of popularity bias in recommender
-systems. *UMAP 2021 - Proceedings of the 29th ACM Conference on User
-Modeling, Adaptation and Personalization*, 119--129.
+systems. UMAP 2021 - Proceedings of the 29th ACM Conference on User
+Modeling, Adaptation and Personalization, 119--129.
 https://doi.org/10.1145/3450613.3456821
 
 Akhadam, A., Kbibchi, O., Mekouar, L., & Iraqi, Y. (2025). A Comparative
-Evaluation of Recommender Systems Tools. *IEEE Access*.
+Evaluation of Recommender Systems Tools. IEEE Access.
 https://doi.org/10.1109/ACCESS.2025.3541014
 
 Alfaifi, Y. H. (2024). Recommender Systems Applications: Data Sources,
-Features, and Challenges. Dalam *Information (Switzerland)* (Vol. 15,
+Features, and Challenges. Dalam Information (Switzerland) (Vol. 15,
 Nomor 10). Multidisciplinary Digital Publishing Institute (MDPI).
 https://doi.org/10.3390/info15100660
 
 Barykin, S. E., de la Poza, E., Khalid, B., Kapustina, I. V., Kalinina,
 O. V., & Iqbal, K. M. J. (2021). Tourism industry: Digital
-transformation. Dalam *Handbook of Research on Future Opportunities for
-Technology Management Education* (hlm. 414--434). IGI Global.
+transformation. Dalam Handbook of Research on Future Opportunities for
+Technology Management Education (hlm. 414--434). IGI Global.
 https://doi.org/10.4018/978-1-7998-8327-2.ch025
 
-Booking.com. (2023). *SHARES ITS 7 PREDICTIONS FOR TRAVEL IN 2024 OUT OF
-AUTOPILOT AND INTO OUR BEST LIFE*.
+Booking.com. (2023). SHARES ITS 7 PREDICTIONS FOR TRAVEL IN 2024 OUT OF
+AUTOPILOT AND INTO OUR BEST LIFE.
 
-Brooke, J. (1996). *SUS - A quick and dirty usability scale*.
+Brooke, J. (1996). SUS - A quick and dirty usability scale.
 
 Bukhari, M., Maqsood, M., & Adil, F. (2025). An actor-critic based
-recommender system with context-aware user modeling. *Artificial
-Intelligence Review*, *58*(5).
-https://doi.org/10.1007/s10462-025-11134-9
+recommender system with context-aware user modeling. Artificial
+Intelligence Review, 58(5). https://doi.org/10.1007/s10462-025-11134-9
 
 Chalkiadakis, G., Ziogas, I., Koutsmanis, M., Streviniotis, E.,
 Panagiotakis, C., & Papadakis, H. (2023). A Novel Hybrid Recommender
-System for the Tourism Domain. *Algorithms*, *16*(4).
+System for the Tourism Domain. Algorithms, 16(4).
 https://doi.org/10.3390/a16040215
 
 Choi, I. Y., Ryu, Y. U., & Kim, J. K. (2021). A recommender system based
-on personal constraints for smart tourism city. *Asia Pacific Journal of
-Tourism Research*, *26*(4), 440--453.
+on personal constraints for smart tourism city. Asia Pacific Journal of
+Tourism Research, 26(4), 440--453.
 https://doi.org/10.1080/10941665.2019.1592765
 
-DISPARBUDPORA. (2024). *DATA  KUNJUNGAN OBJEK WISATA TAHUN 2023*.
+DISPARBUDPORA. (2024). DATA  KUNJUNGAN OBJEK WISATA TAHUN 2023.
 
-Falk, K. (2019). *Practical Recommender Systems*.
+Falk, K. (2019). Practical Recommender Systems.
 
 Fararni, K. Al, Nafis, F., Aghoutane, B., Yahyaouy, A., Riffi, J., &
 Sabri, A. (2021). Hybrid recommender system for tourism based on big
-data and AI: A conceptual framework. *Big Data Mining and Analytics*,
-*4*(1), 47--55. https://doi.org/10.26599/BDMA.2020.9020015
+data and AI: A conceptual framework. Big Data Mining and Analytics,
+4(1), 47--55. https://doi.org/10.26599/BDMA.2020.9020015
 
 Foronda-Robles, C., Galindo-Pérez-de-Azpillaga, L., & Armario-Pérez, P.
 (2025). The sustainable management of overtourism via user content.
-*Annals of Tourism Research Empirical Insights*, *6*(2).
+Annals of Tourism Research Empirical Insights, 6(2).
 https://doi.org/10.1016/j.annale.2025.100184
 
 Fragkoulis, M., Carbone, P., Kalavri, V., & Katsifodimos, A. (2024). A
-survey on the evolution of stream processing systems. *VLDB Journal*,
-*33*(2), 507--541. https://doi.org/10.1007/s00778-023-00819-8
+survey on the evolution of stream processing systems. VLDB Journal,
+33(2), 507--541. https://doi.org/10.1007/s00778-023-00819-8
 
 Gotthardt, M., & Mezhuyev, V. (2022). Measuring the Success of
-Recommender Systems: A PLS-SEM Approach. *IEEE Access*, *10*,
-30610--30623. https://doi.org/10.1109/ACCESS.2022.3159652
+Recommender Systems: A PLS-SEM Approach. IEEE Access, 10, 30610--30623.
+https://doi.org/10.1109/ACCESS.2022.3159652
 
 Hoarau-Heemstra, H., Wigger, K., Olsen, J., & James, L. (2023). Cruise
 tourism destinations: Practices, consequences and the road to
-sustainability. Dalam *Journal of Destination Marketing and Management*
+sustainability. Dalam Journal of Destination Marketing and Management
 (Vol. 30). Elsevier Ltd. https://doi.org/10.1016/j.jdmm.2023.100820
 
 Hu, M., Zhang, Y., Zhang, H., Lu, Y., Zuo, L., Zhuang, M., Liu, W.,
 Zhang, J., & Zhang, H. (2020). How do Chinese tourists perceive
-tranquillity during the tour? *Tourism Management Perspectives*, *34*.
+tranquillity during the tour? Tourism Management Perspectives, 34.
 https://doi.org/10.1016/j.tmp.2020.100666
 
 Huang, Z., Lin, X., Liu, H., Zhang, B., Chen, Y., & Tang, Y. (2020).
-Deep Representation Learning for Location-Based Recommendation. *IEEE
-Transactions on Computational Social Systems*, *7*(3), 648--658.
+Deep Representation Learning for Location-Based Recommendation. IEEE
+Transactions on Computational Social Systems, 7(3), 648--658.
 https://doi.org/10.1109/TCSS.2020.2974534
 
 Javadian Sabet, A., Shekari, M., Guan, C., Rossi, M., Schreiber, F., &
 Tanca, L. (2022). THOR: A Hybrid Recommender System for the Personalized
-Travel Experience. *Big Data and Cognitive Computing*, *6*(4).
+Travel Experience. Big Data and Cognitive Computing, 6(4).
 https://doi.org/10.3390/bdcc6040131
-
-Ko, H., Lee, S., Park, Y., & Choi, A. (2022). A Survey of Recommendation
-Systems: Recommendation Models, Techniques, and Application Fields.
-Dalam *Electronics (Switzerland)* (Vol. 11, Nomor 1). MDPI.
-https://doi.org/10.3390/electronics11010141
 
 Kumar, J., Patra, B. K., Sahoo, B., & Babu, K. S. (2024). Group
 recommendation exploiting characteristics of user-item and collaborative
-rating of users. *Multimedia Tools and Applications*, *83*(10),
+rating of users. Multimedia Tools and Applications, 83(10),
 29289--29309. https://doi.org/10.1007/s11042-023-16799-4
 
 Massimo, D., & Ricci, F. (2022). Building effective recommender systems
-for tourists. *AI Magazine*, *43*(2), 209--224.
+for tourists. AI Magazine, 43(2), 209--224.
 https://doi.org/10.1002/aaai.12057
 
 Noorian Avval, A. A., & Harounabadi, A. (2023). A hybrid recommender
 system using topic modeling and prefixspan algorithm in social media.
-*Complex and Intelligent Systems*, *9*(4), 4457--4482.
+Complex and Intelligent Systems, 9(4), 4457--4482.
 https://doi.org/10.1007/s40747-022-00958-5
 
 Peffers, K., Tuunanen, T., Rothenberger, M. A., & Chatterjee, S. (2007).
 A Design Science Research Methodology for Information Systems Research.
-Dalam *Journal of Management Information Systems* (Vol. 24, Nomor 8).
+Dalam Journal of Management Information Systems (Vol. 24, Nomor 8).
 http://www.tuunanen.fi.
 
 Pencarelli, T. (2020). The digital revolution in the travel and tourism
-industry. *Information Technology and Tourism*, *22*(3), 455--476.
+industry. Information Technology and Tourism, 22(3), 455--476.
 https://doi.org/10.1007/s40558-019-00160-3
 
 Qassimi, S., & Rakrak, S. (2025). Multi-objective contextual bandits in
-recommendation systems for smart tourism. *Scientific Reports*, *15*(1).
+recommendation systems for smart tourism. Scientific Reports, 15(1).
 https://doi.org/10.1038/s41598-025-89920-2
 
 Ricci, F., Rokach, L., & Shapira, B. (2022). Recommender Systems
-Handbook: Third Edition. Dalam *Recommender Systems Handbook: Third
-Edition*. Springer US. https://doi.org/10.1007/978-1-0716-2197-4
+Handbook: Third Edition. Dalam Recommender Systems Handbook: Third
+Edition. Springer US. https://doi.org/10.1007/978-1-0716-2197-4
 
-Sachi Nandan Mohanty, J. M. C. S. J. A. A. E. P. G. (2020). *Recommender
-System with Machine Learning and Artificial Intelligence*.
+Sachi Nandan Mohanty, J. M. C. S. J. A. A. E. P. G. (2020). Recommender
+System with Machine Learning and Artificial Intelligence.
 
 Shafqat, W., & Byun, Y. C. (2020). A context-aware location
 recommendation system for tourists using hierarchical LSTM model.
-*Sustainability (Switzerland)*, *12*(10).
-https://doi.org/10.3390/su12104107
+Sustainability (Switzerland), 12(10). https://doi.org/10.3390/su12104107
 
 Shambour, Q. Y., Abualhaj, M. M., Abu-Shareha, A. A., & Kharma, Q. M.
 (2024). PERSONALIZED TOURISM RECOMMENDATIONS: LEVERAGING USER
-PREFERENCES AND TRUST NETWORK. *Interdisciplinary Journal of
-Information, Knowledge, and Management*, *19*.
-https://doi.org/10.28945/5329
+PREFERENCES AND TRUST NETWORK. Interdisciplinary Journal of Information,
+Knowledge, and Management, 19. https://doi.org/10.28945/5329
 
 Shi, X., Liu, Q., Xie, H., Wu, D., Peng, B., Shang, M., & Lian, D.
 (2023). Relieving Popularity Bias in Interactive Recommendation: A
-*Diversity*-*Novelty*-Aware Reinforcement Learning Approach. *ACM
-Transactions on Information Systems*, *42*(2).
+Diversity-Novelty-Aware Reinforcement Learning Approach. ACM
+Transactions on Information Systems, 42(2).
 https://doi.org/10.1145/3618107
 
 Shuvo, M. I. M., & Islam, M. J. (2024). The digital transformation of
 tourism: a study of tourist behaviour and preferences in the age of
-technology in Bangladesh. *Research in Hospitality Management*, *14*(3),
+technology in Bangladesh. Research in Hospitality Management, 14(3),
 236--244. https://doi.org/10.1080/22243534.2024.2419366
 
 Siyamiyan Gorji, A., Hosseini, S., Seyfi, S., Almeida-García, F., Cortes
 Macías, R., & Mena Navarro, A. (2026). 'Málaga for living, not
 surviving': Resident perceptions of overtourism, social injustice and
-urban governance. *Journal of Destination Marketing and Management*,
-*39*. https://doi.org/10.1016/j.jdmm.2025.101044
+urban governance. Journal of Destination Marketing and Management, 39.
+https://doi.org/10.1016/j.jdmm.2025.101044
 
 Solano-Barliza, A., Arregocés-Julio, I., Aarón-Gonzalvez, M.,
 Zamora-Musa, R., De-La-Hoz-Franco, E., Escorcia-Gutierrez, J., &
 Acosta-Coll, M. (2024). Recommender systems applied to the tourism
-industry: a literature review. Dalam *Cogent Business and Management*
+industry: a literature review. Dalam Cogent Business and Management
 (Vol. 11, Nomor 1). Cogent OA.
 https://doi.org/10.1080/23311975.2024.2367088
 
 Song, Y., & Jiao, X. (2023). A Real-Time Tourism Route Recommendation
-System Based on Multitime Scale Constraints. *Mobile Information
-Systems*, *2023*. https://doi.org/10.1155/2023/4586047
+System Based on Multitime Scale Constraints. Mobile Information Systems,
+2023. https://doi.org/10.1155/2023/4586047
 
 Suhaim, A. Bin, & Berri, J. (2021). Context-Aware Recommender Systems
-for Social Networks: Review, Challenges and Opportunities. *IEEE
-Access*, *9*, 57440--57463. https://doi.org/10.1109/ACCESS.2021.3072165
+for Social Networks: Review, Challenges and Opportunities. IEEE Access,
+9, 57440--57463. https://doi.org/10.1109/ACCESS.2021.3072165
 
 UNWTO. (2021). International Tourism Highlights, 2020 Edition. Dalam
-*International Tourism Highlights, 2020 Edition*. World Tourism
+International Tourism Highlights, 2020 Edition. World Tourism
 Organization (UNWTO). https://doi.org/10.18111/9789284422456
 
 Wang, R., Wu, Z., Lou, J., & Jiang, Y. (2022). Attention-based dynamic
-user modeling and Deep *Collaborative Filtering* recommendation. *Expert
-Systems with Applications*, *188*.
+user modeling and Deep Collaborative filtering recommendation. Expert
+Systems with Applications, 188.
 https://doi.org/10.1016/j.eswa.2021.116036
 
-World Tourism Organization. (2024). *International Tourism Highlights,
-2024 Edition*. UN Tourism. https://doi.org/10.18111/9789284425808
+World Tourism Organization. (2024). International Tourism Highlights,
+2024 Edition. UN Tourism. https://doi.org/10.18111/9789284425808
 
 Yalcin, E., & Bilge, A. (2021). Investigating and counteracting
-popularity bias in group recommendations. *Information Processing and
-Management*, *58*(5). https://doi.org/10.1016/j.ipm.2021.102608
+popularity bias in group recommendations. Information Processing and
+Management, 58(5). https://doi.org/10.1016/j.ipm.2021.102608
 
 Yoon, J. H., & Choi, C. (2023). Real-Time Context-Aware Recommendation
-System for Tourism. *Sensors*, *23*(7).
-https://doi.org/10.3390/s23073679
+System for Tourism. Sensors, 23(7). https://doi.org/10.3390/s23073679
 
 Zhang, K., Cao, Q., Sun, F., Wu, Y., Tao, S., Shen, H., & Cheng, X.
-(2025). Robust Recommender System: A Survey and Future Directions. *ACM
-Computing Surveys*. https://doi.org/10.1145/3757057
+(2025). Robust Recommender System: A Survey and Future Directions. ACM
+Computing Surveys. https://doi.org/10.1145/3757057
 
 Zhao, Y., Wang, Y., Liu, Y., Cheng, X., Aggarwal, C. C., & Derr, T.
-(2025). Fairness and *Diversity* in Recommender Systems: A Survey. *ACM
-Transactions on Intelligent Systems and Technology*, *16*(1).
+(2025). Fairness and Diversity in Recommender Systems: A Survey. ACM
+Transactions on Intelligent Systems and Technology, 16(1).
 https://doi.org/10.1145/3664928
 
  
 
 # LAMPIRAN
 
-[]{#_Toc214305484 .anchor}Lampiran A: Detail Implementasi Teknis
+[]{#_Toc214880879 .anchor}Lampiran A: Detail Implementasi Teknis
 
 Lampiran ini berisi detail teknis, *snippet* kode, dan tabel aturan
 pendukung yang diringkas pada Bab IV.2.
 
-[]{#_Toc214305485 .anchor}A.1 Snippet Kode Komponen Utama
+[]{#_Toc214880880 .anchor}A.1 Snippet Kode Komponen Utama
 
 Berikut adalah *snippet* kode yang mendefinisikan logika inti dari
 komponen-komponen model yang digunakan dalam *notebook* evaluasi
@@ -5171,14 +5213,14 @@ def update(self, context_key, arm_index, reward):
 
 \...
 
-[]{#_Toc214305486 .anchor}A.2 Detail Aturan Kontekstual Aditif
+[]{#_Toc214880881 .anchor}A.2 Detail Aturan Kontekstual Aditif
 
 Logika inti dari komponen *context-aware* adalah aturan aditif. *Boost*
 (atau penalti) dihitung menggunakan formula (Bobot Multiplikatif - 1.0)
 dan ditambahkan ke skor relevansi asli. Tabel berikut merinci semua
 aturan yang diimplementasikan.
 
-[]{#_Toc214305300 .anchor}Tabel A.2.0.1 Aturan Kontekstual - Tipe Hari
+[]{#_Toc214880976 .anchor}Tabel A.2.1 Aturan Kontekstual - Tipe Hari
 
   -------------------------------------------------------------------
      Kondisi             Kategori          Bobot     Boost/Penalty
@@ -5227,7 +5269,7 @@ aturan yang diimplementasikan.
                        Wisata Alam          1.5          +0.5
   -------------------------------------------------------------------
 
-[]{#_Toc214305301 .anchor}Tabel A.2.0.2 Aturan Kontekstual -- Cuaca
+[]{#_Toc214880977 .anchor}Tabel A.2.2 Aturan Kontekstual -- Cuaca
 
   ---------------------------------------------------------------
    Kondisi           Kategori          Bobot     Boost/Penalty
@@ -5272,8 +5314,7 @@ aturan yang diimplementasikan.
                  Wisata Olahraga        0.3     -0.7 (Penalti)
   ---------------------------------------------------------------
 
-[]{#_Toc214305302 .anchor}Tabel A.2.0.3 Aturan Kontekstual - Waktu &
-Musim
+[]{#_Toc214880978 .anchor}Tabel A.2.3 Aturan Kontekstual - Waktu & Musim
 
   ---------------------------------------------------------------------
       Kondisi              Kategori          Bobot     Boost/Penalty
@@ -5310,8 +5351,8 @@ Musim
                          Wisata Alam          0.8     -0.2 (Penalti)
   ---------------------------------------------------------------------
 
-[]{#_Toc214305303 .anchor}Tabel A.2.0.4 Aturan Kontekstual - Event,
-Tren, & Kepadatan
+[]{#_Toc214880979 .anchor}Tabel A.2.4 Aturan Kontekstual - Event, Tren,
+& Kepadatan
 
   -------------------------------------------------------------------------
          Kondisi               Kategori          Bobot     Boost/Penalty

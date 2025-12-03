@@ -15,7 +15,13 @@ const DestinationCard = ({ destination }) => {
       </div>
       <div className="card-content">
         <h3>{destination.name}</h3>
-        <p>{destination.description}</p>
+        {destination.categories && destination.categories.length > 0 && (
+          <p className="card-category">📍 {destination.categories.map(cat => cat.name).join(', ')}</p>
+        )}
+        {destination.address && (
+          <p className="card-address">{destination.address}</p>
+        )}
+        <p className="card-description">{destination.description}</p>
         <Link to={`/destinations/${destination.id}`} className="btn primary">
           Lihat Detail
         </Link>

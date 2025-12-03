@@ -23,6 +23,65 @@ from app.models.category import Category
 
 router = APIRouter()
 
+# ============== HELPER FUNCTIONS ==============
+
+async def _update_mab_from_interaction(user_id: int, destination_id: int, db: AsyncSession):
+    """
+    Helper function to update MAB based on user interaction.
+    Called asynchronously after user clicks/rates a recommendation.
+    """
+    try:
+        from app.services.ml_service import ml_service
+        from app.services.reward_calculator import reward_calculator
+        
+        # Get user's recent recommendations (from last session)
+        # This would ideally be stored in session/cache
+        # For now, we'll calculate reward from all recent interactions
+        
+        # Get last 10 destinations the user interacted with
+        interaction_query = select(UserInteraction).where(
+            UserInteraction.user_id == user_id,
+            UserInteraction.entity_type == 'destination'
+        ).order_by(desc(UserInteraction.created_at)).limit(10)
+        
+        result = await db.execute(interaction_query)
+        recent_interactions = result.scalars().all()
+        
+        if not recent_interactions:
+            return
+        
+        # Build recommendation list from interactions
+        recommended_items = []
+        for inter in recent_interactions:
+            recommended_items.append({
+                'destination_id': inter.entity_id,
+                'category': 'Unknown',  # Would need to fetch from destination
+                'popularity_score': 0
+            })
+        
+        # Calculate composite reward
+        reward = await reward_calculator.calculate_reward_from_recommendations(
+            user_id=user_id,
+            recommended_items=recommended_items,
+            db=db
+        )
+        
+        # Update MAB (context would need to be stored/retrieved)
+        # For now, use 'default' context
+        context = {'default': True}
+        arm_index = 2  # Middle arm (λ=0.5) as default
+        
+        ml_service.update_recommendation_feedback(
+            arm_index=arm_index,
+            reward=reward,
+            context=context
+        )
+        
+        print(f"✅ MAB updated: user={user_id}, reward={reward:.3f}")
+        
+    except Exception as e:
+        print(f"⚠️ MAB update failed: {e}")
+
 # ============== PYDANTIC SCHEMAS ==============
 
 class ReviewCreate(BaseModel):
@@ -773,6 +832,7 @@ async def track_click(
 ):
     """
     Track user click on destination/activity card
+    + Auto-update MAB if this is a recommendation interaction
     """
     try:
         new_interaction = UserInteraction(
@@ -786,6 +846,21 @@ async def track_click(
         
         db.add(new_interaction)
         await db.commit()
+        
+        # 🎰 MAB AUTO-UPDATE: If user clicked a recommendation
+        if interaction.user_id and interaction.entity_type == 'destination':
+            from app.services.ml_service import ml_service
+            from app.services.reward_calculator import reward_calculator
+            import asyncio
+            
+            # Trigger async reward calculation and MAB update
+            asyncio.create_task(
+                _update_mab_from_interaction(
+                    user_id=interaction.user_id,
+                    destination_id=interaction.entity_id,
+                    db=db
+                )
+            )
         
         return {
             "message": "Click tracked successfully",

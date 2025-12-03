@@ -19,6 +19,7 @@ class Destination(Base):
     lat = Column(Float)
     lon = Column(Float)
     address = Column(String, nullable=True)
+    category = Column(String, nullable=True)  # Kategori wisata (Wisata Alam, Wisata Kuliner, dll)
     
     # Relationships
     categories = relationship("Category", secondary=destination_categories, back_populates="destinations")

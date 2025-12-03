@@ -10,12 +10,13 @@ class MABOptimizer:
     """
     
     def __init__(self, n_arms: int = 5, exploration_param: float = 2.0, persistence_file: str = "data/mab_state.json"):
-        self.n_arms = n_arms
         self.c = exploration_param
         self.persistence_file = persistence_file
         
-        # Sama seperti self.lambda_values di notebook
-        self.arms = np.linspace(0, 1, n_arms)
+        # Fixed arms sama dengan notebook evaluasi (5 arms)
+        # Sesuai penelitian: [0.0, 0.3, 0.5, 0.7, 1.0]
+        self.arms = [0.0, 0.3, 0.5, 0.7, 1.0]
+        self.n_arms = len(self.arms)
         
         # Sama seperti self.context_brains di notebook
         self.context_data = {}

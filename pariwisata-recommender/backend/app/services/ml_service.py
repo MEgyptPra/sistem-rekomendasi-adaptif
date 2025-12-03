@@ -14,7 +14,7 @@ USE_PRODUCTION_API = bool(os.getenv("OPENWEATHER_API_KEY")) or \
                      bool(os.getenv("GOOGLE_MAPS_API_KEY")) or \
                      bool(os.getenv("TOMTOM_API_KEY"))
 
-print("🧠 Using ContextAwareComponent for context orchestration")
+print("[ML] Using ContextAwareComponent for context orchestration")
 
 class MLService:
     """Central service untuk managing semua ML recommendation algorithms"""

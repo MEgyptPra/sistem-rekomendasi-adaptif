@@ -1,0 +1,2080 @@
+﻿"""
+Script to seed real Sumedang tourism data
+Ganti data SAMPLE di bawah dengan data real Sumedang Anda
+"""
+import asyncio
+import json
+import random
+from datetime import datetime
+from sqlalchemy import select
+from app.core.db import get_db
+from app.models.destinations import Destination
+from app.models.activity import Activity
+from app.models.user import User
+from app.models.user_interaction import UserInteraction
+from app.models.rating import Rating
+from app.models.category import Category
+from app.models.review import Review
+
+# ============================================================================
+# DATA DESTINASI WISATA SUMEDANG
+# Ganti dengan data real Anda
+# ============================================================================
+SUMEDANG_DESTINATIONS = [
+    {
+        "name": "95 Farm villa resto",
+        "description": "95 Farm Villa Resto menawarkan menu andalan seperti Nasi Liwet Ikan Bakar, Nasi Goreng, dan Sate Ayam. Bahan makanan didapatkan dari pasar tradisional dan pasar Inpres Sumedang. Untuk menjaga kualitas, bahan-bahan makanan dapat disimpan maksimal 4 hari di freezer agar tetap segar. Hal ini mencerminkan komitmen mereka terhadap mutu produk yang disajikan kepada pelanggan. Selain menawarkan makanan, 95 Farm Villa Resto menambah pendapatan melalui penyewaan villa, spot foto, dan penjualan pakan h...",
+        "lat": -6.8738638574852695,
+        "lon": 107.89470027900306,
+        "address": "Margalaksana, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Agrowisata Sawah Menak",
+        "description": "Agrowisata sawah menak merupakan perkebunan Mangga Gedong Gincu dan Jambu Kristal bernama Sawah Menak, di Dusun Bantargintung Desa Karyamukti Kecamatan Tomo. Agrowisata Sawah Menak memakai konsep memetik dan makan buah Mangga Gedong Gincu di tempat. Selain Mangga Gedong Gincu, ada juga Jambu Kristal di perkebunan tersebut. Tempatnya sangat strategis karena berada di pinggir jalan nasional, mobil bisa langsung masuk, langsung petik, kupas dan makan di tempat, luar biasa sensasinya makan mangga...",
+        "lat": -6.780731624989411,
+        "lon": 108.11174469943846,
+        "address": "Karyamukti, Kec. Tomo, Kabupaten Sumedang, Jawa Barat 45382",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "Alam Ciloa",
+        "description": "Sebuah destinasi di Tanjungsari yang memadukan penginapan dengan restoran dan area rekreasi. Tempat ini menawarkan suasana santai untuk keluarga dengan fasilitas tambahan seperti taman kelinci dan kolam budidaya ikan.",
+        "lat": -6.895161514482117,
+        "lon": 107.8098516422412,
+        "address": "Jalan Ciloa No.17, Gudang, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 42167",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Alam Tree Cibunar",
+        "description": "Merupakan destinasi yang berlokasi di Desa Cibunar, Kecamatan Rancakalong, sebuah daerah pedesaan yang subur dan hijau. Kawasan ini dikenal sebagai pusat seni tradisi Sunda, terutama Tarawangsa dan tradisi syukuran panen Ngalaksa, yang menawarkan pengalaman budaya otentik.",
+        "lat": -6.831743424193144,
+        "lon": 107.82884048647026,
+        "address": "Jl. Cibunar, Cibunar, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Alun-alun Sumedang",
+        "description": "Dahulu, Alun-Alun Sumedang berupa tanah lapang yang ditumbuhi rerumputan dan pepohonan disekelilingnya, namun pada tahun 2020 tempat ini diperINDAH dengan adanya taman, kolam, tempat permainan anak serta fasilitas lainnya, dan pada malam hari dengan dihiasi oleh lampu lampu Alun-Alun Sumedang terlihat semakin CANTIK. Pada bagian tengah tempat ini terdapat bangunan berupa Monumen yang dikenal dengan Monumen Lingga, berupa peninggalan jaman kolonial Belanda yang didirikan pada Tahun 1922. LINGG...",
+        "lat": -6.8594802501957135,
+        "lon": 107.92525385251814,
+        "address": "Alun-Alun, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Arboretum Unpad",
+        "description": "Sebuah kawasan hijau di dalam kampus Universitas Padjadjaran yang berfungsi sebagai pusat konservasi tumbuhan, penelitian, dan wisata edukasi. Tempat ini dilengkapi dengan berbagai ekosistem buatan seperti danau dan sawah, serta area",
+        "lat": -6.931568376933938,
+        "lon": 107.77419412910038,
+        "address": "Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Astana Gede Kabuyutan Cipaku",
+        "description": "Merupakan situs pemakaman kuno yang menjadi tempat peristirahatan Prabu Lembu Agung, salah satu raja dari Kerajaan Sumedanglarang. Lokasi ini banyak dikunjungi oleh para peziarah dari berbagai daerah untuk melakukan ritual doa, menjadikannya destinasi wisata ziarah dan sejarah yang penting.",
+        "lat": -6.889741863770543,
+        "lon": 108.07278325804216,
+        "address": "Cipaku, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "BAKSO ABRAG SUMEDANG",
+        "description": "Salah satu kedai bakso terlaris dan paling populer di Sumedang, yang selalu ramai dikunjungi pembeli. Tempat ini menjadi favorit di kalangan warga lokal karena rasanya yang lezat dan harganya yang terjangkau, menjadikannya tujuan kuliner yang wajib dicoba.",
+        "lat": -6.858580075730105,
+        "lon": 107.92588275924034,
+        "address": "Jl. Kebonkol No.11, Regol Wetan, sumedang sekarang, Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Bale MarWind Camp",
+        "description": "Bale MarWind Camp adalah destinasi wisata alam di perbukitan Margawindu, Sumedang, Jawa Barat, yang menawarkan pengalaman healing santai dengan pemandangan eksotis pegunungan. Cocok untuk camping, event gathering, sesi fotografi, dan pembuatan konten, lengkap dengan fasilitas seperti spot photoshoot menggunakan jeep.",
+        "lat": -6.918977717473824,
+        "lon": 1.07961162966489e+16,
+        "address": "Perkebunan Margawindu, Citengah Cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Balong Geulis",
+        "description": "Balong Geulis merupakan kawasan wisata yang ada di dataran tinggi Kecamatan Cibugel. Di mana kawasan ini terletak di ketinggian 1.174 mdpl. Hal ini membuat tempat tersebut memiliki udara yang lebih sejuk dan view alam yang cantik.Nama Balong Geulis sendiri memiliki makna ΓÇ£kolam cantikΓÇ¥, nama tersebut tentunya sesuai dengan kolam airnya yang jernih dan background pemandangannya yang cantik. Dikelilingi rimbunnya hutan pinus Gunung Kareumbi dan hamparan Kebun Teh Cibubut.Setidaknya ada dua jeni...",
+        "lat": -6.9492963319721,
+        "lon": 107.99300076066768,
+        "address": "Jayamekar, Kec. Cibugel, Kabupaten Sumedang, Jawa Barat 45375",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Baru Beureum",
+        "description": "Merupakan gerbang utama bagi para pendaki yang mencari tantangan di Gunung Manglayang. Jalur ini dikenal dengan medannya yang terjal dan menantang, melewati sisa-sisa aliran lava purba, menjadikannya pilihan utama untuk petualangan hiking yang memacu adrenalin.",
+        "lat": -6.879837445719484,
+        "lon": 107.75700793900384,
+        "address": "Ciloa, Sindangsari, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45366",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Base Camp Erfarm",
+        "description": "Destinasi ini menawarkan pengalaman berkemah dan kegiatan luar ruang yang terorganisir dan nyaman untuk seluruh anggota keluarga. Dengan fasilitas yang memadai dan lingkungan yang aman, tempat ini ideal untuk liburan keluarga, gathering, atau pengenalan petualangan alam bagi anak-anak.",
+        "lat": -6.912857234854871,
+        "lon": 107.77811681589148,
+        "address": "Jl. Cikuda No.18, Cileles, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "BASISIR MUDA DEMANG Camping ground",
+        "description": "Sebuah area perkemahan yang berlokasi di kawasan Jatigede yang indah, menjadi basis bagi para petualang yang ingin menjelajahi dan menyatu dengan alam. Tempat ini menawarkan pengalaman berkemah dengan suasana yang tenang untuk melepas penat",
+        "lat": -6.886825102614027,
+        "lon": 108.07086688652078,
+        "address": "Jln, Karangpakuan, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Baso sekar mas eko",
+        "description": "Merupakan ikon kuliner di Sumedang yang sangat populer dan tidak pernah sepi pengunjung. Tempat ini wajib dikunjungi oleh para pecinta bakso untuk mencicipi cita rasa legendaris dengan beragam varian, dari bakso iga hingga bakso jumbo.",
+        "lat": -6.841641942210676,
+        "lon": 107.92758940440557,
+        "address": "Jl. Tampomas, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Batu Alam | Rumah Makan - Kolam renang - Pemancingan - Kolam Renang",
+        "description": "Sebuah destinasi rekreasi terpadu yang menggabungkan rumah makan dengan berbagai fasilitas hiburan. Pengunjung dapat menikmati kolam renang untuk dewasa dan anak-anak, area pemancingan, serta spot foto menarik dalam satu lokasi, menjadikannya pilihan ideal untuk liburan keluarga.",
+        "lat": -6.844579308290782,
+        "lon": 107.82741128554198,
+        "address": "Jl. Citali - Rancakalong KM. 11 Dsn. Ciherang, RT.02/RW.03, Pasir Biru, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Bekas Rumah Tinggal Cut Nyak Dien",
+        "description": "Ketika Cut Nyak Dien diasingkan ke Sumedang, oleh Bupati Sumedang saat itu, Pangeran Aria Soeria Atmadja ditempatkan di sebuah rumah panggung. Rumah panggung ini terletak di Kampung Kaum Kelurahan Regol Wetan, tepatnya sekitar 100 meter sebelah barat Masjid Agung Sumedang. Bentuk rumah panggungnya sebagian masih asli. Terutama dinding dan lantai dari bambu. Sedangkan sebagian yang lainnya sudah diganti. Dinding rumah yang lama bentuk anyaman bambunya lebih besar dan tebal. Tiang-tiang utama y...",
+        "lat": -6.858993499929314,
+        "lon": 107.91929189741992,
+        "address": "Jl. Pangeran Soeriaatmadja No.17, Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Bendungan Hidden gem",
+        "description": "",
+        "lat": -6.967993045713564,
+        "lon": 107.83947345200863,
+        "address": "Dusun Bendungan, RT.02/RW.02, Cimanggung, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat 45364",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Bendungan Jatigede",
+        "description": "Merupakan bendungan terbesar kedua di Indonesia, menawarkan pemandangan lanskap air yang spektakuler. Selain menjadi objek foto yang populer, bendungan ini juga berfungsi sebagai pusat rekreasi untuk berbagai aktivitas seperti olahraga air dan budidaya perikanan",
+        "lat": -6.856014240498136,
+        "lon": 108.09760249239343,
+        "address": "Cijeungjing, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Benteng Darmaga",
+        "description": "Situs sejarah peninggalan kolonial Belanda yang berlokasi di aliran Sungai Cipeles. Benteng ini dulunya merupakan bendungan strategis yang digunakan untuk menghambat pergerakan musuh dengan cara membendung aliran sungai",
+        "lat": -6.845584471026441,
+        "lon": 107.92094099699172,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Benteng Gunung Gadung",
+        "description": "Kampung Gunung Gadung merupakan sebuah lokasi pemukiman penduduk yang berada di bagian timur wilayah Desa Sukajaya Kecamatan Sumedang Selatan Kabupaten Sumedang. Sebuah lokasi yang cukup jauh dari pusat pemerintahan Desa Sukajaya, dari kantor Desa Sukajaya jaraknya sekitar 2,7 km ke arah selatan melintasi jalan raya Gunung Puyuh - Nangorak dilanjut ke Kampung Cihuni dan Kampung Cipunareun. Jika menggunakan jalan Ciloa - Haurlawang, jaraknya lebih jauh sekitar 3,5 km. Kawasan pemukiman pendudu...",
+        "lat": -6.878950018247792,
+        "lon": 107.91288015679648,
+        "address": "Margamekar, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Benteng Palasari",
+        "description": "Sebuah kompleks benteng pertahanan peninggalan Belanda yang dibangun antara tahun 1913-1917 di puncak Gunung Palasari. Terdiri dari delapan bangunan beton tebal, situs ini diduga berfungsi sebagai gudang mesiu dan pos pengamatan militer",
+        "lat": -6.855457701793471,
+        "lon": 107.91208046099192,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Benteng Pasir Kolecer",
+        "description": "Peninggalan benteng Belanda yang dibangun sekitar tahun 1907, menampilkan struktur yang menyerupai bunker pertahanan di atas bukit. Tempat ini menawarkan wisata sejarah dengan pemandangan lembah perbukitan di sekitarnya",
+        "lat": -6.882620848633425,
+        "lon": 107.91248010406002,
+        "address": "Margamekar, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Bhumi Nadya",
+        "description": "Sebuah lokasi yang beralamat di Kecamatan Rancakalong. Berdasarkan informasi yang tersedia, belum ada deskripsi detail mengenai atraksi atau kegiatan spesifik yang ditawarkan di tempat ini.",
+        "lat": -6.842587376138294,
+        "lon": 107.8285900336641,
+        "address": "Jl. Tanjungsari - Rancakalong No.Km 11, RT.04/RW.05, Dusun Pasir, Kampung Pasirpogor, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Botram Yu Lesehan RM Sawargi Sumedang",
+        "description": "Rumah makan yang menyajikan pengalaman kuliner khas Sunda otentik. Tempat ini populer untuk \"botram\" atau makan bersama dalam porsi besar, dengan konsep \"lesehan\" atau duduk di lantai yang memperkuat suasana kebersamaan",
+        "lat": -6.831823225970875,
+        "lon": 107.9165075659022,
+        "address": "depan rumah makan sawargi, Jl. Prabu Gajah Agung, bypass, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45321",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "BUDIDAYA LEBAH MADU PASUNDAN MARGAWINDU",
+        "description": "Destinasi wisata edukatif yang cocok untuk keluarga, di mana pengunjung dapat belajar tentang lebah madu. Atraksi utamanya adalah pengalaman unik menyedot madu segar langsung dari sarang lebah teuweul yang tidak menyengat.",
+        "lat": -6.916305721313484,
+        "lon": 107.95891284525648,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "Bukit Akasia",
+        "description": "Kawasan wisata alam di ketinggian 1.281 mdpl yang terkenal dengan pemandangan matahari terbenamnya yang memesona. Tempat ini menjadi lokasi favorit untuk relaksasi atau healing, dilengkapi dengan pusat kuliner dan area untuk berkemah.",
+        "lat": -6.924453121113249,
+        "lon": 107.79804706827504,
+        "address": "Cinanjung, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Bukit naga panorama jatinangor sumedang",
+        "description": "Sebuah titik pandang yang daya tarik utamanya adalah menyajikan pemandangan alam panorama yang indah di kawasan Jatinangor. Tempat ini cocok bagi mereka yang ingin menikmati keindahan alam dari ketinggian secara pasif.",
+        "lat": -6.924096158010111,
+        "lon": 107.79813814990024,
+        "address": "Hegarmanah, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Bukit Pangupukan",
+        "description": "Dikenal sebagai lokasi utama untuk olahraga paralayang di Sumedang. Dari titik lepas landas, para petualang dapat menikmati sensasi terbang sambil menyaksikan pemandangan spektakuler Waduk Jatigede dari atas.",
+        "lat": -6.874343200419544,
+        "lon": 108.0597887027486,
+        "address": "Karangpakuan, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Bumi Perkemahan Cipacet",
+        "description": "Area perkemahan yang dirancang khusus untuk kegiatan luar ruangan seperti berkemah dan menjelajahi alam. Dikelilingi oleh hutan pinus, tempat ini menawarkan suasana yang sejuk dan tenang untuk para pencari petualangan.",
+        "lat": -6.853647789888106,
+        "lon": 107.77265119446012,
+        "address": "Genteng, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45366",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Bumi Perkemahan Pajaten",
+        "description": "Sebuah area perkemahan di Desa Kebonkalapa yang sering digunakan untuk kegiatan Pramuka seperti Jambore Ranting, menawarkan pengalaman berkemah di alam terbuka yang asri.",
+        "lat": -6.84402291814145,
+        "lon": 107.95812774900205,
+        "address": "Cibolang, Kebonkalapa, Kec. Cisarua, Kabupaten Sumedang, Jawa Barat 45355",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Bungkeng Rumah Makan",
+        "description": "Sebuah destinasi kuliner legendaris yang merupakan perintis tahu Sumedang sejak tahun 1917. Mengunjungi tempat ini bukan hanya untuk mencicipi tahu yang otentik, tetapi juga untuk merasakan bagian dari sejarah gastronomi Sumedang.",
+        "lat": -6.839573719247448,
+        "lon": 107.92520345244066,
+        "address": "Jl. Mayor Abdurahman No.135, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Cadas Pangeran Sumedang",
+        "description": "Ruas jalan bersejarah yang berkelok tajam dan dikelilingi tebing curam. Daya tarik utamanya bukan pada keindahan alam, melainkan pada kisah sejarah kelam di balik pembangunannya pada masa pemerintahan Daendels.",
+        "lat": -6.882484001686692,
+        "lon": 107.85930233921432,
+        "address": "Jl. Nasional 5, Cijeruk, Kec. Pamulihan, Kabupaten Sumedang, Jawa Barat 45365",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Camp Area Bukit Galau",
+        "description": "Bukit Galau, merupakan objek wisata alam camping ground yang menyajikan panorama alam layaknya di atas awan. Meski namanya Bukit Galau, namun kenyataannya, objek wisata alam ini menjadi lokasi yang tepat untuk menghilangkan penat. Bukit Galau berlokasi di ujung Sumedang bagian Barat. Tepatnya, di Kampung Telang, Desa Sindulang, Kecamatan Cimanggung, Kabupaten Sumedang, Jawa Barat. Dari Pasar Parakanmuncang, Cimanggung, Bukit Galau bisa ditempuh dengan jarak perjalanan kurang lebih 45 menit. W...",
+        "lat": -6.952107079794257,
+        "lon": 107.88841792320984,
+        "address": "Sindulang, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat 45364",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Camp Area Puncak Gunung Tampomas",
+        "description": "Sebuah area perkemahan yang terletak di dalam hutan sejuk di kaki Gunung Tampomas. Lokasi ini menjadi tujuan favorit bagi para pendaki dan pencinta alam untuk bermalam dan merasakan suasana pegunungan yang asri",
+        "lat": -6.764548983534205,
+        "lon": 107.960657092949,
+        "address": "Cibeureum Kulon, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Cekdam Ciantay",
+        "description": "Bendungan penahan sedimen kecil yang menawarkan suasana alam yang hening dan damai. Dikelilingi oleh pepohonan pinus, tempat ini menjadi lokasi yang ideal untuk bersantai dan melepaskan penat dari keramaian",
+        "lat": -6.940427429032245,
+        "lon": 107.78301690265144,
+        "address": "Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Cibubut Campground",
+        "description": "Sebuah lahan perkemahan yang secara spesifik ditujukan untuk kegiatan berkemah di alam terbuka",
+        "lat": -6.946121930172723,
+        "lon": 107.99206664425118,
+        "address": "Jayamekar, Kec. Cibugel, Kabupaten Sumedang, Jawa Barat 45375",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Cisoka Eco Green Park",
+        "description": "Cisoka Eco Greenpark Sumedang menghadirkan pengalaman wisata alam yang menyegarkan dengan konsep ekowisata yang menonjolkan keindahan alam pedesaan. Pengunjung dapat menikmati suasana asri dan sejuk, jauh dari hiruk pikuk perkotaan. Area persawahan yang luas memberikan pemandangan yang menenangkan, dan berbagai spot foto yang instagramable siap diabadikan. Tempat ini sangat cocok bagi mereka yang mencari ketenangan dan ingin melepas penat. Selain menikmati keindahan alam, Cisoka Eco Greenpark...",
+        "lat": -6.913525779615443,
+        "lon": 107.97952522063912,
+        "address": "Citengah Cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "CISOKA HILL",
+        "description": "Sebuah destinasi wisata keluarga yang memadukan keindahan alam hamparan perkebunan teh dengan berbagai wahana buatan. Tempat ini dirancang sebagai lokasi untuk berswafoto dengan banyak spot menarik seperti menara kincir angin, wahana perahu, dan sayap burung, serta dilengkapi saung untuk bersantai.",
+        "lat": -6.932772226082793,
+        "lon": 107.97664158162104,
+        "address": "Jl. Perkebunan TH cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "Clover Leaf Caf├⌐ & Resto",
+        "description": "Kafe dan restoran berkonsep modern yang menawarkan suasana nyaman, estetik, dan Instagramable. Berlokasi di pusat kota, tempat ini cocok untuk bekerja atau acara keluarga, menyajikan menu hidangan Barat dan fusion dengan sentuhan lokal",
+        "lat": -6.858941791409754,
+        "lon": 107.92239645504688,
+        "address": "Jl. P Jl. Prabu Geusan Ulun No.46, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Curug Buhud",
+        "description": "Dikenal sebagai \"Niagara versi mini\" karena aliran airnya yang melebar hingga 30 meter. Air terjun ini sangat mudah diakses karena terletak di tengah pemukiman penduduk tanpa perlu trekking, menjadikannya destinasi yang cocok untuk keluarga dan persinggahan singkat",
+        "lat": -6.740478742913097,
+        "lon": 107.8881427497416,
+        "address": "Sukatani, Kec. Tanjungmedar, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Cinulang",
+        "description": "Curug Sindulang merupakan salah satu curug yang terkenal di wilayah Jawa Barat. Selain karena termasuk kategori curug yang tinggi dengan ketinggian sekitar 50 meter, juga curugnya bertipe ganda. Ada dua curug kembar berdampingan yang tinggi dan deras airnya sama. Letak curug ini berada di perbatasan Kabupaten Sumedang dengan Kabupaten Bandung. Walau demikian, secara administratif Curug Sindulang terletak di Desa Sindulang Kecamatan Cimanggung Kabupaten Sumedang. Untuk mengakses curug ini terb...",
+        "lat": -6.962679640592479,
+        "lon": 107.881542398642,
+        "address": "Jl. Cicalengka Sindang Wangi No.km.07, Tanjungwangi, Kec. Cicalengka, Kabupaten Bandung, Jawa Barat 40395",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Cipadayungan",
+        "description": "Cipadayungan merupakan permata tersembunyi di Kabupaten Sumedang, Jawa Barat, yang terkenal akan keindahan lanskap persawahan teraseringnya yang menghijau dan memukau. Kontur tanah berbukit di desa ini disulap menjadi hamparan sawah bertingkat yang tidak hanya berfungsi sebagai lahan pertanian, tetapi juga menciptakan panorama alam yang luar biasa. Udara di Cipadayungan terasa sejuk dan menyegarkan, menjadikannya tempat pelarian yang ideal dari hiruk pikuk kehidupan perkotaan.",
+        "lat": -6.766897012486401,
+        "lon": 107.92991444080693,
+        "address": "Bangbayang, Padasari, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Cipongkor Sumedang",
+        "description": "ebuah air terjun tersembunyi yang digambarkan memiliki keindahan bak \"kepingan surga jatuh ke bumi\". Lokasinya yang berada di antara ceruk tebing di hutan Gunung Tugu menawarkan suasana yang sangat asri dan alami, cocok bagi para petualang yang mencari ketenangan.",
+        "lat": -6.860083983980522,
+        "lon": 107.8785176389431,
+        "address": "Ciherang, Cimareme, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug CIPUTRAWANGI",
+        "description": "Curug ini berada di gunung Tampomas. Nilai plus tersendiri untuk anda yang mendaki gunung ini, karena bisa menemukan air terjun yang indah. Beberapa jalur pendakian seperti jalur Narimbang, Cibeureum, dan Buahdua menjadi jalur favorit untuk pendaki. Jalur terbaik untuk menuju tempat ini adalah melalui jalur Narimbang, di perjalanan anda bisa menikmati keindahan Curug Ciputrawangi, yang menjadi salah satu tempat wisata di Sumedang yang sayang untuk dilewatkan. Untuk sampai kesini, butuh perjua...",
+        "lat": -6.751448938954328,
+        "lon": 107.98754854032128,
+        "address": "Ciputrawangi, Curug, Ciputrawangi Curug, Narimbang, Kec. Conggeang, Kabupaten Sumedang, Jawa Barat 45391",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Cirengganis",
+        "description": "Merupakan air terjun yang masih sangat alami dan \"perawan\", terletak di Desa Cilembu. Daya tariknya adalah suasana murni dan perjalanan melintasi hutan pinus untuk mencapainya, menawarkan pengalaman alam yang jauh dari sentuhan komersial",
+        "lat": -6.914488912757177,
+        "lon": 107.87438470821034,
+        "address": "Cimarias, Kec. Pamulihan, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Gorobog",
+        "description": "Tempat wisata di Sumedang yang selanjutnya adalah sebuah ari terjun yang memiliki keindahan alam yang masih terjaga dengan baik. Nama air terjun atau curug ini adalah Curug Gorobog terletak di Desa Citengah, Kecamatan Sumedang Selatan, Kabupaten Sumedang, Provinsi Jawa Barat. Air terjun yang indah ini berada di dalam hutan dan uniknya memiliki 3 tingkatan yang menambah eksotis air terjun ini.Air Terjun Cigorobog ini memiliki ketinggian sekitar 40 meter. Air yang mengalirnya tidak terlalu dera...",
+        "lat": -6.913349775594527,
+        "lon": 107.96078437236729,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Haurlawang Toga",
+        "description": "",
+        "lat": -6.888090657523168,
+        "lon": 107.91214181442172,
+        "address": "Margamekar, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Pasirwangi",
+        "description": "Air terjun yang menjadi tujuan favorit warga setempat untuk liburan keluarga. Dengan tiket masuk yang sangat terjangkau, tempat ini menawarkan pemandangan indah dan suasana alami yang menenangkan, bahkan disebut cocok untuk meditasi",
+        "lat": -6.814195526525455,
+        "lon": 107.87858843663238,
+        "address": "Sukamaju, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Curug Sabuk",
+        "description": "Destinasi bagi para petualang sejati, berupa air terjun setinggi 70 meter yang tersembunyi di dalam hutan Gunung Kareumbi. Untuk mencapainya, diperlukan trekking menantang selama 2-3 jam, yang akan terbayar dengan pemandangan megah dan suasana yang benar-benar liar",
+        "lat": -6.926213821439378,
+        "lon": 107.90490957078164,
+        "address": "Margamekar, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Danau Biru Situ Cilembang",
+        "description": "Objek wisata yang satu ini berupa danau yang memiliki warna kebiruan dan bening sebening kristal, Situ Cilembang sendiriberada di Desa Hariang, Kec. Buahdua, Kab. Sumedang. Air situ atau danau ini seperti warna buatan padahal memang alami seperti itu adanya. Warna biru situ mungil ini merupakan pantulan warna langit yang diterjemahkan secara sempurna oleh air Situ Cilemang yang sama sekali belum terkontaminasi. Tapi sangat disayangkan karena kita dilarang mandi mandi disini, karena dikhawatir...",
+        "lat": -6.706132884748672,
+        "lon": 107.91001281825486,
+        "address": "Hariang, Kec. Buahdua, Kabupaten Sumedang, Jawa Barat 45392",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Danau Cekdam Cimarias",
+        "description": "Sebuah danau buatan tersembunyi di lereng Gunung Kareumbi yang dibangun pada era Presiden Soeharto. Dikelilingi pepohonan pinus, tempat ini menawarkan suasana yang sangat sejuk dan tenang, namun akses menuju lokasi cukup menantang dan berbatu",
+        "lat": -6.9070168284257285,
+        "lon": 107.86688653677692,
+        "address": "3Cimarias, Kec. Pamulihan, Kabupaten Sumedang, Jawa Barat 45365",
+        "category": "Wisata"
+    },
+    {
+        "name": "Dapur Seafood",
+        "description": "Tempat makan sederhana yang dikenal menyajikan aneka hidangan laut lezat dengan harga yang terjangkau. Restoran ini menjadi pilihan populer bagi warga lokal yang mencari cita rasa otentik tanpa harus menguras kantong.",
+        "lat": -6.711821801559644,
+        "lon": 108.73845193822793,
+        "address": "Jl. Prabu Geusan Ulun No.54, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Desa Wisata Karedok",
+        "description": "Masyarakat Desa Karedok memiliki kerajinan tangan yang dibuat dengan memanfaatkan sumberdaya alam berupa bambu dan batok kelapa. Sedangkan Desa Karedok memiliki lahan pertanian yang subur ada beberapa larangan adat yang tidak boleh di lakukan dalam bidang pertanian yaitu menanam tembakau, bawang merah, dan singkong. Desa Karedok memiliki upacara tradisional yang berkaitan dengan senjata, yaitu upacara Ngarot / Tutup Buku Guar Bumi. Acara ngarot ini dilaksanakan pada saat panen raya, dan sudah...",
+        "lat": -6.832729486873904,
+        "lon": 108.1030688209099,
+        "address": "Jl. Sasak Karedok, Karedok, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "DESA WISATA PASIRNANJUNG GEULIS",
+        "description": "Sebuah desa rintisan wisata di Kecamatan Cimanggung yang berada di lereng pegunungan Kareumbi. Daya tarik utamanya adalah panorama alam pedesaan yang indah dan menyegarkan, dengan pemandangan ke arah Bandung dari ketinggian, yang cocok untuk liburan keluarga.",
+        "lat": -6.948531233261313,
+        "lon": 107.84304791409969,
+        "address": "Pasirnanjung, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat 45364",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "Desa Wisata Tradisi BudayaTarawangsa dan Ngalaksa",
+        "description": "Sebuah desa wisata budaya di Rancakalong yang berpusat pada pelestarian tradisi Ngalaksa dan kesenian Tarawangsa, yang telah ditetapkan sebagai Warisan Budaya Tak Benda. Pengunjung dapat menyaksikan upacara adat syukuran hasil panen yang unik diiringi alunan musik tradisional yang khas",
+        "lat": -6.83646950111287,
+        "lon": 107.84071090600963,
+        "address": "Rancakalong, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "DEWILIPA",
+        "description": "Wisata Dewilipa di Desa Cijeler Kec. Situraja Kab. Sumedang salah satu objek wisata pilihan bagi para traveler. Disana, menyuguhkan spot foto pemandangan alam yang eksotis. Khususnya bagi para penikmat kopi diwaktu senja atau bisa disebut pecinta camping. Dewilipa memiliki konsep dasar yang masuk kategori ekowisata edukatif.",
+        "lat": -6.852220107862877,
+        "lon": 107.9888449676569,
+        "address": "Cijeler, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45356",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Empang - Gedung Negara Sumedang",
+        "description": "Sebuah kolam besar bersejarah yang terletak di belakang Gedung Negara Sumedang dan telah dikembangkan menjadi \"Empang Heritage Zone\". Awalnya berfungsi sebagai tempat rekreasi para bupati, kini menjadi ruang publik populer untuk bersantai, berfoto, dan menaiki sepeda air.",
+        "lat": -6.862006206553099,
+        "lon": 107.92188546681756,
+        "address": "Gang Empang Sel Jl. Empang, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Forest Walk",
+        "description": "Wahana rekreasi baru berupa jembatan kayu yang dibangun di tengah kawasan hutan di sekitar Bendungan Jatigede, seperti di Taman Seribu Cahaya. Fasilitas ini memungkinkan pengunjung untuk berjalan-jalan santai di antara pepohonan sambil menikmati pemandangan waduk dari ketinggian",
+        "lat": -6.871824412938915,
+        "lon": 108.0645895566844,
+        "address": "Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Geotheater Rancakalong, Kab. Sumedang",
+        "description": "Geotheater Rancakalong di Sumedang adalah tempat wisata budaya dan alam yang menampilkan seni Sunda dan pemandangan indah. Tempat ini punya bangunan utama untuk pertunjukan, spot foto menarik, fasilitas pendukung, dan sering mengadakan pertunjukan budaya. Keberadaannya juga membantu ekonomi warga sekitar. Saat ini, Geotheater bekerja sama dengan ISBI Bandung untuk dikembangkan menjadi pusat wisata edukasi budaya Sunda.",
+        "lat": -6.8339259242024575,
+        "lon": 107.86182119162682,
+        "address": "Gandeweh, Sukahayu, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Gn. Kareumbi",
+        "description": "Kawasan konservasi alam luas yang dikenal sebagai Taman Buru Gunung Masigit Kareumbi, terletak di perbatasan Sumedang, Bandung, dan Garut. Tempat ini menjadi destinasi ideal untuk berbagai kegiatan petualangan seperti jungle trekking, berkemah, dan bersepeda, serta memiliki fasilitas unik seperti penangkaran rusa dan rumah pohon",
+        "lat": -6.930772258604567,
+        "lon": 107.8775332809934,
+        "address": "Sindanggalih, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Gn. Kerenceng",
+        "description": "Gunung setinggi 1.754 mdpl di perbatasan Sumedang dan Bandung yang menjadi destinasi favorit bagi pendaki pemula. Jalur pendakiannya menawarkan tantangan yang aman dengan pemandangan alam yang indah, dan puncaknya merupakan lokasi populer untuk berkemah dan menikmati matahari terbit",
+        "lat": -6.932972614638748,
+        "lon": 107.8857211071085,
+        "address": "Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Gn. Lingga",
+        "description": "Batu Dua Gunung Lingga merupakan tempat wisata alam hits di Sumedang yang kini ramai dan mulai banyak dikunjungi oleh para wisatawan di Indonesia. Tempat ini cocok bagi kamu yang ingin liburan anti-mainstream bersama dengan teman atau keluarga. Di Batu Dua Gunung Lingga kalian bisa melakukan banyak hal seru dan menantang mulai dari menikmati alam hingga menjelajahi alam dengan Paralayang. Daya tarik dan hal seru yang bisa kalian lakukan: Melihat Pemandangan Waduk Jatigede dan Puncak Damar Let...",
+        "lat": -6.903479993081887,
+        "lon": 108.01416562445074,
+        "address": "Linggajaya, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Gunung Geulis",
+        "description": "Sebuah gunung setinggi 1.281 mdpl yang berlokasi di perbatasan Jatinangor, Cimanggung, dan Tanjungsari, cocok untuk pendaki pemula. Dari puncaknya, pengunjung dapat menikmati pemandangan panorama yang luas, dan di area puncak terdapat beberapa makam keramat yang sering dikunjungi peziarah.",
+        "lat": -6.931471204273437,
+        "lon": 107.81095386840722,
+        "address": "Jatiroke, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Hanjuang Kutamaya",
+        "description": "Sebuah situs bersejarah yang terkait dengan Pohon Hanjuang, sering dikunjungi oleh peziarah",
+        "lat": -6.848588798120818,
+        "lon": 107.90769364057104,
+        "address": "Padasuka, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Ikan Bakar Citengah",
+        "description": "Restoran yang terkenal dengan hidangan ikan bakarnya, menawarkan pengalaman bersantap di tengah suasana alam Citengah yang sejuk dan asri.",
+        "lat": -6.913340664969144,
+        "lon": 107.95208017946702,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Jans Park",
+        "description": "Jans Park Jatinangor atau Jatinangor National Flower Park merupakan salah satu destinasi wisata baru di Jatinangor Kabupaten Sumedang atau lebih tepatnya di Jatinangor Nasional Park, Desa Cileles, Kecamatan Jatinangor, Kabupaten Sumedang, Jawa Barat. Tempat wisata ini baru saja dibuka pada tanggal 18 November 2022. Memiliki luas 7.5 hektar Jatinangor National Park (Jans Park) juga menyuguhkan pemandangan menakjubkan pegunungan Manglayang sebagai kelebihannya. Jatinangor National Flower Park m...",
+        "lat": -6.918624572387564,
+        "lon": 107.76968532396106,
+        "address": "Hegarmanah, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Jatinangor National Golf & Resort",
+        "description": "Padang golf Bandung Giri Gahana terletak di dataran tinggi Jatinangor yang memiliki ketinggian 900 mdpl. Maka tak heran jika para golfer akan disajikan pemandangan pegunungan yang indah, fairway yang luas, hijaunya rumput Bermuda dan Brent yang luas serta udara yang sejuk. Lapangan golf di Jatiangor yang dirancang oleh Michael Coates dari Austro Asian Golf & Association ini memiliki panjang sekitar 7.176 yards jika diukur dari Profesional Tees serta 18 holes dan par 72. Bandung Giri Gahana Go...",
+        "lat": -6.911236506958216,
+        "lon": 107.76291477075443,
+        "address": "Cibeusi, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kadaka Hill Agrowisata",
+        "description": "Kadaka Hill adalah destinasi wisata perbukitan yang menawarkan pemandangan alam yang indah dan udara yang sejuk. Tempat ini cocok untuk kegiatan hiking, berkemah, dan menikmati matahari terbit atau terbenam dengan panorama yang memukau. Kawasan wisata ini menyediakan berbagai fasilitas untuk pengunjung, termasuk jalur pendakian yang menantang namun aman untuk berbagai tingkat kemampuan, area perkemahan yang luas dengan pemandangan alam yang hijau, serta spot foto dengan pemandangan alam yang ...",
+        "lat": -6.857835305063015,
+        "lon": 107.80248650539365,
+        "address": "Cikawung.KM.5, Kadakajaya, Kec. Tanjungsari, Jawa, Barat, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Kampoeng Jarami",
+        "description": "Kampoeng Jarami terletak di Tanjungsari, Kabupaten Sumedang. Jarak dari Alun-Alun Tanjungsari kurang lebih 1.9 km. Banyak fasilitas yang tersedia di objek wisata ini, seperti kolam renang, Gazebo, Taman Bunga dan foodcourt. Untuk yang senang mengabadikan foto. Tempat ini sangat cocok. Terdapat beberapa spot foto yang memang disediakan untuk pengunjung.",
+        "lat": -6.8876192997456185,
+        "lon": 107.8026718310715,
+        "address": "Jl. Karanganyar No.9, Pasigaran, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kampoeng Ladang",
+        "description": "Pusat wisata budaya di puncak bukit yang memperkenalkan tradisi pertanian Sunda, di mana pengunjung dapat berinteraksi langsung dengan kegiatan bertani sambil menikmati panorama kota Sumedang.",
+        "lat": -6.871609704196099,
+        "lon": 107.89101255036654,
+        "address": "Lebak Huni Kareumbi, Margalaksana, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kampung Buricak Burinong",
+        "description": "Buricak Burinong adalah destinasi wisata yang seru dikunjungi bersama keluarga. Daya tarik utama tempat wisata ini berupa pemandangan waduk yang luas dan menyegarkan. Dikarenakan menghadap langsung ke Waduk Jatigede, tentu saja daya tarik utama kampung wisata ini adalah pemandangan waduk tersebut. Selain itu, ada pula panorama pegunungan dan hutan pinus yang mengelilingi waduk. Pemandangan alam yang memesona menjadikan wisata ini layak untuk dikunjungi. Pengunjung juga dapat menelusuri Forest...",
+        "lat": -6.871573746797364,
+        "lon": 108.0694533561892,
+        "address": "Dsn. Cisema, Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Kampung Cigumentong",
+        "description": "Sebuah kampung adat terpencil yang melestarikan tradisi lokal seperti hajat buruan (syukuran kampung) dan ngagogo (menangkap ikan dengan tangan), menawarkan pengalaman kehidupan pedesaan yang otentik.",
+        "lat": -6.947495085328666,
+        "lon": 107.92339500576216,
+        "address": "Sindulang, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat 45364",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Kampung Karuhun ECO Green Park Sumedang",
+        "description": "Kampung Karuhun merupakan sebuah kawasan wisata terpadu yang berada di wilayah Desa Citengah Kecamatan Sumedang Selatan. Lokasinya sekitar tujuh kilometer dari pusat kota Sumedang ke arah selatan. Kawasan Kampung Karuhun berupa pesawahan berbukit dan lingkungan hutan tropis yang masih terjaga keasriannya. Di kawasan ini terdapat aliran sungai Cihonje dengan airnya yang jernih mengalir melewati bebatuan. Di bagian hulunya terdapat air terjun Cigorobog yang akan memikat pengunjung. Di sebelah a...",
+        "lat": -6.913514625511284,
+        "lon": 107.95253642544868,
+        "address": "Jl. Pagarbetis, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Kampung Kawangi",
+        "description": "Restoran berkonsep rumah panggung kuno yang menyajikan masakan Sunda otentik, di mana pengunjung dapat merasakan suasana tempo dulu dengan dapur tradisional (hawu) dan pemandangan hamparan sawah.",
+        "lat": -6.88327551789001,
+        "lon": 107.80242406620836,
+        "address": "Jl. Karanganyar, Pasigaran, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Kampung kreatif bbc",
+        "description": "Sebuah desa wisata yang menawarkan kegiatan rekreasi unik seperti mini river tubing di saluran irigasi dan wisata edukasi di peternakan sapi perah.",
+        "lat": -6.79397050057235,
+        "lon": 107.90187872146446,
+        "address": "Babakan Caringin, Cipanas, Kec. Tanjungkerta, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "KAMPUNG USMAN",
+        "description": "Tempat ini menawarkan rekreasi keluarga seperti berenang dan bermain di kolam yang terletak di tengah hutan pinus yang asri.",
+        "lat": -6.889290907539178,
+        "lon": 107.92430728144863,
+        "address": "Cijambe, Cipameungpeuk, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Keluarga"
+    },
+    {
+        "name": "Kampung Wisata Pangjujugan",
+        "description": "Kampung Wisata Pangjugjugan di Sumedang menawarkan suasana menenangkan. Objek wisata ini berada di lingkungan pedesaan atau tepatnya di Dusun Babakan Anjun, Desa Cilembu, Kecamatan Pamulihan, Kabupaten Sumedang, Jawa Barat. Berada di bawah kaki gunung Kareumbi, Objek wisata ini menyuguhkan panorama alam pegunungan, hutan pinus dan perkebunan. Sejumlah fasilitas ada di objek wisata ini mulai dari kolam renang lengkap dengan waterboom, area permainan anak, taman hijau berumput, perkebunan, rest...",
+        "lat": -6.916198453299046,
+        "lon": 107.8471526598028,
+        "address": "Dusun Babakan Anjun No.RT. 3/10, Cilembu, Kec. Pamulihan, Kabupaten Sumedang, Jawa Barat 45365",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kancah Nangkub Bike Park",
+        "description": "Sebuah taman sepeda seluas 23 hektar yang dikelola oleh warga setempat, menyediakan berbagai lintasan menantang seperti downhill dan single track bagi para penggemar sepeda gunung.",
+        "lat": -6.85720630465841,
+        "lon": 107.94650129223596,
+        "address": "Cikondang, Kec. Ganeas, Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Kantin Jatinangor",
+        "description": "Dikenal dengan sebutan \"Kanjat\", ini adalah kantin legendaris yang populer di kalangan mahasiswa Unpad karena menyajikan puluhan jenis masakan Jawa-Sunda secara prasmanan dengan harga yang sangat terjangkau.",
+        "lat": -6.933029972791303,
+        "lon": 107.77555710860442,
+        "address": "Jl. Raya Jatinangor No.194, Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Kebun Durian Sangiang Bedil",
+        "description": "Kebun Durian Sangiang Bedil adalah sebuah destinasi wisata alam yang terletak di Sumedang, Jawa Barat. Daya tarik utama tempat ini tentu saja adalah buah durian. Selain bisa menikmati durian langsung di kebunnya, tempat ini juga dilengkapi dengan berbagai fasilitas lain seperti Kolam renang dan Jacuzzi, Glamping/Villa, Cafe dan Resto, Kids zone, Spot foto yang menarik. Untuk masuk ke Kebun Durian Sangiang Bedil, harga tiket masuknya cukup terjangkau, yaitu sekitar Rp10.000. Tempat ini cocok u...",
+        "lat": -6.925867572495058,
+        "lon": 108.04726960780404,
+        "address": "Cipeuteuy, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Kerajaan Sumedang Larang",
+        "description": "Istana dan museum bersejarah yang menjadi pusat pelestarian warisan dan pusaka Kerajaan Sumedang Larang, berfungsi sebagai pusat aktif kegiatan budaya Sunda.",
+        "lat": -6.847501388647045,
+        "lon": 107.91059726349252,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Keramat Embah Gabug",
+        "description": "Makam keramat Marongge paling terkenal dengan kekuatan asihan atau peletnya. Para pengunjung yang memiliki maksud tersebut biasanya menjalankan beberapa tahapan ritual, di antaranya mandi kembang, bertawasul, minum air doa, lalu mandi di aliran Sungai Cilutung Sumedang sambil melarungkan celana dalam yang dipakainya saat itu. Makam keramatnya sendiri terletak di dalam sebuah bangunan yang berada di tengah-tengah Tanah Pemakaman Umum (TPU) yang terbilang cukup tua di Marongge. Itu dapat terlih...",
+        "lat": -6.7941440809709785,
+        "lon": 108.1577081133199,
+        "address": "Marongge, Kec. Tomo, Kabupaten Sumedang, Jawa Barat 45382",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "khalana villa",
+        "description": "Sebuah destinasi penginapan dan restoran mewah yang menawarkan suasana \"rasa Ubud\" di Sumedang, terbuka untuk umum yang ingin bersantap atau berfoto dengan membayar tiket masuk.",
+        "lat": -6.911377527109129,
+        "lon": 107.9651178272609,
+        "address": "Belakang Kantor, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kiarapayung Camp",
+        "description": "Area perkemahan yang sangat luas di kaki Gunung Manglayang, terkenal sebagai lokasi penyelenggaraan acara besar seperti Jambore Pramuka tingkat nasional dan cocok untuk kegiatan outbound atau berkemah keluarga.",
+        "lat": -6.89688520375495,
+        "lon": 107.76494998934784,
+        "address": "Kiarapayung, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Kiarapayung Green Park",
+        "description": "Udara disekitar wisata Kiarapayung cukup sejuk karena daerah ini berada di kaki Gunung Manglayang (1.650 Mdpl) dan berhadapan langsung kerah timur dengan Gunung Geulis (1.281 Mdpl). Maka tempat ini memang sangat pas buat mereka yang sedang mencari pemandangan alam, olahraga sepeda gunung (mountain bike), piknik bersama keluarga, camping ground, trekking, photo hunting, atau bikin acara outing yang biasa digelar oleh perusahaan. Disana ada banyak lapangan besar yang bisa dipilih untuk melakuka...",
+        "lat": -6.896318521174102,
+        "lon": 107.76245746337788,
+        "address": "Sindangsari, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45366",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Kolam pemancingan PESONA GUNUNG MANIK",
+        "description": "Sebuah tempat pemancingan di kawasan Tanjungsari yang menawarkan ketenangan sambil menikmati pemandangan gunung yang indah sebagai daya tarik utamanya.",
+        "lat": -6.907991416997366,
+        "lon": 107.82186183682464,
+        "address": "Kolam pemancingan pesona gunung manik, Marga Jaya, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam renang bulakan highland park",
+        "description": "Fasilitas kolam renang yang berlokasi di dataran tinggi, menawarkan suasana rekreasi air dengan udara yang lebih sejuk dan segar.",
+        "lat": -6.943111625563289,
+        "lon": 107.83933328341016,
+        "address": "Sindanggalih, Kec. Cimanggung, Kabupaten Sumedang, Jawa Barat 45364",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam Renang Cigirang",
+        "description": "Wisata Mata Air Cigirang, terletak di bawah kaki Gunung Tampomas, tepatnya di Desa Cilangkap, Kecamatan Buahdua. Objek wisata ini bernuansa alam dan memiliki 2 kolam renang yang airnya bersumber dari mata air Gunung Tampomas. Sekeliling wilayah Kolam Renang menyajikan pemandangan yang menghijau dan rimbunnya pepohonan. Sehingga sangat cocok dijadikan tempat berwisata keluarga: berenang sambil menikmati sejuknya suasana alam. Kolam renang yang tersedia terbagi ke dalam tiga jenis kedalaman yai...",
+        "lat": -6.7263191787134735,
+        "lon": 107.97980779912017,
+        "address": "Cilangkap, Kec. Buahdua, Kabupaten Sumedang, Jawa Barat 45392",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam Renang Cipanteneun",
+        "description": "Dikenal juga sebagai Kolam Renang Wijaya Kusuma, ini adalah lokasi wisata air legendaris yang telah dikembangkan sejak tahun 2003 dan menjadi sarana hiburan populer bagi masyarakat Sumedang.",
+        "lat": -6.807604799639464,
+        "lon": 107.94484213505883,
+        "address": "Jl. Cipanteuneun, Licin, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam Renang Ranca Tirta",
+        "description": "Sebuah fasilitas rekreasi air yang berlokasi di seberang Wana Wisata Kampoeng Ciherang, menjadi pilihan untuk berenang dan bermain air bagi keluarga.",
+        "lat": -6.950816032134711,
+        "lon": 108.1188637350359,
+        "address": "Jl. Ciranca, Sawah Lamping - Jatinunggal, Tarikolot, Jatinunggal, Tarikolot, Kec. Jatinunggal, Kabupaten Sumedang, Jawa Barat 45376",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam Renang Wijaya Kusuma",
+        "description": "Wisata air atau kolam renang Wijaya Kusuma merupakan sebuah lokasi wisata yang berada di kawasan Cipanteneun. Wisata air ini berada di sebelah selatan wana wisata Cipanteneun yang dikelilingi oleh tiga aliran sungai kecil berbentuk segitiga. Wisata air ini mulai dikembangkan semenjak tahun 2003. Saat ini fasilitas yang ada di wisata air Wijaya Kusuma diantaranya adalah water boom, empat buah kolam renang yang diperuntukan untuk empat jenis pengunjung yaitu untuk anak TK, SD, SMP dan SMA. Satu...",
+        "lat": -6.80875606176529,
+        "lon": 107.94513417651844,
+        "address": "Galudra, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Kolam Renang Yadika Tanjungsari",
+        "description": "Fasilitas kolam renang yang menjadi bagian dari kompleks sekolah Yadika di Tanjungsari dan terbuka untuk umum sebagai sarana rekreasi dan olahraga.",
+        "lat": -6.883598139885113,
+        "lon": 107.90936746397384,
+        "address": "Jl. Raya Tanjungsari No.394, Jatisari, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Komplek Pemakaman Cut Nyak Dien (belum ada review)",
+        "description": "Walaupun bentuknya kecil dan tidak menyerupai gunung (bisa lebih cocok disebut bukit), namun sudah dikenal dengan nama gunung. Tepatnya dikenal dengan nama Gunung Puyuh. Gunung Puyuh merupakan suatu tempat yang digunakan sebagai kompleks pemakaman bagi para bupati keturunan Prabu Geusan Ulun beserta keluarganya. Jadi Gunung Puyuh merupakan kompleks pemakaman khusus bagi keturunan kerajaan Sumedang Larang. Yang kemudian dijadikan cagar budaya oleh Pemerintah Daerah Kabupaten Sumedang. Sehingga...",
+        "lat": -6.8629270704808345,
+        "lon": 107.91709319102092,
+        "address": "4Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Kuliner Si Mbah",
+        "description": "Merujuk pada konsep rumah makan yang menyajikan masakan rumahan otentik dengan resep tradisional warisan turun-temurun (\"resep si mbah\"), menawarkan cita rasa khas Sunda.",
+        "lat": -6.948338278855738,
+        "lon": 107.76242869017852,
+        "address": "Jl. Raya Bandung - Garut, Cipacing, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Lahuta Mulung Layung",
+        "description": "Sebuah destinasi wisata kreatif yang dikembangkan secara swadaya oleh masyarakat di lahan perkebunan bambu, dirancang khusus sebagai tempat untuk menikmati keindahan matahari terbenam (\"mulung layung\").",
+        "lat": -6.790982941057904,
+        "lon": 107.90087719550132,
+        "address": "JL Desa, Cipanas, Kec. Tanjungkerta, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "LANDING ZONE TOGA",
+        "description": "Merupakan area pendaratan utama untuk kegiatan olahraga dirgantara seperti paralayang dan gantole di kawasan wisata Toga Hill, yang dikenal sebagai salah satu spot paralayang terbaik di Jawa Barat.",
+        "lat": -6.871968994825773,
+        "lon": 107.91972750484642,
+        "address": "Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Lapak mancing Ade Gomar Cinawing",
+        "description": "Sebuah kolam pemancingan lokal yang populer di kalangan penghobi mancing di daerah Cinawing.",
+        "lat": -6.887647312036332,
+        "lon": 108.07535521331158,
+        "address": "Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Leuweung Tiis",
+        "description": "Jans Park Jatinangor atau Jatinangor National Flower Park merupakan salah satu destinasi wisata baru di Jatinangor Kabupaten Sumedang atau lebih tepatnya di Jatinangor Nasional Park, Desa Cileles, Kecamatan Jatinangor, Kabupaten Sumedang, Jawa Barat. Tempat wisata ini baru saja dibuka pada tanggal 18 November 2022. Memiliki luas 7.5 hektar Jatinangor National Park (Jans Park) juga menyuguhkan pemandangan menakjubkan pegunungan Manglayang sebagai kelebihannya. Jatinangor National Flower Park m...",
+        "lat": -6.805609223647935,
+        "lon": 107.90786713400536,
+        "address": "Trunamanggala, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "LIMASAN's FINEST - CAF├ë",
+        "description": "Kafe berkonsep modern dengan sentuhan arsitektur tradisional Jawa \"Limasan\", menyajikan berbagai hidangan seperti Nasi Goreng Cikur dan Nasi Liwet.",
+        "lat": -6.846762487101115,
+        "lon": 107.91696179844185,
+        "address": "Jl. Bojong Ragadiem No.1A, RT.03 / RW07, Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45312",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Lingga Sumedang",
+        "description": "Sebuah monumen tugu peringatan yang terletak di tengah Alun-alun Sumedang, dibangun untuk mengenang jasa Bupati Sumedang P.A. Suriatmaja yang wafat di Mekkah.",
+        "lat": -6.858588345892028,
+        "lon": 107.92062317984193,
+        "address": "Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Makam Keluarga Pangeran Sugih",
+        "description": "Makam ini terletak di sebelah barat alun-alun kota Sumedang. Di makam ini para leluhur Sumedang disemayamkan diantaranya Pangeran Rangga Gempol II, Pangeran Panembahan , termasuk Pangeran Soeria Koesoemah Adinata atau dikenal dengan Pangeran Sugih. Pangeran Sugih adalah bupati Sumedang yang berkuasa antara tahun 1836 sampai dengan 1882. Pangeran Sugih merupakan bupati terkaya di antara bupati lainnya, juga terkaya di Tatar Sunda. Beliau adalah penerus Kerajaan Sumedang Larang, putra dari Dale...",
+        "lat": -6.86342665472561,
+        "lon": 107.91775449871363,
+        "address": "Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Makam keramat gunung nangtung",
+        "description": "Situs ziarah yang berlokasi di puncak Gunung Nangtung, dipercaya oleh sebagian masyarakat sebagai tempat terkabulnya hajat untuk memperoleh kedudukan atau jabatan.",
+        "lat": -6.862023601859197,
+        "lon": 107.88839297209394,
+        "address": "Nangtung, Ciherang, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "MAKAM PANGERAN SANTRI, DAN MAKAM-MAKAM LELUHUR SUMEDANG LAIN NYA",
+        "description": "Merujuk pada kompleks pemakaman Pasarean Gede di pusat kota Sumedang, yang menjadi situs ziarah utama tempat disemayamkannya tokoh-tokoh penting seperti Pangeran Santri dan leluhur Kerajaan Sumedang Larang lainnya.",
+        "lat": -6.85355715608742,
+        "lon": 107.92223155672532,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Makam Pangeran Soeria Koesoemah Adinata",
+        "description": "Situs pemakaman Pangeran Sugih, seorang bupati berpengaruh dalam sejarah Sumedang, yang menjadi salah satu tujuan ziarah penting bagi masyarakat.",
+        "lat": -6.863219258230869,
+        "lon": 107.91794067225683,
+        "address": "Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Makam Prabu Geusan Ulun",
+        "description": "Kompleks pemakaman raja terakhir Kerajaan Sumedang Larang beserta keluarganya, menjadi situs ziarah sejarah utama yang dilengkapi dengan fasilitas seperti mushola dan area swafoto.",
+        "lat": -6.886807614143872,
+        "lon": 107.9726666721974,
+        "address": "Dayeuh Luhur, Kec. Ganeas, Kabupaten Sumedang, Jawa Barat 45356",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Marigold Villa Sumedang",
+        "description": "Sebuah vila pribadi yang menawarkan penginapan eksklusif dan juga dapat disewa sebagai lokasi untuk penyelenggaraan berbagai acara.",
+        "lat": -6.860411222104478,
+        "lon": 107.80138674140262,
+        "address": "Jl. Cijambu Cikawung, RT.02/RW.04, Kadakajaya, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Masjid Agung SUMEDANG",
+        "description": "Masjid utama dan cagar budaya di pusat kota Sumedang yang bangunannya masih terjaga keasliannya, terkenal dengan arsitekturnya yang dipengaruhi oleh seni dan filosofi dari Tiongkok.",
+        "lat": -6.859344013336472,
+        "lon": 107.91991651461552,
+        "address": "Jl. P. Sugih, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Mata Air Cikandung",
+        "description": "Objek wisata mata air Cikandung di Desa Nyalindung, Kecamatan Cimalaka bisa menjadi pilihan bagi yang suka berwisata air. Pengunjung bisa menikmati kesegaran mata air alami dari kaki Gunung Tampomas sekaligus keindahan alam disekitarnya. Di objek wisata ini, pengunjung bisa menikmati kejernihan dan kesegaran air dari kolam mata air Cikandung. Suasana yang asri serta rindangnya pepohonan yang melindungi mata air, menjadikan suhu udara di sekelilingnya menjadi sejuk.",
+        "lat": -6.790877061238136,
+        "lon": 107.9241202406454,
+        "address": "Nyalindung, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Mata Air Kabuyutan Sirah Cipelang",
+        "description": "Salah satu objek wisata yang berada di Desa Cipamekar Kecamatan Conggeang. Wisata ini memanfaatkan potensi mata air yang berada di kaki Gunung Tampomas bagian timur. Awalnya merupakan mata air yang menjadi sumber air bagi kawasan sekitar, namun saat ini mulai dikembangkan dengan dibangunnya kolam renang. Sumber mata airnya keluar dari bukit kecil yang berada di bawah rimbunnya pepohonan yang memenuhi kawasan ini. Karena langsung bersumber dari mata air, air Sirah Cipelang ini sangat jernih. A...",
+        "lat": -6.767977424666192,
+        "lon": 108.00467800522298,
+        "address": "Cipamekar, Kec. Conggeang, Kabupaten Sumedang, Jawa Barat 45391",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Mayasi Sumedang",
+        "description": "Sebuah restoran yang berdiri sejak tahun 2014, dikenal dengan produk andalannya yaitu ramen, dan menjadi salah satu pilihan kuliner Jepang di Sumedang.",
+        "lat": -6.851247233933371,
+        "lon": 107.923092257368,
+        "address": "Jl. Prabu Geusan Ulun No.154, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Menara LOJI",
+        "description": "Sebuah menara pantau peninggalan era perkebunan karet zaman Belanda yang telah direvitalisasi menjadi pusat dari Taman Loji, sebuah ruang terbuka publik di dalam kawasan Kampus ITB Jatinangor.",
+        "lat": -6.925329534396344,
+        "lon": 107.76945999942994,
+        "address": "Sayang, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Monumen Long March Siliwangi",
+        "description": "Tugu peringatan yang dibangun untuk menghormati perjuangan dan mengenang pertempuran heroik para tentara Divisi Siliwangi yang gugur saat melakukan perjalanan jauh pada tahun 1948.",
+        "lat": -6.6985817754678445,
+        "lon": 107.95221004168002,
+        "address": "Darongdong, Buahdua, Kec. Buahdua, Kabupaten Sumedang, Jawa Barat 45392",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "MOUNTAIN DEW",
+        "description": "",
+        "lat": -6.881243440677565,
+        "lon": 107.89360444433515,
+        "address": "Jl. Kareumbi, Margalaksana, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Museum Prabu Geusan Ulun",
+        "description": "Museum Prabu Geusan Ulun terletak di tengah kota Sumedang, 50 meter dari Alun-alun ke sebelah selatan, berdampingan dengan Gedung Bengkok atau Gedung Negara dan berhadapan dengan Gedung-gedung Pemerintah.",
+        "lat": -6.860964809678862,
+        "lon": 107.92086771450118,
+        "address": "Jl. Prabu Geusan Ulun No.408, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Nabawadatala",
+        "description": "Museum Prabu Geusan Ulun dikelilingi tembok/ dinding yang tingginya 2,5 meter, dibuat pada tanggal 16 Agustus 1797. Luas halaman Museum seluas 1,88 ha, dengan dihiasi taman-taman dan ditanami pohon-pohon langka. Di dalam kompleks terdapat bangunan-bangunan yang cukup tua , yaitu Gedung Srimangati yang dibangun pada tahun 1706, Gedung Bumi Kaler (1850), dan Gedung Gendeng (1850). Selain itu, terdapat tiga gedunglainnya yang relatif baru, yaitu Gedung Gamelan (1973), Gedung Pusaka (1990), dan G...",
+        "lat": -6.904479691531241,
+        "lon": 107.94160521974302,
+        "address": "Jl. Pager Betis No.Km. 10, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Nangorak Camp",
+        "description": "Di agrowisata Kampung Nangorak ini wisatawan bisa melihat dan ikut dalam aktivitas perkebunan, pertanian, serta budidaya tanaman dari 250 jenis tanaman dan pohon. Wisatawan yang datang juga bisa berjalan-jalan di kebun strawberry sambil memetik dan mencicipi buahnya yang terlihat merah ketuaan. Selain itu, bagi anda yang hobi memancing, juga terdapat tempat memancing disini. Di lahan tertinggi dari kawasan agroteknobisnis ini yang berbatasan dengan hutan asli / premier juga dapat digunakan un...",
+        "lat": -6.912300276937861,
+        "lon": 107.9155812303004,
+        "address": "Margamekar, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Objek Wisata Jembatan Gantung Baginda Gunasari",
+        "description": "Sebuah jembatan gantung fungsional yang menghubungkan dua desa, kini menjadi daya tarik wisata karena menawarkan panorama alam hamparan pesawahan dan aliran Sungai Cihonje yang indah untuk berswafoto.",
+        "lat": -6.878591153286743,
+        "lon": 107.93671227263762,
+        "address": "Jl. Baginda, Baginda, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Oleh Oleh Khas Sumedang",
+        "description": "Pusat penjualan cenderamata dan kuliner khas Sumedang, yang paling ikonik adalah Tahu Sumedang, namun juga mencakup produk unggulan lain seperti Ubi Cilembu dan Sawo Sukatali.",
+        "lat": -6.8400305763273765,
+        "lon": 107.9269357993824,
+        "address": "jl Mayor Abdurahman 31 Komplek Pujasera Sawopolo Sumedang Utara, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45322",
+        "category": "Wisata"
+    },
+    {
+        "name": "Panenjoan Jatigede",
+        "description": "Wisata Panenjoan merupakan sebuah lokasi wisata yang berada di pesisir timur laut bendungan Jatigede. Tepatnya berada di wilayah Kampung Burujul Desa Jemah Kecamatan Jatigede. Sebagaimana wisata lainnya yang berada di seputaran bendungan Jatigede, wisata Panenjoan oge mengandalkan indahnya pemandangan bendungan Jatigede.",
+        "lat": -6.8591425775267,
+        "lon": 108.0796038306535,
+        "address": "Pajagan, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Panenjoan Pasir Biru",
+        "description": "Sebuah lokasi wisata di pesisir timur laut Bendungan Jatigede yang berfungsi sebagai titik pandang (\"panenjoan\"), menawarkan pemandangan indah ke arah hamparan air bendungan.",
+        "lat": -6.8468529568095455,
+        "lon": 107.82075531818242,
+        "address": "Pasir Biru, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pangupukan nagara satangtung",
+        "description": "Sebuah area rekreasi yang namanya sarat akan filosofi Sunda, dikembangkan dengan mengangkat tema budaya dan kearifan lokal.",
+        "lat": -6.873500037943543,
+        "lon": 108.05936092857726,
+        "address": "Gorowong, Pakualam, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Paniisan Sahabat Alam",
+        "description": "Destinasi wisata alam yang menekankan pada konsep kebersamaan dengan alam, cocok untuk kegiatan edukasi lingkungan dan relaksasi.",
+        "lat": -6.896791535093225,
+        "lon": 107.77851224173968,
+        "address": "Cilayung, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pantai Bagelen",
+        "description": "Sebuah area rekreasi di tepi Waduk Jatigede yang dikembangkan dengan konsep \"pantai\" buatan, menawarkan suasana santai untuk keluarga layaknya di pesisir.",
+        "lat": -6.9199975327017125,
+        "lon": 108.08253287040996,
+        "address": "bagelen, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pantai Cihonje Sembir",
+        "description": "Sebuah spot di tepi aliran Sungai Cihonje yang menjadi viral dan berubah menjadi tempat wisata air dadakan, populer untuk bersantai dan bermain air di tepi sungai.",
+        "lat": -6.869690637975575,
+        "lon": 107.9399997574793,
+        "address": "Gunasari, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Paralayang Batu Dua",
+        "description": "Lokasi lepas landas (Take Off) olah raga paralayang di Batu Dua sangat layak dan ideal dipakai event dunia paralayang. Bagi yang memiliki hobi olahraga dirgantara, arena Batu Dua harus masuk dalam daftar tempat wisata di Sumedang yang akan dikunjungi.",
+        "lat": -6.9010125218156775,
+        "lon": 108.01966415435471,
+        "address": "Cimarga, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Pasir Bentang Dayeuh Luhur",
+        "description": "",
+        "lat": -6.873601116996425,
+        "lon": 107.96398902789096,
+        "address": "Ganeas Dayeuh Luhur, Tanjunghurip, Kec. Ganeas, Kabupaten Sumedang, Jawa Barat 45356",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pasir Cinta",
+        "description": "Di Sumedang sudah banyak dibuka objek wisata dengan spot camp atau view pemandangan yang indah. Salah satunya adalah yang sedang ramai dikunjungi yaitu Pasir Cinta, sebuah bukit yang berada di dekat bendungan Jatigede. Pasir Cinta biasa digunakan sebagai tempat camping, spot foto bahkan bukit ini pernah dijadikan sebagai tempat Paralayang. Tempat ini memiliki pemandangan yang Indah dengan latar pemandangan langsung Bendungan Jatigede yang dihiasi daratan membentuk pulau, bahkan tanjung sepert...",
+        "lat": -6.8738046206406205,
+        "lon": 108.05926037018703,
+        "address": "Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pasir Tugaran",
+        "description": "Kawasan wisata di perbukitan pesisir barat Bendungan Jatigede yang mengandalkan pemandangan alam sekitarnya, dilengkapi fasilitas seperti menara pantau dan area memancing.",
+        "lat": -6.887110782985028,
+        "lon": 108.06772367294737,
+        "address": "Karangpakuan, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pemandian Cipanas Cileungsing",
+        "description": "Tempat wisata di Sumedang berikutnya adalah pemandian air panas Cileungsing yang ada di Desa Cilangkap. Pemandian air panas ini sangat populer bagi masyarakat sekitar, tidak heran kalau pemandian ini selalu ramai oleh wisatawan, terutama saat liburan atau akhir pekan.",
+        "lat": -6.72482289560987,
+        "lon": 107.9763447433316,
+        "address": "Cilangkap, Kec. Buahdua, Kabupaten Sumedang, Jawa Barat 45392",
+        "category": "Wisata Kesehatan & Wellness"
+    },
+    {
+        "name": "Pesona JG Jatigede Sumedang",
+        "description": "Sebuah titik wisata yang dikembangkan secara khusus untuk menikmati pesona keindahan (\"pesona\") panorama Waduk Jatigede (JG), menjadi salah satu spot favorit di tepi bendungan",
+        "lat": -6.895168305549703,
+        "lon": 108.0723700627356,
+        "address": "Jemah, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pesona Taman puspa",
+        "description": "Tanjungsari Kabupaten Sumedang kini memiliki tempat wisata baru yang dinamai Pesona Taman Puspa di Dusun Sukaratu Desa Cijambu, Kecamatan Tanjungsari Kabupaten Sumedang. Pesona Taman Puspa sendiri memiliki luas 6 Ha milik Perhutani Jawa Barat yang akan dijadikan tempat wisata alam yang bisa menambah pendapatan Kabupaten Sumedang dari sektor Pariwisata. Selain ada aliran air bening, di Pesona Taman Puspa juga terdapat pohon-pohon pinus dengan kondisi udara yang kaya akan oksigen. Salah satu ke...",
+        "lat": -6.831088990486754,
+        "lon": 107.79765942756492,
+        "address": "Cijambu, Tanjungsari,Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Pojok Sawangan Mia",
+        "description": "Sebuah sudut atau tempat (\"pojok\") yang dirancang khusus sebagai spot foto dengan pemandangan (\"sawangan\") alam yang indah.",
+        "lat": -6.777854932444019,
+        "lon": 107.9121793573659,
+        "address": "Jl. Raya Cimalaka Cipadung blok sawah pojok, dusun 2, Naluk, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Ponyo┬« Resto & Wedding - Ciherang Sumedang",
+        "description": "Cabang dari restoran Sunda ternama \"Ponyo\" yang tidak hanya menyajikan kuliner khas, tetapi juga menyediakan fasilitas lengkap sebagai lokasi penyelenggaraan acara pernikahan.",
+        "lat": -6.86987803442581,
+        "lon": 107.8738363995498,
+        "address": "Raya Bandung Sumedang Ciherang No.Km 38, Ciherang, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Puncak Cisoka Perkebunan Teh",
+        "description": "Sebuah puncak bukit yang menyajikan pemandangan hamparan perkebunan teh yang hijau dan menyegarkan, menjadi bagian dari kawasan wisata Saung Jalitri Cisoka.",
+        "lat": -6.933422881710168,
+        "lon": 107.97365762550533,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "PUNCAK GUNUNG GOLEMPANG",
+        "description": "Sebuah gunung di kawasan Darmaraja yang memiliki pesona alam dan sedang dikembangkan oleh pemerintah desa setempat untuk menjadi destinasi wisata alam.",
+        "lat": -6.92860058867011,
+        "lon": 108.05554924074904,
+        "address": "Darmaraja, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Puncak Permata",
+        "description": "Puncak Permata berada ditepian Waduk Jatigede atau berada di Jalan Lingkar Timur Waduk Jatigede yang menghubungkan wilayah Tomo dan Wado di Kabupaten Sumedang. Selain itu, ruas Jalan Lingkar Timur Waduk Jatigede juga menghubungkan wilayah Kabupaten Garut dan Tasikmalaya dengan Kabupaten Majalengka. Dikawasan wisata ini, Anda juga dapat menyaksikan pemandangan matahari terbenam atau sunset. Tempat wisata ini menyuguhkan panorama alam berupa bukit -bukit kecil diantara hamparan air waduk Jatige...",
+        "lat": -6.868733904582681,
+        "lon": 108.12240218536805,
+        "address": "Jemah, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Puncak Sokawana",
+        "description": "Salah satu puncak di Sumedang yang menjadi tujuan pendakian lokal, menawarkan pemandangan alam yang masih asri dan menantang.",
+        "lat": -6.929589207083468,
+        "lon": 107.97664649152118,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Puteri River Inn",
+        "description": "Puteri River inn adalah sebuah kawasan yang didalamnya terdapat villa yang menyajikan pemandangan sawah yang masih asri dan sungai yang masih jernih. Pohon-pohon hijau didepan mata, petani yang berangkat ke sawah, sungai yang masih jernih, suasana khas pedesaan sekali. Terletak tepat di belakang kantor Desa Citengah, Kabupaten Sumedang. Dari alun-alun sumedang harus menempuh jarak sekitar 3 km. Akes jalannya bagus, tempat parkir di sediakan walau tidak didekat Villa.",
+        "lat": -6.916283321346522,
+        "lon": 107.94624982903574,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Putra Aceh",
+        "description": "Restoran yang menyajikan masakan khas Aceh, menambah keragaman kuliner Nusantara di Sumedang dan menjadi pilihan bagi para perantau atau pecinta masakan Aceh",
+        "lat": -6.934242936934427,
+        "lon": 107.77016537324842,
+        "address": "Jl. Raya Cirebon - Bandung, Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "R.M Joglo Sumedang",
+        "description": "Rumah makan yang unik karena menggunakan bangunan berarsitektur tradisional Jawa \"Joglo\", menawarkan suasana bersantap yang khas dengan beragam menu masakan",
+        "lat": -6.817925003612454,
+        "lon": 107.94624244117855,
+        "address": "Jl. Raya Serang No.333, Serang, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rancagoyang Water Boom",
+        "description": "Taman rekreasi air modern yang menawarkan berbagai wahana seperti seluncuran dan kolam ombak, menjadi destinasi hiburan utama bagi keluarga dan anak-anak",
+        "lat": -6.842055805949719,
+        "lon": 107.93956410007536,
+        "address": "Rancamulya, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Rm Kartika",
+        "description": "Sebuah rumah makan lokal yang populer dan sudah cukup dikenal oleh masyarakat Sumedang dengan berbagai pilihan menu masakan Indonesia",
+        "lat": -6.819930797826228,
+        "lon": 107.94429317335938,
+        "address": "Jl. Raya Serang No.95, Serang, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "RM Sederhana Hj Erat",
+        "description": "Rumah makan yang menyajikan masakan rumahan khas Sunda, menjadi pilihan populer bagi warga lokal dan pelancong yang mencari cita rasa otentik",
+        "lat": -6.851200539187725,
+        "lon": 107.92426233813524,
+        "address": "Panday No.31, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 43532",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "RM. Cahaya Sari",
+        "description": "Sebuah rumah makan yang sudah cukup dikenal di Sumedang, menyajikan beragam menu dan menjadi salah satu pilihan kuliner bagi warga maupun wisatawan",
+        "lat": -6.832382446093107,
+        "lon": 107.934776770785,
+        "address": "Jl. Raya Cirebon - Bandung No.231, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Alam Sari",
+        "description": "Restoran yang menawarkan pengalaman bersantap dengan suasana alam yang asri, menyajikan berbagai hidangan khas Sunda yang cocok dinikmati bersama keluarga",
+        "lat": -6.830519853885515,
+        "lon": 107.93724357037516,
+        "address": "Jl. Mayor Abdurahman No.194, Cimuja, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Elok",
+        "description": "Tempat makan populer di Jatinangor yang menyajikan aneka masakan khas Minangkabau dengan harga terjangkau, menjadi favorit di kalangan mahasiswa.",
+        "lat": -6.935060584792551,
+        "lon": 107.7768000415628,
+        "address": "Jl. Ciseke No.231, Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Fish 88",
+        "description": "Restoran di Cimalaka yang berspesialisasi dalam aneka hidangan ikan air tawar segar dari kolam deras, dengan menu andalan seperti Sup Gurame dan Cobek Nila.",
+        "lat": -6.811261920393986,
+        "lon": 107.96876954386092,
+        "address": "Jl. Raya Cibeureum No.337, Cibeureum Kulon, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Khas Sunda Cibiuk",
+        "description": "Restoran Sunda ternama yang memiliki cabang di Jatinangor, terkenal dengan menu legendarisnya seperti Nasi Tutug Oncom dan aneka sambal khas Cibiuk yang pedas",
+        "lat": -6.9347197083986005,
+        "lon": 107.77001312923288,
+        "address": "Jl. Raya Jatinangor No.136, Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Organik Saung Nini",
+        "description": "Restoran berkonsep saung yang unik karena menonjolkan penggunaan bahan-bahan organik dalam setiap masakannya, menyasar para pencinta kuliner sehat",
+        "lat": -6.9214952285699285,
+        "lon": 107.78938011460738,
+        "address": "Jl. Raya Jatinangor No.KM, 23.5, Kutamandiri, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45352",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Saung Bamboe",
+        "description": "Merujuk pada Saung Bambu Parahyangan, sebuah rumah makan berkonsep saung bambu yang menyajikan masakan Sunda otentik dengan suasana pedesaan yang nyaman dan sejuk.",
+        "lat": -6.927405134359221,
+        "lon": 107.77991038616024,
+        "address": "Cisaladah No.84, rt.04 rw.07, Hegarmanah, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Saung Cibingbin 2",
+        "description": "Restoran khas Sunda yang berlokasi di pusat kota Sumedang, menyajikan menu favorit seperti cobek ikan pedas dalam suasana saung yang nyaman",
+        "lat": -6.849905329348843,
+        "lon": 107.91604035725042,
+        "address": "Jl. Kutamaya No.27, Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Saung Teko",
+        "description": "Rumah makan khas Sunda yang memiliki teko sebagai ikonnya, menyajikan hidangan tradisional dalam suasana pedesaan yang nyaman",
+        "lat": -6.828758322598649,
+        "lon": 107.93958319932496,
+        "address": "Jl. Raya Cimuja, Cimuja, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Sawargi",
+        "description": "Rumah makan khas Sunda terkenal yang berlokasi strategis dekat gerbang Tol Sumedang, populer untuk acara makan bersama keluarga dengan menu andalan presto ayam kampung",
+        "lat": -6.832120602269992,
+        "lon": 107.91780100409048,
+        "address": "Jl. Prabu Gajah Agung No.48, Situ, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Sederhana Hj Erat",
+        "description": "Warung makan sederhana yang telah lama berdiri dan dikenal oleh masyarakat lokal, menyajikan masakan rumahan khas Sunda yang lezat dan otentik.",
+        "lat": -6.8423433821096165,
+        "lon": 107.92603498195204,
+        "address": "Jl. Tampomas No.30, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Sunda SUKAHATI Cipacing",
+        "description": "Restoran spesialis masakan Sunda yang berlokasi strategis di area Cipacing, sering menjadi tempat persinggahan bagi para pelancong yang melintasi Sumedang",
+        "lat": -6.947288534949672,
+        "lon": 107.75968572776864,
+        "address": "Jl. Raya Cipacing No.19.6, Cipacing, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Rumah Makan Tahu Bungkeng",
+        "description": "Restoran yang berafiliasi langsung dengan produsen tahu legendaris Tahu Bungkeng, menyajikan tahu sebagai menu utama beserta hidangan pendamping khas Sunda lainnya",
+        "lat": -6.8365648478445324,
+        "lon": 107.9170621906349,
+        "address": "Jl. Prabu Gajah Agung No.78, Situ, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Samalengoh Camp",
+        "description": "Di Sumedang terdapat tempat camping yang menarik untuk disinggahi. lokasinya berada di Bumi Perkemahan Blok Gunung Gajah atau biasa disebut Samalengoh Camp. Selain menawarkan panorama alam memikat, udara di kawasan perbukitan ini juga sejuk. Pada malam hari, wisatawan juga akan disuguhkan dengan hamparan pemandangan cahaya lampu yang berasal dari kawasan perkotaan Sumedang. Ribuan lampu yang menyinari ΓÇ£CitylightΓÇ¥ dengan latar belakang Gunung Tampomas. Samalengoh Camp berada diantara 4 Desa. D...",
+        "lat": -6.81068678323065,
+        "lon": 107.8856707252462,
+        "address": "Gunturmekar, Kec. Tanjungkerta, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Sangiang Camp",
+        "description": "Sangiang Camp adalah destinasi wisata alam yang menawarkan pengalaman berkemah di tengah hutan pinus dengan suasana yang sejuk dan asri. Lokasinya yang berada di ketinggian memberikan pemandangan alam yang memukau, cocok bagi pecinta alam dan petualangan. Tempat ini menyediakan berbagai fasilitas untuk memanjakan pengunjung, mulai dari area perkemahan yang luas dengan pemandangan hutan pinus yang hijau, toilet dan kamar mandi yang bersih, saung untuk bersantai sambil menikmati udara segar, hi...",
+        "lat": -6.918259773117175,
+        "lon": 108.054988542578,
+        "address": "Cieunteung, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "SAPATAPAAN",
+        "description": "Sapatapaan, akronim dari Saung Paragi Tafakur Kabudayaan (Saung tempat menafakuri kebudayaan). Sapatapaan merupakan tempat berinteraksinya seniman dan budayawan yang peduli terhadap Sumedang melalui pengembangan seni, budaya, tradisi dan lingkungan serta juga membangun simpul-simpul pemberdayaan melalui pngembangan seni budaya tradisi dan lingkungan. Sapatapaan mengusung konsep gabung tiga elemen, yaitu arsitektur Sunda alam Sumedang, dan perilaku masyarakat Sunda. Ini disebutnya Nyaba Ka Sum...",
+        "lat": -6.913436570596172,
+        "lon": 107.95120009503432,
+        "address": "Citengah Cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Sapphire City Park Sumedang",
+        "description": "",
+        "lat": -6.844253766797236,
+        "lon": 107.93967514369514,
+        "address": "Sapphire City Park Sumedang, Jl. Prabu Taji Malela, Rancamulya, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45321",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Sari Kedele Farm (SKF)",
+        "description": "Sebuah agrowisata yang berfokus pada pertanian kedelai, bahan baku utama tahu, yang membuka pintunya untuk kunjungan edukatif mengenai proses dari hulu ke hilir pembuatan tahu",
+        "lat": -6.888303572066145,
+        "lon": 107.76628189904014,
+        "address": "Sindangsari, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Sari Kedele Rumah Makan Tahu Sumedang",
+        "description": "Rumah makan yang menekankan hubungannya dengan kedelai sebagai bahan baku utama, menyajikan berbagai hidangan yang berpusat pada Tahu Sumedang",
+        "lat": -6.928630781132445,
+        "lon": 107.78217037012897,
+        "address": "Jl. Raya Cirebon - Bandung No.21, Hegarmanah, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Sate Iting Sumedang",
+        "description": "Penjual sate yang telah menjadi legenda dan ikon kuliner di Sumedang, terkenal dengan cita rasa bumbu satenya yang khas dan telah digemari selama bertahun-tahun.",
+        "lat": -6.833984923341851,
+        "lon": 107.93236261260684,
+        "address": "Jalan Mayor Abdurahman Kubang Jaya Andir, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Aki Unen",
+        "description": "Rumah makan berkonsep saung (gubuk bambu) yang menawarkan cita rasa masakan Sunda otentik warisan dari \"Aki Unen\", memberikan pengalaman bersantap tradisiona",
+        "lat": -6.84131728143212,
+        "lon": 107.91196267059026,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Alam Flora",
+        "description": "Tempat makan berkonsep saung yang dikelilingi oleh taman bunga atau tanaman hias (flora), memadukan pengalaman kuliner dengan keindahan dan kesejukan alam.",
+        "lat": -6.862715334164638,
+        "lon": 107.92251525737196,
+        "address": "Jl. Cut Nyak Dien No.93, RT.2/RW.7, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Bambu Parahyangan (Nolana)",
+        "description": "Restoran yang dibangun dominan menggunakan material bambu, menyajikan masakan khas dari tatar Parahyangan dalam suasana pedesaan yang kental.",
+        "lat": -6.884116331579498,
+        "lon": 107.80232045724686,
+        "address": "Jln.Cijambu RT.002/002 Dsn.Talun, Pasigaran, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung bapak undang (belum ada review)",
+        "description": "Rumah makan saung tradisional yang dikelola secara personal, menawarkan hidangan Sunda rumahan yang otentik",
+        "lat": -6.866680838164399,
+        "lon": 107.92058639966707,
+        "address": "Cipameungpeuk, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung barak",
+        "description": "Tempat makan sederhana berkonsep saung, cocok untuk makan bersama rombongan dengan suasana yang santai dan informal",
+        "lat": -6.842079828898217,
+        "lon": 107.91674402834605,
+        "address": "Jl. Prabu Gajah Agung No.11, Situ, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Cibingbin Sumedang",
+        "description": "Saung Cibingbin adalah sebuah rumah makan yang terletak di desa Citengah, kabupaten Sumedang Jawa Barat. Lokasi saung cibingbin berada di dataran tinggi dengan nuansa alam yang hijau dan berada di pinggiran sungai. Disini wisatawan bisa menikmati aneka sajian kuliner dan menyaksikan keindahan hutan dan kejernihan sungai. Berbagai fasilitas untuk liburan keluarga tersedia disini, mulai dari wisata alam, wisata air seperti kolam renang, kolam ikan, villa, caffe, rumah makan yang membuat menarik...",
+        "lat": -691104141154001.0,
+        "lon": 107.94906067346562,
+        "address": "Citengah Cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "SAUNG JALITRI CISOKA",
+        "description": "Restoran saung yang terletak di kawasan agrowisata Cisoka, menawarkan hidangan khas Sunda seperti nasi liwet sambil menikmati pemandangan hamparan perkebunan teh",
+        "lat": -6.928841885016762,
+        "lon": 107.97498395730828,
+        "address": "Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Nyingkur",
+        "description": "Rumah makan saung yang lokasinya agak terpencil atau \"nyingkur\", menawarkan suasana bersantap yang lebih privat, tenang, dan jauh dari keramaian",
+        "lat": -6.872744738017793,
+        "lon": 107.79884729966768,
+        "address": "Jl. Cijambu No.11, Pasigaran, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Situraja Sumedang",
+        "description": "Restoran saung yang menjadi andalan kuliner di wilayah Kecamatan Situraja, menyajikan masakan khas dari daerah tersebut",
+        "lat": -6.845243333981588,
+        "lon": 108.02054927064552,
+        "address": "RT.01/RW.01, Situraja, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Saung Sungai Cihonje",
+        "description": "Tempat makan yang menawarkan pengalaman unik bersantap di saung yang terletak persis di tepi Sungai Cihonje, diiringi suara gemericik air alami",
+        "lat": -6.913000338816388,
+        "lon": 107.9491626708737,
+        "address": "Citengah Cisoka, Citengah, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Site Museum Lembah Cisaar",
+        "description": "Museum Lembah Cisaar adalah museum situs purbakala yang terletak di Desa Jembarwangi, Kecamatan Tomo, Kabupaten Sumedang. Museum ini menyimpan fosil binatang purba berusia jutaan tahun yang ditemukan di wilayah Lembah Cisaar, seperti gading gajah stegodon, tempurung kura-kura, gigi buaya, gigi kuda nil, dan lainnya. Museum ini diharapkan menjadi tujuan wisata baru dan sarana edukasi mengenai sejarah purbakala di Sumedang. Saat ini, untuk masuk ke Museum Lembah Cisaar masih tidak dikenakan biaya.",
+        "lat": -6.827359097384772,
+        "lon": 108.1380430713136,
+        "address": "Dusun Cirendang, Jembarwangi, Kec. Tomo, Kabupaten Sumedang, Jawa Barat 45382",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Situ Burahol",
+        "description": "Sebuah danau (\"situ\") alami yang menawarkan suasana tenang dan pemandangan air yang indah, menjadi lokasi favorit untuk kegiatan memancing atau sekadar bersantai",
+        "lat": -6.803416186160251,
+        "lon": 107.92906661524628,
+        "address": "Trunamanggala, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Soto Edo Dan Gule",
+        "description": "Warung makan yang berspesialisasi pada hidangan soto dan gule, menjadi salah satu destinasi kuliner favorit warga lokal untuk sarapan atau makan siang",
+        "lat": -6.835939070680424,
+        "lon": 107.92954345707898,
+        "address": "Jl. Mayor Abdurahman No.278, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "SUMEDANG ADVENTURE",
+        "description": "Sebuah operator atau penyedia jasa yang menawarkan berbagai paket kegiatan petualangan di alam terbuka Sumedang, seperti off-road, arung jeram, atau outbound",
+        "lat": -6.815326415039365,
+        "lon": 107.920387299214,
+        "address": "Situwangi No.1, Jatihurip, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Tahu Bungkeng 1917 (Pusat)",
+        "description": "Gerai pusat dari produsen Tahu Sumedang paling legendaris, yang telah beroperasi sejak tahun 1917 dan menjadi cikal bakal kuliner khas Sumedang yang populer",
+        "lat": -6.847973724818665,
+        "lon": 107.92567914151094,
+        "address": "Jl. Sebelas April No.53, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45322",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Tahu Citarasa",
+        "description": "Salah satu produsen dan penjual Tahu Sumedang yang populer, menjadi alternatif bagi wisatawan untuk mencicipi dan membeli oleh-oleh tahu",
+        "lat": -6.840320423063248,
+        "lon": 107.92619090221902,
+        "address": "Jl. Mayor Abdurahman No.140, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45322",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Tahu JEMBAR MANAH Samoja dan Kopi Batok",
+        "description": "Gerai tahu inovatif yang menggabungkan penjualan tahu tradisional dengan kedai kopi unik yang menyajikan kopi dalam batok kelapa, menarik bagi generasi muda",
+        "lat": -6.861815230124608,
+        "lon": 107.89735655725502,
+        "address": "Jl. Samoja, Pasanggrahan Baru, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Tahu Palasari Sumedang",
+        "description": "Salah satu produsen tahu Sumedang legendaris yang telah berdiri sejak lama, terkenal dengan tahu berkualitas yang renyah di luar dan lembut di dalam, serta menjadi destinasi kuliner wajib di Sumedang.",
+        "lat": -6.840562386485667,
+        "lon": 107.92572921289,
+        "address": "Jl. Mayor Abdurahman No.153, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Tahura Gunung Kunci",
+        "description": "Gunung Kunci sendiri menyimpan nilai historis yang panjang. Disini didirikan benteng pertahanan Belanda. Sebenarnya Gunung kunci merupakan bukit kecil yang terletak sekitar 250 m di sebelah barat alun-alun Kota Sumedang. Kita bisa menuju Gunung Kunci dengan kendaraan umum maupun pribadi. Secara administratif, situs ini masuk dalam wilayah Gunung Panjunan, Kelurahan Kota Kulon, Kecamatan Sumedang Selatan. Hampir sama seperti lobang Jepang di Bukit Tinggi Sumatera Barat, Gunung Kunci juga memil...",
+        "lat": -6.8560291956539,
+        "lon": 107.91752802090517,
+        "address": "Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Tahura Palasari",
+        "description": "Situs wisata sejarah tak melulu identik dengan sepi, berdebu, dan angker. Itulah yang dirasakan saat memasuki objek wisata Taman Hutan Raya (Tahura) Gunung Palasari Sumedang. Pengunjung yang datang pun disuguhi tak hanya objek bersejarah, tetapi juga wisata alam dan berbagai atraksi. Para pengunjung dapat dengan bebas masuk dan melihat-lihat di gua dan benteng bersejarah dari zaman penjajahan Belanda. Dengan luas 31,22 hektar ini, kawasan Gunung Palasari memiliki 205 spesies flora. Di antaran...",
+        "lat": -6.855449059886054,
+        "lon": 107.91216138195348,
+        "address": "Gunung Palasari, Kotakulon, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Taman Batu Ciagung",
+        "description": "Menyusuri kawasan Batu Agung sangat mengesankan berada dihamparan lahan yang ditumbuhi ratusan pohon mangga, aneka tanaman keras serta gemercik aliran sungai Cisaar. Suasana sepi yang sesekali diselingi jeritan puluhan lutung sejenis kera yang dilindungi. Selain memiliki potensi wisata alam Batu Agung menanti kehadiran penggemar olah raga rock climbing dengan kondisi ketinggian dan kecuramannya yang cukup menantang guna uji nyali. Obyek Wisata Batu Agung di Sumedang Jawa Barat ini sangat coco...",
+        "lat": -6.916111880722066,
+        "lon": 108.18192833158524,
+        "address": "Ciboboko Jl. Lkr. Timur, Mekarasih, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Taman Bukit Ebony",
+        "description": "",
+        "lat": -6.85,
+        "lon": 107.92,
+        "address": "",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Taman Cecenet",
+        "description": "Taman Cecenet berada di kawasan lahan pertanian di tenggara wilayah Desa Kadakajaya, berupa lahan pesawahan dan lahan ladang yang berbentuk terasering. Tidak mengherankan jika sekeliling Taman Cecenet menyajikan pemandangan alam yang menakjubkan, apalagi memandang ke sebelah timur yang menyajikan pemandangan lahan pertanian di perbukitan yang berwarna-warni. Lelah berkeliling kawasan Taman Cecenet, jangan sungkan untuk berkunjung ke cafe atau resto di Taman Cecenet. Di cafe Taman Cecenet ters...",
+        "lat": -6.862020698409583,
+        "lon": 107.8013890118437,
+        "address": "Jl. Cijambu, Kadakajaya, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Taman Endog",
+        "description": "Taman kota yang menjadi ikon lokal karena memiliki monumen berbentuk telur (\"endog\"), berfungsi sebagai ruang terbuka hijau untuk rekreasi keluarga di pusat kota",
+        "lat": -6.847370629414866,
+        "lon": 107.92404274162428,
+        "address": "Jalan Mayor Abdurahman, Talun, Sumedang Utara, Regol Wetan, Sumedang Selatan, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Taman Pinus Pangjugjugan",
+        "description": "Kawasan wisata hutan pinus di Pamulihan yang dikelola dengan baik, menawarkan udara sejuk, jalur setapak, dan berbagai spot foto menarik untuk rekreasi keluarga.",
+        "lat": -6.917641084531017,
+        "lon": 107.84927285730996,
+        "address": "Cilembu, Kec. Pamulihan, Kabupaten Sumedang, Jawa Barat 45365",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Taman Seribu Cahaya",
+        "description": "Taman Seribu Cahaya, yang terletak di pinggir Waduk Jatigede, Sumedang, Jawa Barat, adalah destinasi wisata alam yang menawarkan pemandangan memukau. Dengan hamparan air waduk yang tenang dikelilingi pegunungan dan pulau-pulau hijau, tempat ini menjadi lokasi ideal untuk menikmati keindahan alam. Pengunjung dapat menyaksikan matahari terbit dan terbenam yang spektakuler, serta menikmati berbagai wahana permainan yang seru seperti ATV, Sky Plane, dan Gantole. Selain pemandangan alam yang indah...",
+        "lat": -6.873713137963386,
+        "lon": 108.05900060018398,
+        "address": "Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "TAPAK RAJA SITURAJA",
+        "description": "Sebuah inisiatif wisata di wilayah Situraja yang kemungkinan besar terkait dengan situs alam atau peninggalan sejarah yang memiliki legenda tentang jejak (\"tapak\") seorang raja",
+        "lat": -6.844523138819207,
+        "lon": 108.01980664185096,
+        "address": "Situraja, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "TERAS GUNUNG GEULIS",
+        "description": "Area wisata di lereng Gunung Geulis yang ditata seperti terasering, menyediakan tempat bersantai atau kafe untuk menikmati pemandangan dari ketinggian",
+        "lat": -6.923829681322933,
+        "lon": 107.8113125581052,
+        "address": "Jatiroke, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Teras Kiara",
+        "description": "Tempat rekreasi yang dibangun di bawah atau di sekitar pohon Kiara besar, menawarkan tempat berteduh alami dengan pemandangan alam yang indah",
+        "lat": -6.899141430217584,
+        "lon": 107.7635957571357,
+        "address": "Sindangsari, Sukasari, Sindangsari, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45366",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "TOGA HILL",
+        "description": "Toga Hills adalah objek wisata yang terletak di Desa Sukajaya, Kecamatan Sumedang Selatan, Kabupaten Sumedang, Jawa Barat. Objek wisata ini merupakan sebuah resort perbukitan yang menawarkan berbagai macam atraksi, antara lain: Paralayang: Toga Hills merupakan tempat yang populer untuk paralayang, karena anginnya yang kencang dan pemandangannya yang menakjubkan dari pegunungan dan lembah di sekitarnya. Jalur alam: Toga Hills memiliki sejumlah jalur alam yang melintasi hutan-hutan di sekitarny...",
+        "lat": -6.876733902238776,
+        "lon": 107.90953948163242,
+        "address": "Sukajaya, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Tugu Binokasih",
+        "description": "Monumen yang melambangkan peristiwa bersejarah penyerahan Mahkota Binokasih dari Kerajaan Pajajaran, yang mengukuhkan Kerajaan Sumedang Larang sebagai penerus takhta Sunda",
+        "lat": -6.860370930089275,
+        "lon": 107.91634212834208,
+        "address": "Jl. P. Sugih No.16, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Tugu Buah Mangga",
+        "description": "Sebuah tugu atau monumen yang didirikan untuk merepresentasikan salah satu produk pertanian unggulan daerah, yaitu mangga gedong gincu yang khas dari Sumedang",
+        "lat": -6.766061761636986,
+        "lon": 108.16006569927224,
+        "address": "Jl. Fatmawati No.1, Tolengas, Kec. Tomo, Kabupaten Sumedang, Jawa Barat 45382",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Tugu Kuda",
+        "description": "Monumen berbentuk kuda yang menjadi salah satu landmark atau penanda kota Sumedang, kemungkinan terkait dengan cerita rakyat atau sejarah lokal.",
+        "lat": -6.863265551541804,
+        "lon": 107.89726680685928,
+        "address": "Pasanggrahan No.25, Pasanggrahan Baru, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Tutug Oncom KAJOJO",
+        "description": "Tempat makan yang berspesialisasi dalam menyajikan Nasi Tutug Oncom, sebuah hidangan khas Sunda yang terbuat dari nasi yang diaduk dengan oncom bakar",
+        "lat": -6.838427913176323,
+        "lon": 107.92657377254248,
+        "address": "Jl. Angkrek No.18a, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Villa SCBD Sumedang",
+        "description": "Nama unik untuk sebuah vila yang menawarkan fasilitas modern dan mewah untuk liburan keluarga atau rombongan yang mencari penginapan privat",
+        "lat": -6.820191180702444,
+        "lon": 107.913360783864,
+        "address": "Dusun Jl. Gn. Sari, Jatimulya, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45321",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Waduk Jatigede",
+        "description": "Bendungan raksasa yang menjadi ikon wisata alam utama Sumedang, menawarkan pemandangan perairan luas yang dikelilingi perbukitan serta menjadi pusat berbagai aktivitas rekreasi air.",
+        "lat": -6.860019402864855,
+        "lon": 108.10120545728036,
+        "address": "Jl. Jatigede, Cijeungjing, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wana Wisata Ciburial",
+        "description": "Kawasan hutan (\"wana\") yang dikelola untuk tujuan pariwisata, biasanya dilengkapi dengan jalur setapak, area piknik, dan sumber mata air untuk rekreasi alam",
+        "lat": -6.806217366831912,
+        "lon": 107.9558692281786,
+        "address": "Licin, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Warjem",
+        "description": "Singkatan populer dari \"Warung Jemaah\", sebuah warung makan lokal sederhana yang sangat dikenal dan menjadi favorit di kalangan masyarakat setempat.",
+        "lat": -6.93475406467784,
+        "lon": 107.76799885607215,
+        "address": "Jl Raya Cibeusi No.61, Sayang, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Waroeng Hotplate",
+        "description": "Restoran yang menyajikan berbagai hidangan di atas piring panas (hotplate), menawarkan konsep kuliner modern yang menyasar segmen anak muda dan mahasiswa",
+        "lat": -6.83574341485944,
+        "lon": 107.92931977736744,
+        "address": "Jl. Mayor Abdurahman No.225, Kotakaler, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45321",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Warung Nasi Mitra Sunda",
+        "description": "Warung nasi sederhana yang menyediakan menu lengkap masakan Sunda dengan konsep prasmanan, menjadi pilihan praktis untuk makan siang",
+        "lat": -6.852075644437314,
+        "lon": 107.92285176024,
+        "address": "Jl. Prabu Geusan Ulun No.144, Regol Wetan, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Warung Pengkolan Jati",
+        "description": "Warung makan yang berlokasi strategis di sebuah tikungan (\"pengkolan\") jalan, menjadi tempat makan yang mudah dijangkau dan populer bagi warga sekitar.",
+        "lat": -6.775152770695362,
+        "lon": 107.91388759937954,
+        "address": "Jl. Raya Cimalaka Cipadung, Naluk, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Warung Suroboyo Cak Gun",
+        "description": "Warung yang menyajikan masakan khas Surabaya, Jawa Timur, menjadi pilihan bagi perantau atau warga yang ingin mencicipi cita rasa dari luar Sunda.",
+        "lat": -6.933654534827611,
+        "lon": 107.77252445725,
+        "address": "Jl. Raya Jatinangor No.155A, Cikeruh, Kec. Jatinangor, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Kuliner"
+    },
+    {
+        "name": "Waterboom Paseh Asy-Syifaa Wal Mahmuudiyyah",
+        "description": "Taman rekreasi air yang terintegrasi dengan lembaga pendidikan atau sosial di bawah naungan yayasan Asy-Syifaa Wal Mahmuudiyyah, menawarkan hiburan keluarga yang bernuansa Islami.",
+        "lat": -6.799099472938047,
+        "lon": 107.99761591265757,
+        "address": "Paseh Kaler, Kec. Paseh, Kabupaten Sumedang, Jawa Barat 45381",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Wisata \"Pangcalikan\"",
+        "description": "Area yang menyediakan banyak tempat duduk (\"pangcalikan\") di lokasi dengan pemandangan indah, dirancang khusus bagi pengunjung untuk bersantai sambil menikmati panorama alam",
+        "lat": -6.826288381828684,
+        "lon": 108.00494132418844,
+        "address": "Sukatali, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Air GAJAH DEPA",
+        "description": "Wisata Air Gajah Depa merupakan salah satu wisata air yang ada di daerah Cimalaka. Berbagai fasilitas yang melengkapi wisata air Gajah Depa ini akan memanjakan pengunjung yang datang ke Gajah Depa. Salah satu fasilitas yang menjadi andalan wisata air Gajah Depan adalah family slide. Fasilitas bermain ini berbentuk papan luncur berukuran besar. Papan luncur ini bisa digunakan untuk bermain sekeluarga dengan meluncur bersama-sama dari atas. Dengan kapasitas sampai 10 orang, bukan hanya meluncur...",
+        "lat": -6.819493873026497,
+        "lon": 107.94492814691267,
+        "address": "Jl. Raya Serang No.90, Galudra, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Wisata Alam Cipacet",
+        "description": "Tempat wisata alam Cipacet di Desa Genteng, Kecamatan Sukasari menjadi salah satu destinasi pariwisata unggulan baru di Sumedang. Wisata Alam Cipacet terkenal dengan air sungainya yang jernih, aliran airnya yang deras membuat tempat tersebut seru digunakan untuk bermain air. Wisata Cipacet juga menyediakan tempat camping, wisatawan bisa memasang tenda di antara bentang alam yang indah. Namun, jika ingin menikmati wahana permainan, ada biaya tambahan untuk tiap jenis permainannya.",
+        "lat": -6.854041247271469,
+        "lon": 107.771996082993,
+        "address": "Genteng, Kec. Sukasari, Kabupaten Sumedang, Jawa Barat 45366",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Alam Gajah Depa Sumedang",
+        "description": "estinasi wisata alam yang terletak di kawasan Gajah Depa, berupa hutan, perbukitan, atau air terjun yang dikelola untuk rekreasi",
+        "lat": -6.815070493266286,
+        "lon": 107.94087433045374,
+        "address": "Jl. Raya Serang, Galudra, Kec. Cimalaka, Kabupaten Sumedang, Jawa Barat 45353",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Alam Paniisan",
+        "description": "Kawasan alam yang dikenal dengan suasananya yang sejuk dan menyegarkan (\"paniisan\"), menjadi tempat yang cocok untuk relaksasi dan menenangkan diri dari kesibukan.",
+        "lat": -6.792294618791816,
+        "lon": 107.85165091260676,
+        "address": "Pangadegan, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45361",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Alam Taman Kincir Pareugreug",
+        "description": "Agrowisata Leuweung Tiis ada di wilayah Desa Trunamanggala, Kecamatan Cimalaka. Selain dekat pusat kota Sumedang, kawasan Agrowisata dengan ketinggian sekitar 691 meter di atas permukaan laut (mdpl) ini, memang memiliki panorama alam yang sangat indah. Disana, cocok bagi para pecinta alam yang gemar melakukan hiking atau berkemah di alam terbuka. Pemandangan kota Sumedang, serta keindahan Gunung Tampomas, juga dapat terlihat jelas di kawasan Agrowisata Leuweung Tiis tersebut. Beberapa fasilit...",
+        "lat": -6.837434902483906,
+        "lon": 108.09151560043858,
+        "address": "Pajagan, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Alam WATU BUBUT CIWADO",
+        "description": "Objek wisata alam yang menonjolkan formasi bebatuan (\"watu\") unik hasil proses alam, menjadi daya tarik geologis utama di area Ciwado.",
+        "lat": -6.642516088839833,
+        "lon": 107.98860189922108,
+        "address": "Cikawung, Kec. Terisi, Kabupaten Indramayu, Jawa Barat 45262",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Batu Dua",
+        "description": "Tempat wisata di Sumedang selanjutnya cocok untuk para wisatawan yang suka dengan olahraga paralayang. Para wisatawan akan merasakan sensasi terbang di atas ketinggian di kawasan Gunung Lingga atau lebih tepatnya di Desa Linggajaya, Kecamatan Cisitu, Kabupaten Sumedang. Kawasan gunung lingga sendiri memiliki ketinggian sekitar 930 meter di atas permukaan laut, dan menyajikan hamparan pemandangan alam yang mempesona. Lokasi lepas landas (Take Off) olah raga paralayang di Batu Dua sangat layak ...",
+        "lat": -6.900828833321466,
+        "lon": 108.01968377752648,
+        "address": "Jl. Batu Dua, Linggajaya, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Petualangan"
+    },
+    {
+        "name": "Wisata cicaneang",
+        "description": "Destinasi wisata yang berpusat di sekitar aliran Sungai Cicaneang, menawarkan keindahan alam riparian dan kemungkinan rekreasi air.",
+        "lat": -6.836478228707223,
+        "lon": 107.9985180416214,
+        "address": "Jelegong, Haurkuning, Kec. Paseh, Kabupaten Sumedang, Jawa Barat 45381",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Cisema Jati Gede",
+        "description": "Area wisata populer di tepi Waduk Jatigede, tepatnya di blok Cisema, yang menjadi salah satu gerbang utama dan spot favorit untuk menikmati keindahan waduk",
+        "lat": -6.871896920261641,
+        "lon": 108.07082027018912,
+        "address": "Pakualam, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Delta Island",
+        "description": "Sebuah pulau atau daratan yang terbentuk di tengah Waduk Jatigede akibat penggenangan, kini dikembangkan sebagai destinasi wisata unik yang dapat diakses dengan perahu",
+        "lat": -6.851266494350696,
+        "lon": 107.93384104040904,
+        "address": "Jl. Tegal Sari, RT.04/RW.02, Talun, Kec. Sumedang Utara, Kabupaten Sumedang, Jawa Barat 45621",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Dewa Siwa",
+        "description": "Dewa Siwa Leuwi Seeng merupakan sebuah lokasi wisata yang berada di kawasan Kampung Sanding Desa Kaduwulung Kecamatan Situraja Kabupaten Sumedang. Wisata ini memanfaatkan potensi alam sekitar dan aliran Sungai Cicapar. Tempat wisata ini berada di sebelah timur Kampung Sanding dengan jarak sekitar 100 meter. Pengunjung wisata Leuwi Seeng ini bisa menikmati segarnya suasana alam dan segar serta jernihnya air sungai Cicapar. Anak-anak bisa bermain air di sekitaran tanggul bendungan irigasi. Di p...",
+        "lat": -6.878954998804288,
+        "lon": 107.99982155613507,
+        "address": "Kaduwulung, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Gunung Batu",
+        "description": "Area perbukitan Gunung Batu yang dikelola agar mudah diakses dan aman untuk kegiatan rekreasi keluarga, seperti piknik dan jalan santai",
+        "lat": -6.922020047150013,
+        "lon": 107.79982244603688,
+        "address": "Cinanjung, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Jatigede",
+        "description": "Istilah umum yang merujuk pada berbagai titik dan aktivitas wisata yang tersebar di sepanjang pesisir Waduk Jatigede, dari gardu pandang hingga penyewaan perahu",
+        "lat": -6.875984924339779,
+        "lon": 108.13124112811413,
+        "address": "Burujul, Jemah, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Kampoeng Ciherang",
+        "description": "Wana wisata Kampoeng Ciherang merupakan kawasan wisata yang relatif baru berdiri yang berada di wilayah Desa Cijambu Kecamatan Tanjungsari. Wana wisata ini berdiri sekitar akhir tahun 2016 di kawasan hutan pinus dekat dengan aliran sungai Ciherang. Wana wisata Kampoeng Ciherang menawarkan wisata alam yang didukung dengan berbagai fasilitas dan wahana yang akan memanjakan pengunjungnya. Kawasan wisata yang memanfaatkan potensi yang ada di sini seperti tegakan pepohonan pinus dan aliran sungai ...",
+        "lat": -6.829246406244793,
+        "lon": 107.79789249898914,
+        "address": "Cijambu, Kec. Tanjungsari, Kabupaten Sumedang, Jawa Barat 45362",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Menara Kujang",
+        "description": "Kujang Sapasang Jatigede adalah sebuah menara berbentuk kujang yang terletak di pesisir Waduk Jatigede, Kabupaten Sumedang, Jawa Barat. Menara ini memiliki tinggi sekitar 99 meter dan merupakan menara berbentuk kujang tertinggi dan terbesar di dunia. Menara Kujang Sapasang diresmikan pada tanggal 13 Agustus 2023 oleh Gubernur Jawa Barat, Ridwan Kamil. Menara ini dibangun sebagai salah satu ikon wisata baru di Kabupaten Sumedang dan Jawa Barat. Menara Kujang Sapasang memiliki dua lift yang dap...",
+        "lat": -6.872062007180901,
+        "lon": 108.12098866866384,
+        "address": "Jemah, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat 45377",
+        "category": "Wisata Budaya & Sejarah"
+    },
+    {
+        "name": "Wisata Panineungan Hegar",
+        "description": "Destinasi wisata Panineungan Hegar ini memang sangat luar biasa indah. Di sini, kita bisa melihat secara jelas pemandangan gunung-gunung dan pemukiman penduduk di wilayah Kabupaten Subang.",
+        "lat": -6.739073808618561,
+        "lon": 107.84035711076014,
+        "address": "Panyingkiran, Cikaramas, Kec. Tanjungmedar, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Pasir Cariu",
+        "description": "Nama unik dari singkatan Caringin Pasir Cariu, merupakan sebuah lokasi wisata di Desa Kaduwulung yang dikembangkan sebagai destinasi rekreasi lokal.",
+        "lat": -6.88184318705882,
+        "lon": 107.99475793320713,
+        "address": "Loji Bambayang, Kaduwulung, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata payung aruzona",
+        "description": "Spot wisata yang daya tarik utamanya adalah instalasi payung warna-warni yang digantung, menciptakan terowongan atau latar belakang yang sangat fotogenik",
+        "lat": -6.790612779106703,
+        "lon": 107.84946835730668,
+        "address": "Paniisan jami uhe, desa, Pangadegan, Kec. Rancakalong, Kabupaten Sumedang, Jawa Barat 45354",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Wisata perahu pantai cibungur",
+        "description": "Layanan penyewaan perahu untuk menjelajahi perairan Waduk Jatigede dari titik \"pantai\" Cibungur, menawarkan cara lain untuk menikmati bendungan.",
+        "lat": -6.919002029462025,
+        "lon": 108.0810197858144,
+        "address": "Jl. Raya Situraja-Wado No.16, Jatibungur, Kec. Darmaraja, Kabupaten Sumedang, Jawa Barat 45372",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Religi Pasulukan Dewi Candra Wulan",
+        "description": "Sebuah tempat untuk melakukan kontemplasi dan retret spiritual (\"pasulukan\") yang didedikasikan untuk sosok spiritual Dewi Candra Wulan.",
+        "lat": -6.913391044492578,
+        "lon": 107.98188803654884,
+        "address": "Loji Bambayang, Bangbayang, Kec. Situraja, Kabupaten Sumedang, Jawa Barat 45371",
+        "category": "Wisata Religi"
+    },
+    {
+        "name": "Wisata Taman Buah Puncak Rahayu",
+        "description": "Agrowisata yang berlokasi di puncak bukit, di mana keluarga dapat merasakan pengalaman memetik buah langsung dari pohonnya sambil menikmati pemandangan alam",
+        "lat": -6.879098179626488,
+        "lon": 107.87941585719162,
+        "address": "Dusun, Ciraja Blok Sukawenang, Mekar Rahayu, Kec. Sumedang Sel., Kabupaten Sumedang, Jawa Barat 45311",
+        "category": "Wisata Buatan/Rekreasi"
+    },
+    {
+        "name": "Wisata Tanjung Duriat",
+        "description": "Wisata Alam atau Wana Wisata Tanjung Duriat terletak di pesisir barat laut Bendungan Jatigede. Tempat wisata ini menyajikan indahnya pemandangan bendungan Jatigede dari atas bukit yang menjorok ke arah bendungan. Sehingga tidak heran jika dinamakan dengan Tanjung. Kemudian digabung dengan kata Duriat yang berasal dari Bahasa Sunda yang melambangkan kasih sayang. Namun kasih sayang di sini bukan sekedar menggambarkan cinta kasih. Lebih dari itu, pengunjung bisa merasakan nuansa indahnya Waduk ...",
+        "lat": -6.859163955958642,
+        "lon": 108.09128623487288,
+        "address": "Pajagan, Kec. Cisitu, Kabupaten Sumedang, Jawa Barat 45363",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Tegal Jarong",
+        "description": "Wisata Tegal Jarong merupakan tempat wisata yang berada di wilayah Desa Cijeungjing. Kawasan wisata ini memanfaatkan bendungan Jatigede sebagai objek utama untuk menarik pengunjungnya. Wisata ini berlokasi di pesisir timur laut bendungan Jatigede. Wisata Tegal Jarong selain menyajikan pemandangan alam bendungan Jatigede, juga menyajikan beberapa lokasi yang bisa digunakan untuk memancing, baik di pesisir bendungan Jatigede maupun agak ke tengah bendungan menggunakan rakit. Termasuk juga penye...",
+        "lat": -6.8590051821250535,
+        "lon": 108.1079124716006,
+        "address": "Cijeungjing, Kec. Jatigede, Kabupaten Sumedang, Jawa Barat",
+        "category": "Wisata Alam"
+    },
+    {
+        "name": "Wisata Ziarah Dayeuh luhur",
+        "description": "Desa Dayeuhluhur merupakan salah satu desa yang ada di dataran tinggi dan hamoir berada di puncak Gunung Rengganis. Dayeuhluhur yang sekarang menjadi desa di Kecamatan Ganeas, Sumedang awal abad 16 ini menjadi ibu kota Kerajaan Sumedanglarang. Jejak sebagai ibukota ini adanya tempat ngahyang Sanghiang Hawu (Sayanghawu) alias Embah Jayaperkasa salah seorang Kandagalante yang setia ke Prabu Geusan Ulun, Raja Sumedanglarang. Di dayehluhur juga ada makam Raja Sumedanglarang dan istrinya, Prabu Ge...",
+        "lat": -6.887048275404875,
+        "lon": 107.97323275688404,
+        "address": "Dayeuh Luhur, Kec. Ganeas, Kabupaten Sumedang, Jawa Barat 45356",
+        "category": "Wisata Religi"
+    },
+]
+
+# ============================================================================
+# DATA KATEGORI WISATA
+# 8 kategori tempat wisata di Sumedang
+# ============================================================================
+SUMEDANG_CATEGORIES = [
+    {
+        "name": "Wisata Alam",
+        "description": "Destinasi wisata alam seperti gunung, air terjun, waduk, dan pemandangan alam"
+    },
+    {
+        "name": "Wisata Religi",
+        "description": "Tempat ziarah, makam keramat, dan destinasi bernuansa spiritual"
+    },
+    {
+        "name": "Wisata Buatan/Rekreasi",
+        "description": "Tempat rekreasi buatan manusia seperti taman, resto, villa, dan spot foto"
+    },
+    {
+        "name": "Wisata Budaya & Sejarah",
+        "description": "Situs bersejarah, museum, monumen, dan peninggalan budaya"
+    },
+    {
+        "name": "Wisata Keluarga",
+        "description": "Destinasi ramah keluarga dengan aktivitas untuk segala usia"
+    },
+    {
+        "name": "Wisata Kesehatan & Wellness",
+        "description": "Pemandian air panas, spa, dan tempat untuk relaksasi dan kesehatan"
+    },
+    {
+        "name": "Wisata Petualangan",
+        "description": "Aktivitas menantang seperti hiking, camping, dan olahraga outdoor"
+    },
+    {
+        "name": "Wisata Kuliner",
+        "description": "Tempat kuliner khas Sumedang dan pengalaman gastronomi"
+    }
+]
+
+# ============================================================================
+# DATA AKTIVITAS/KEGIATAN WISATA
+# Sesuaikan dengan aktivitas yang tersedia di destinasi
+# ============================================================================
+SUMEDANG_ACTIVITIES = [
+    {
+        "name": "Pendakian Gunung Tampomas",
+        "description": "Jalur pendakian ke puncak Gunung Tampomas dengan pemanduan lokal",
+        "duration": "6-8 jam",
+        "price_range": "Gratis (hanya biaya parkir)"
+    },
+    {
+        "name": "Wisata Keliling Waduk Jatigede",
+        "description": "Tur perahu mengelilingi Waduk Jatigede dengan pemandangan sunset",
+        "duration": "2-3 jam",
+        "price_range": "Rp 50.000 - 100.000"
+    },
+    {
+        "name": "Ziarah Situ Lengkong",
+        "description": "Kunjungan ke makam keramat dan wisata danau",
+        "duration": "1-2 jam",
+        "price_range": "Rp 5.000 - 10.000"
+    },
+    {
+        "name": "Tour Kampung Adat Ciptagelar",
+        "description": "Wisata edukasi budaya dan tradisi Kasepuhan Sunda",
+        "duration": "3-4 jam",
+        "price_range": "Rp 25.000 - 50.000"
+    },
+    {
+        "name": "Kuliner Tour Tahu Sumedang",
+        "description": "Wisata kuliner mencicipi berbagai varian tahu khas Sumedang",
+        "duration": "2 jam",
+        "price_range": "Rp 30.000 - 75.000"
+    },
+    # TAMBAHKAN AKTIVITAS LAINNYA
+]
+
+async def seed_sumedang_data():
+    """Seed real Sumedang tourism data to database"""
+    print("\n" + "="*60)
+    print("ðŸ”ï¸  SEEDING SUMEDANG TOURISM DATA")
+    print("="*60 + "\n")
+    
+    async for db in get_db():
+        try:
+            # Check if data already exists
+            result = await db.execute(select(Destination))
+            existing_dest = result.scalars().first()
+            if existing_dest:
+                print("âš ï¸  Data already exists!")
+                response = input("Apakah ingin hapus data lama dan seed ulang? (y/n): ")
+                if response.lower() != 'y':
+                    print("âŒ Seeding dibatalkan.")
+                    return
+                
+                # Clear existing data
+                from sqlalchemy import text
+                print("ðŸ—‘ï¸  Menghapus data lama...")
+                await db.execute(text("TRUNCATE TABLE user_interactions, ratings, users, activities, destinations RESTART IDENTITY CASCADE;"))
+                await db.commit()
+                print("âœ… Data lama berhasil dihapus.\n")
+            
+            # Insert destinations
+            print("ðŸ“ Menambahkan destinasi wisata Sumedang...")
+            destinations = []
+            for dest_data in SUMEDANG_DESTINATIONS:
+                dest = Destination(**dest_data)
+                db.add(dest)
+                destinations.append(dest)
+            
+            await db.flush()
+            print(f"   âœ… Berhasil menambahkan {len(destinations)} destinasi")
+            
+            # Insert activities
+            print("ðŸŽ¯ Menambahkan aktivitas wisata...")
+            for act_data in SUMEDANG_ACTIVITIES:
+                activity = Activity(**act_data)
+                db.add(activity)
+            
+            await db.flush()
+            print(f"   âœ… Berhasil menambahkan {len(SUMEDANG_ACTIVITIES)} aktivitas")
+            
+            # Create sample users (untuk testing)
+            print("ðŸ‘¥ Menambahkan sample users untuk testing...")
+            users = []
+            sample_users = [
+                {"email": "wisatawan1@example.com", "name": "Wisatawan Lokal", "preferences": "alam,adventure"},
+                {"email": "wisatawan2@example.com", "name": "Pecinta Budaya", "preferences": "culture,heritage"},
+                {"email": "wisatawan3@example.com", "name": "Backpacker", "preferences": "adventure,kuliner"},
+                {"email": "wisatawan4@example.com", "name": "Family Trip", "preferences": "alam,culture"},
+                {"email": "wisatawan5@example.com", "name": "Solo Traveler", "preferences": "adventure,alam"},
+            ]
+            
+            for user_data in sample_users:
+                user = User(**user_data)
+                db.add(user)
+                users.append(user)
+            
+            await db.flush()
+            print(f"   âœ… Berhasil menambahkan {len(users)} sample users")
+            
+            # Generate sample ratings (untuk collaborative filtering)
+            print("â­ Mengenerate sample ratings...")
+            rating_count = 0
+            
+            for user in users:
+                # Setiap user rating 4-7 destinasi secara random
+                num_ratings = random.randint(4, 7)
+                rated_destinations = random.sample(destinations, num_ratings)
+                
+                for dest in rated_destinations:
+                    # Rating berdasarkan preferensi user (simulasi)
+                    base_rating = random.uniform(3.5, 5.0)
+                    rating = Rating(
+                        user_id=user.id,
+                        destination_id=dest.id,
+                        rating=round(base_rating, 1)
+                    )
+                    db.add(rating)
+                    rating_count += 1
+            
+            print(f"   âœ… Berhasil menambahkan {rating_count} sample ratings")
+            
+            # Generate sample interactions
+            print("ðŸ’« Mengenerate sample user interactions...")
+            interaction_count = 0
+            
+            for user in users[:3]:  # First 3 users
+                for dest in destinations[:6]:  # First 6 destinations
+                    interaction = UserInteraction(
+                        user_id=user.id,
+                        entity_type="destination",
+                        entity_id=dest.id,
+                        interaction_type="view",
+                        duration=random.uniform(60.0, 300.0),  # 1-5 menit
+                        created_at=datetime.utcnow()
+                    )
+                    db.add(interaction)
+                    interaction_count += 1
+            
+            print(f"   âœ… Berhasil menambahkan {interaction_count} sample interactions")
+            
+            # Commit all changes
+            await db.commit()
+            
+            print("\n" + "="*60)
+            print("âœ… SEEDING BERHASIL!")
+            print("="*60)
+            print(f"\nðŸ“Š Ringkasan Data:")
+            print(f"   - Destinasi Wisata: {len(SUMEDANG_DESTINATIONS)}")
+            print(f"   - Aktivitas: {len(SUMEDANG_ACTIVITIES)}")
+            print(f"   - Sample Users: {len(users)}")
+            print(f"   - Ratings: {rating_count}")
+            print(f"   - Interactions: {interaction_count}")
+            print(f"\nðŸ’¡ Selanjutnya, jalankan training model:")
+            print(f"   docker exec pariwisata-recommender-backend-1 python train_models_once.py\n")
+            
+        except Exception as e:
+            print(f"\nâŒ ERROR: {str(e)}\n")
+            import traceback
+            traceback.print_exc()
+            await db.rollback()
+        finally:
+            break
+
+if __name__ == "__main__":
+    asyncio.run(seed_sumedang_data())
