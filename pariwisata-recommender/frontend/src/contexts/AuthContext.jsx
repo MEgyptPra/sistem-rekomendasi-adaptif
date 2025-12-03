@@ -88,7 +88,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    authAPI.logout();
+    // Remove token from localStorage (JWT logout is client-side)
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
   };

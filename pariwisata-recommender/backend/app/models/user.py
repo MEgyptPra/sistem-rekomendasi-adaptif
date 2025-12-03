@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, nullable=True, unique=True)
+    password_hash = Column(String, nullable=True)  # Optional: untuk user yang register via frontend
     preferences = Column(String, nullable=True)  # contoh: "alam,kuliner"
     created_at = Column(DateTime, server_default=func.now())
     

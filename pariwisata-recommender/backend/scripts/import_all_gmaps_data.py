@@ -12,7 +12,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from app.core.db import get_db
 from app.models.destinations import Destination
 from app.models.user import User
@@ -50,26 +50,46 @@ async def import_all_data():
             unique_users = df['user'].unique()
             print(f"   Found {len(unique_users):,} unique users")
             
-            # Clear existing GMaps users first
-            print("   Clearing existing GMaps users...")
-            await db.execute(delete(User).where(User.email.like('%@gmaps.sumedang.com')))
-            await db.commit()
-            print("   [OK] Old GMaps users cleared\n")
+            # DON'T clear existing GMaps users - just update if needed
+            # This avoids foreign key constraint issues
+            # await db.execute(delete(User).where(User.email.like('%@gmaps.sumedang.com')))
+            # await db.commit()
+            print("   [INFO] Using existing users + creating new ones")
+            
+            # Get existing ratings count from GMaps users
+            existing_ratings_query = select(func.count(Rating.id)).select_from(Rating).join(
+                User, Rating.user_id == User.id
+            ).where(User.email.like('%@gmaps.sumedang.com'))
+            existing_ratings_result = await db.execute(existing_ratings_query)
+            existing_ratings_count = existing_ratings_result.scalar()
+            print(f"   [INFO] Existing GMaps ratings: {existing_ratings_count:,}\n")
             
             user_map = {}
             batch_size = 100  # Smaller batch to avoid memory issues
             created_count = 0
+            
+            # Track used emails to avoid duplicates
+            used_emails = set()
             
             for i, username in enumerate(unique_users):
                 if pd.isna(username) or str(username).strip() == '':
                     continue
                     
                 username_clean = str(username).strip()[:100]
-                email = f"{username_clean.replace(' ', '_').lower()}@gmaps.sumedang.com"
+                base_email = f"{username_clean.replace(' ', '_').lower()}@gmaps.sumedang.com"
                 
                 # Check if user already exists in current batch
                 if username in user_map:
                     continue
+                
+                # SOLUSI: Jika email sudah dipakai, tambahkan suffix unik
+                email = base_email
+                counter = 1
+                while email in used_emails:
+                    email = f"{username_clean.replace(' ', '_').lower()}_{counter}@gmaps.sumedang.com"
+                    counter += 1
+                
+                used_emails.add(email)
                 
                 user = User(
                     name=username_clean,
@@ -106,11 +126,14 @@ async def import_all_data():
             # Re-map by username untuk lookup
             user_id_map = {}
             for u in db_users:
-                # Extract username from email
-                username_from_email = u.email.replace('@gmaps.sumedang.com', '').replace('_', ' ')
+                # Map dengan name asli (sudah ter-clean saat create)
                 user_id_map[u.name] = u.id
+                # JUGA map dengan lowercase untuk fallback
+                user_id_map[u.name.lower()] = u.id
+                # Map dengan truncated name (first 100 chars)
+                user_id_map[u.name[:100]] = u.id
             
-            print(f"   [OK] {len(user_id_map):,} user IDs loaded\n")
+            print(f"   [OK] {len(db_users):,} user IDs loaded with {len(user_id_map):,} lookup keys\n")
             
             # 4. Import reviews, ratings, and interactions
             print("[4/4] Importing reviews, ratings, and interactions...")
@@ -144,11 +167,47 @@ async def import_all_data():
                 
                 # Find destination and user IDs
                 dest_id = destinations.get(place_name)
-                user_id = user_id_map.get(str(username).strip())
                 
-                if not dest_id or not user_id:
+                # Try multiple username formats for lookup
+                username_str = str(username).strip()
+                user_id = (
+                    user_id_map.get(username_str) or  # Exact match
+                    user_id_map.get(username_str.lower()) or  # Lowercase match
+                    user_id_map.get(username_str[:100])  # Truncated match
+                )
+                
+                # If destination not found, skip
+                if not dest_id:
                     skipped += 1
                     continue
+                
+                # If user not found, CREATE NEW USER on-the-fly
+                if not user_id:
+                    username_clean = username_str[:100]
+                    base_email = f"{username_clean.replace(' ', '_').lower()}@gmaps.sumedang.com"
+                    
+                    # Check if email already exists in used_emails
+                    email = base_email
+                    counter = 1
+                    while email in used_emails:
+                        email = f"{username_clean.replace(' ', '_').lower()}_{counter}@gmaps.sumedang.com"
+                        counter += 1
+                    used_emails.add(email)
+                    
+                    # Create new user
+                    new_user = User(
+                        name=username_clean,
+                        email=email[:255],
+                        preferences='alam,kuliner,budaya'
+                    )
+                    db.add(new_user)
+                    await db.flush()  # Get ID without committing
+                    
+                    # Add to mapping
+                    user_id = new_user.id
+                    user_id_map[username_str] = user_id
+                    user_id_map[username_str.lower()] = user_id
+                    user_id_map[username_str[:100]] = user_id
                 
                 # Random timestamp (spread over 2 years)
                 days_ago = random.randint(1, 730)

@@ -147,7 +147,9 @@ class CollaborativeRecommender(BaseRecommender):
             self.user_decoder = {idx: user_id for user_id, idx in self.user_encoder.items()}
             self.item_decoder = {idx: item_id for item_id, idx in self.item_encoder.items()}
             
-            print(f"👥 Users: {len(unique_users)}, 🏖️ Destinations: {len(unique_items)}")
+            n_users = len(unique_users)
+            n_items = len(unique_items)
+            print(f"👥 Users: {n_users}, 🏖️ Destinations: {n_items}")
             
             # Validate matrix dimensions
             if self.user_item_matrix.shape[0] < 2 or self.user_item_matrix.shape[1] < 2:
@@ -174,9 +176,15 @@ class CollaborativeRecommender(BaseRecommender):
             self.user_factors = self.nmf_model.fit_transform(matrix_values)
             self.item_factors = self.nmf_model.components_.T
             
-            # Calculate user-user similarities
-            print("🤝 Computing user similarities...")
-            self.user_similarities = cosine_similarity(self.user_factors)
+            # Calculate user-user similarities (OPTIMIZED for large datasets)
+            print("🤝 Computing user similarities (memory-efficient)...")
+            # For large user sets, skip full similarity matrix to avoid memory issues
+            # We'll compute similarities on-demand during recommendation
+            if n_users > 10000:
+                print(f"⚡ Skipping precomputed similarity matrix for {n_users} users (too large)")
+                self.user_similarities = None  # Compute on-demand instead
+            else:
+                self.user_similarities = cosine_similarity(self.user_factors)
             
             self.is_trained = True
             
@@ -277,10 +285,20 @@ class CollaborativeRecommender(BaseRecommender):
             user_idx = self.user_encoder[user_id]
             
             # Find similar users
-            user_similarities_scores = self.user_similarities[user_idx]
-            similar_users_idx = np.argsort(user_similarities_scores)[::-1][1:6]  # Top 5 similar users
-            similar_users_ids = [self.user_decoder[idx] for idx in similar_users_idx]
-            similarity_scores = [user_similarities_scores[idx] for idx in similar_users_idx]
+            if self.user_similarities is not None:
+                # Use precomputed similarity matrix
+                user_similarities_scores = self.user_similarities[user_idx]
+                similar_users_idx = np.argsort(user_similarities_scores)[::-1][1:6]  # Top 5 similar users
+                similar_users_ids = [self.user_decoder[idx] for idx in similar_users_idx]
+                similarity_scores = [user_similarities_scores[idx] for idx in similar_users_idx]
+            else:
+                # Compute similarity on-demand for large datasets
+                from sklearn.metrics.pairwise import cosine_similarity
+                user_vector = self.user_factors[user_idx].reshape(1, -1)
+                similarities = cosine_similarity(user_vector, self.user_factors)[0]
+                similar_users_idx = np.argsort(similarities)[::-1][1:6]
+                similar_users_ids = [self.user_decoder[idx] for idx in similar_users_idx]
+                similarity_scores = [similarities[idx] for idx in similar_users_idx]
             
             return {
                 "explanation": f"Recommended based on {len(similar_users_ids)} similar users",

@@ -267,50 +267,101 @@ const Planning = () => {
         const currentDate = new Date(start);
         currentDate.setDate(currentDate.getDate() + i);
         
+        // Format date as YYYY-MM-DD for backend
+        const dateStr = currentDate.toISOString().split('T')[0];
+        
         days.push({
           day_number: i + 1,
-          date: currentDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }),
-          route_info: dayRouteInfo,
+          date: dateStr,  // YYYY-MM-DD format
+          title: currentDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }),
           items: dayDestinations.map((dest, idx) => ({
             activity_type: 'destination',
-            entity_id: dest.destination_id || dest.id,
-            title: dest.name,
-            category: dest.category || 'Wisata', 
+            entity_id: dest.destination_id || dest.id || null,
+            title: dest.name || 'Destinasi',
+            description: dest.description || null,
             location: dest.address || dest.region || 'Sumedang',
-            duration: '2 jam', 
+            duration: '2 jam',
+            time: null,
+            cost: null,
             order: idx + 1,
             notes: `Rekomendasi AI (Skor: ${(dest.score * 100).toFixed(0)}%)`
           }))
         });
       }
 
-      const itineraryData = {
+      // Validate data before sending
+      console.log('Itinerary data to send:', {
         title: `Trip Sumedang (${selectedInterests.join(', ') || 'Best Route'})`,
         description: `Itinerary cerdas dengan optimasi rute perjalanan (Nearest Neighbor).`,
         start_date: startDate,
         end_date: endDate,
         days: days
+      });
+
+      const itineraryData = {
+        title: `Trip Sumedang (${selectedInterests.join(', ') || 'Best Route'})`,
+        description: `Itinerary cerdas dengan optimasi rute perjalanan (Nearest Neighbor).`,
+        start_date: startDate,
+        end_date: endDate,
+        total_budget: null,
+        accommodation: null,
+        transportation: null,
+        notes: null,
+        days: days
       };
 
-      // Aksi Akhir: Simpan atau Preview
-      if (isAuthenticated) {
-          await itineraryAPI.create(itineraryData);
-          alert("✅ Berhasil! Rencana perjalanan telah disimpan ke akun Anda.");
-          const updatedList = await itineraryAPI.getAll();
-          setItineraries(updatedList.data || []);
-      } else {
-          // ANONYMOUS: Set Preview (dipersistensi via useEffect)
-          setPreviewItinerary(itineraryData);
-          setTimeout(() => {
-             document.getElementById('preview-section')?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-      }
+      // [CHANGED] Selalu tampilkan preview dulu (baik login atau tidak)
+      setPreviewItinerary(itineraryData);
+      setTimeout(() => {
+         document.getElementById('preview-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
 
     } catch (err) {
       console.error("Gagal generate:", err);
-      alert("Terjadi kesalahan saat membuat rekomendasi.");
+      console.error("Full error response:", err.response);
+      console.error("Error data:", err.response?.data);
+      console.error("Error detail:", JSON.stringify(err.response?.data?.detail, null, 2));
+      
+      // Show detailed error to user
+      const errorDetail = err.response?.data?.detail;
+      if (errorDetail) {
+        if (Array.isArray(errorDetail)) {
+          const errorMsg = errorDetail.map(e => `${e.loc.join('.')}: ${e.msg}`).join('\n');
+          alert(`Validation Error:\n${errorMsg}`);
+        } else {
+          alert(`Error: ${JSON.stringify(errorDetail)}`);
+        }
+      } else {
+        alert("Terjadi kesalahan saat membuat rekomendasi.");
+      }
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleSaveItinerary = async () => {
+    if (!isAuthenticated) {
+      alert('Silakan login terlebih dahulu');
+      return;
+    }
+    
+    if (!previewItinerary) return;
+    
+    try {
+      await itineraryAPI.create(previewItinerary);
+      alert("✅ Berhasil! Rencana perjalanan telah disimpan ke akun Anda.");
+      
+      // Reload list itinerary
+      const updatedList = await itineraryAPI.getAll();
+      setItineraries(updatedList.data || []);
+      
+      // Reset preview
+      sessionStorage.removeItem(PREVIEW_KEY);
+      setPreviewItinerary(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Gagal menyimpan:', err);
+      alert('Gagal menyimpan itinerary: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -365,25 +416,36 @@ const Planning = () => {
 
           {isAuthenticated ? (
             <>
-              <h2 style={{marginTop: '3rem'}}>Rencana Tersimpan</h2>
+              <h2 style={{marginTop: '3rem'}}>Itinerary Tersimpan</h2>
               {error && <Alert type="error" message={error} />}
               {loading ? (
                 <LoadingSpinner text="Memuat rencana perjalanan..." />
               ) : itineraries.length > 0 ? (
-                <div className="itineraries-grid">
-                  {itineraries.map(itin => <ItineraryCard key={itin.id} itinerary={itin} />)}
-                </div>
+                <>
+                  <div className="itineraries-grid">
+                    {itineraries.slice(0, 3).map(itin => <ItineraryCard key={itin.id} itinerary={itin} />)}
+                  </div>
+                  {itineraries.length > 3 && (
+                    <div style={{textAlign: 'center', marginTop: '2rem'}}>
+                      <Link to="/favorites" className="btn primary" style={{textDecoration: 'none'}}>
+                        📋 Lihat Semua Itinerary ({itineraries.length})
+                      </Link>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="empty-state">
-                  <h3>Belum Ada Rencana Tersimpan</h3>
-                  <p>Gunakan alat generator di atas untuk membuat rencana pertama Anda.</p>
+                  <p style={{color: '#999'}}>Belum ada itinerary tersimpan. Buat yang pertama menggunakan generator di atas!</p>
                 </div>
               )}
             </>
-          ) : (
+          ) : null}
+          
+          {/* Preview Section - Tampil untuk semua user */}
+          {previewItinerary && (
             <div id="preview-section" style={{marginTop: '3rem'}}>
-              {previewItinerary ? (
-                <div className="daily-itinerary" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+              <h2 style={{marginBottom: '1.5rem'}}>📋 Preview Itinerary</h2>
+              <div className="daily-itinerary" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                    <div style={{textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid #f0f0f0', paddingBottom: '1rem'}}>
                       <span className="status-badge upcoming" style={{position: 'relative', display: 'inline-block'}}>Preview Rute</span>
                       <h2>{previewItinerary.title}</h2>
@@ -422,20 +484,19 @@ const Planning = () => {
                           </div>
                       </div>
                    ))}
-                   <div className="modal-actions" style={{marginTop: '2rem', textAlign: 'center'}}>
-                      <button className="btn secondary" onClick={handleResetPreview}>🗑️ Buat Ulang</button>
-                      <button className="btn primary" onClick={() => generateAndDownloadPDF(previewItinerary)} style={{marginLeft: '1rem'}}>⬇️ Download PDF</button>
+                   <div className="modal-actions" style={{marginTop: '2rem', textAlign: 'center', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap'}}>
+                      <button className="btn secondary" onClick={handleResetPreview}>🔄 Buat Ulang</button>
+                      <button className="btn primary" onClick={() => generateAndDownloadPDF(previewItinerary)}>📥 Download PDF</button>
+                      {isAuthenticated && (
+                        <button className="btn success" onClick={handleSaveItinerary} style={{background: '#10b981', color: 'white'}}>💾 Simpan ke Akun</button>
+                      )}
                    </div>
-                   <div style={{textAlign: 'center', marginTop: '1rem'}}>
-                     <Link to="/login">Login untuk menyimpan</Link>
-                   </div>
+                   {!isAuthenticated && (
+                     <div style={{textAlign: 'center', marginTop: '1rem', fontSize: '0.95rem', color: '#666'}}>
+                       <Link to="/login" style={{color: '#667eea', textDecoration: 'underline'}}>Login untuk menyimpan itinerary</Link>
+                     </div>
+                   )}
                 </div>
-              ) : (
-                <div className="empty-state">
-                    <h3>Login untuk Menyimpan</h3>
-                    <Link to="/login" className="btn primary">Login Sekarang</Link>
-                </div>
-              )}
             </div>
           )}
         </div>

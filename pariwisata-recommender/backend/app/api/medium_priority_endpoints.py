@@ -339,6 +339,35 @@ async def create_itinerary(
         raise HTTPException(status_code=500, detail=f"Failed to create itinerary: {str(e)}")
 
 
+@router.get("/itineraries", response_model=List[ItineraryResponse])
+async def get_current_user_itineraries(
+    status: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_auth)
+):
+    """
+    Get all itineraries for the current authenticated user
+    Optional filter by status: 'upcoming', 'ongoing', 'completed', 'cancelled'
+    """
+    try:
+        query = select(Itinerary).options(
+            selectinload(Itinerary.days).selectinload(ItineraryDay.items)
+        ).where(Itinerary.user_id == current_user.id)
+        
+        if status:
+            query = query.where(Itinerary.status == status)
+        
+        query = query.order_by(Itinerary.start_date.desc())
+        
+        result = await db.execute(query)
+        itineraries = result.scalars().all()
+        
+        return itineraries
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch itineraries: {str(e)}")
+
+
 @router.get("/itineraries/{itinerary_id}", response_model=ItineraryResponse)
 async def get_itinerary(
     itinerary_id: int,
@@ -432,6 +461,19 @@ async def delete_itinerary(
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to delete itinerary: {str(e)}")
+
+
+@router.get("/favorites")
+async def get_current_user_favorites(
+    current_user: User = Depends(require_auth),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get favorites for the current authenticated user
+    Returns empty list - favorites functionality to be implemented
+    """
+    # TODO: Implement actual favorites retrieval from database
+    return []
 
 
 @router.put("/itineraries/{itinerary_id}/status")
