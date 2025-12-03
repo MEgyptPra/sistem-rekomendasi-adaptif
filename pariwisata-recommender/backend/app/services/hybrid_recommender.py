@@ -19,7 +19,7 @@ class HybridRecommender(BaseRecommender):
     """Hybrid Recommendation System combining Content-Based and Collaborative Filtering"""
     
     # Point to backend/data/models (two levels up from app/services -> backend)
-    MODEL_DIR = Path(__file__).resolve().parents[3] / "data" / "models"
+    MODEL_DIR = Path(__file__).resolve().parents[2] / "data" / "models"
     MODEL_FILE = "hybrid_model.pkl"
 
     def __init__(self):
@@ -496,9 +496,24 @@ class HybridRecommender(BaseRecommender):
             trained_at = model_data.get('trained_at', 'unknown')
             print(f"✅ Hybrid model loaded (trained at: {trained_at})")
             
+            # Load sub-models
+            print("📦 Loading sub-models...")
+            try:
+                self.content_recommender.load_model()
+                print(f"   Content-based trained: {self.content_recommender.is_trained}")
+            except Exception as e:
+                print(f"   ⚠️ Content-based load error: {e}")
+            
+            try:
+                self.collaborative_recommender.load_model()
+                print(f"   Collaborative trained: {self.collaborative_recommender.is_trained}")
+            except Exception as e:
+                print(f"   ⚠️ Collaborative load error: {e}")
+            
             # Update is_trained berdasarkan sub-models
             if self.content_recommender.is_trained and self.collaborative_recommender.is_trained:
                 print("✅ All sub-models ready")
+                self.is_trained = True
             else:
                 print("⚠️ Some sub-models not trained yet")
                 self.is_trained = False
