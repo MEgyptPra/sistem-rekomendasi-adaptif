@@ -32,9 +32,9 @@ const ItineraryCard = ({ itinerary }) => {
       <div className="card-content">
         <h3 className="card-title">{itinerary.title}</h3>
         <div className="card-meta">
-          <span className="meta-item">📅 {start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+          <span className="meta-item"> {start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
           <span className="meta-dot">•</span>
-          <span className="meta-item">⏳ {durationDays} Hari</span>
+          <span className="meta-item"> {durationDays} Hari</span>
         </div>
         <div className="card-footer">
           <button className="btn-text">Lihat Detail →</button>
@@ -349,7 +349,7 @@ const Planning = () => {
     
     try {
       await itineraryAPI.create(previewItinerary);
-      alert("✅ Berhasil! Rencana perjalanan telah disimpan ke akun Anda.");
+      alert("Berhasil! Rencana perjalanan telah disimpan ke akun Anda.");
       
       // Reload list itinerary
       const updatedList = await itineraryAPI.getAll();
@@ -383,8 +383,8 @@ const Planning = () => {
       <section className="planning-content">
         <div className="container">
           <div className="trip-planner">
-            <h2>🤖 Generator Itinerary Cerdas (Geo-Optimized)</h2>
-            <p>Sistem akan memilih tempat terbaik (MMR) lalu mengurutkan rutenya agar hemat waktu di jalan.</p>
+            <h2>Generator Itinerary Cerdas</h2>
+            <p>Sistem akan memilih tempat terbaik</p>
             
             <div className="planner-form">
               <div className="form-group">
@@ -409,7 +409,7 @@ const Planning = () => {
               </div>
 
               <button className="btn primary" onClick={handleGenerateItinerary} disabled={generating} style={{width: '100%', marginTop: '1rem'}}>
-                {generating ? '⏳ Mengoptimalkan Rute...' : '✨ Generate Itinerary Optimal'}
+                {generating ? 'Mengoptimalkan Rute...' : 'Generate Itinerary Optimal'}
               </button>
             </div>
           </div>
@@ -428,7 +428,7 @@ const Planning = () => {
                   {itineraries.length > 3 && (
                     <div style={{textAlign: 'center', marginTop: '2rem'}}>
                       <Link to="/favorites" className="btn primary" style={{textDecoration: 'none'}}>
-                        📋 Lihat Semua Itinerary ({itineraries.length})
+                        Lihat Semua Itinerary ({itineraries.length})
                       </Link>
                     </div>
                   )}
@@ -444,12 +444,12 @@ const Planning = () => {
           {/* Preview Section - Tampil untuk semua user */}
           {previewItinerary && (
             <div id="preview-section" style={{marginTop: '3rem'}}>
-              <h2 style={{marginBottom: '1.5rem'}}>📋 Preview Itinerary</h2>
+              <h2 style={{marginBottom: '1.5rem'}}>Preview Itinerary</h2>
               <div className="daily-itinerary" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                    <div style={{textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid #f0f0f0', paddingBottom: '1rem'}}>
                       <span className="status-badge upcoming" style={{position: 'relative', display: 'inline-block'}}>Preview Rute</span>
                       <h2>{previewItinerary.title}</h2>
-                      <p style={{color: '#28a745'}}>✓ Rute dioptimalkan berdasarkan lokasi (Nearest Neighbor)</p>
+                      <p style={{color: '#28a745'}}></p>
                    </div>
 
                    {previewItinerary.days.map(day => (

@@ -1,167 +1,167 @@
 ================================================================================
 EVALUATION SUMMARY REPORT
 ================================================================================
-Generated: 2025-11-23 12:21:17
+Generated: 2026-01-01 21:41:07
 
 ================================================================================
 1. MODEL PERFORMANCE SUMMARY
 ================================================================================
 
 Model: popularity
-  Precision@10: 0.0288
-  Recall@10:    0.2410
-  NDCG@10:      0.1327
+  Precision@10: 0.0393
+  Recall@10:    0.2121
+  NDCG@10:      0.1221
   Diversity:    0.9111
-  Novelty:      0.3794
+  Novelty:      0.3483
 
 Model: cf
-  Precision@10: 0.0045
-  Recall@10:    0.0365
-  NDCG@10:      0.0169
-  Diversity:    0.8911
-  Novelty:      0.8625
+  Precision@10: 0.0109
+  Recall@10:    0.0534
+  NDCG@10:      0.0319
+  Diversity:    0.8933
+  Novelty:      0.8840
 
 Model: cb
-  Precision@10: 0.0116
-  Recall@10:    0.0954
-  NDCG@10:      0.0461
-  Diversity:    0.0565
-  Novelty:      0.7402
+  Precision@10: 0.0092
+  Recall@10:    0.0484
+  NDCG@10:      0.0219
+  Diversity:    0.0023
+  Novelty:      0.7398
 
 Model: hybrid
-  Precision@10: 0.0067
-  Recall@10:    0.0536
-  NDCG@10:      0.0244
-  Diversity:    0.5801
-  Novelty:      0.8793
+  Precision@10: 0.0151
+  Recall@10:    0.0812
+  NDCG@10:      0.0429
+  Diversity:    0.5425
+  Novelty:      0.8300
 
 Model: hybrid_no_context
-  Precision@10: 0.0064
-  Recall@10:    0.0536
-  NDCG@10:      0.0241
-  Diversity:    0.5411
-  Novelty:      0.8573
+  Precision@10: 0.0059
+  Recall@10:    0.0342
+  NDCG@10:      0.0187
+  Diversity:    0.5960
+  Novelty:      0.8414
 
 Model: hybrid_mmr_lambda_0.0
-  Precision@10: 0.0067
-  Recall@10:    0.0536
-  NDCG@10:      0.0244
-  Diversity:    0.5801
-  Novelty:      0.8793
+  Precision@10: 0.0151
+  Recall@10:    0.0812
+  NDCG@10:      0.0429
+  Diversity:    0.5425
+  Novelty:      0.8300
 
 Model: hybrid_mmr_lambda_0.3
-  Precision@10: 0.0062
-  Recall@10:    0.0495
-  NDCG@10:      0.0229
-  Diversity:    0.6569
-  Novelty:      0.8883
+  Precision@10: 0.0134
+  Recall@10:    0.0725
+  NDCG@10:      0.0387
+  Diversity:    0.6402
+  Novelty:      0.8363
 
 Model: hybrid_mmr_lambda_0.5
-  Precision@10: 0.0052
-  Recall@10:    0.0427
-  NDCG@10:      0.0201
-  Diversity:    0.7468
-  Novelty:      0.8988
+  Precision@10: 0.0126
+  Recall@10:    0.0650
+  NDCG@10:      0.0354
+  Diversity:    0.7652
+  Novelty:      0.8464
 
 Model: hybrid_mmr_lambda_0.7
-  Precision@10: 0.0050
-  Recall@10:    0.0402
-  NDCG@10:      0.0188
-  Diversity:    0.9265
-  Novelty:      0.9144
+  Precision@10: 0.0088
+  Recall@10:    0.0408
+  NDCG@10:      0.0260
+  Diversity:    0.9381
+  Novelty:      0.8706
 
 Model: hybrid_mmr_lambda_1.0
-  Precision@10: 0.0048
-  Recall@10:    0.0414
-  NDCG@10:      0.0155
-  Diversity:    0.9776
-  Novelty:      0.8826
+  Precision@10: 0.0075
+  Recall@10:    0.0385
+  NDCG@10:      0.0203
+  Diversity:    0.9778
+  Novelty:      0.8632
 
 Model: hybrid_mab_mmr
-  Precision@10: 0.0065
-  Recall@10:    0.0516
-  NDCG@10:      0.0237
-  Diversity:    0.6003
-  Novelty:      0.8818
+  Precision@10: 0.0146
+  Recall@10:    0.0805
+  NDCG@10:      0.0427
+  Diversity:    0.5481
+  Novelty:      0.8306
 
 ================================================================================
 2. DISTRIBUTION METRICS
 ================================================================================
 
 Model: popularity
-  Gini Coefficient:  0.7924
-  Coverage:          0.2777
-  Head 20% Mean:     0.5613
+  Gini Coefficient:  0.7540
+  Coverage:          0.3515
+  Head 20% Mean:     0.4695
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: cf
-  Gini Coefficient:  0.9659
-  Coverage:          0.0449
-  Head 20% Mean:     0.0845
+  Gini Coefficient:  0.9334
+  Coverage:          0.1046
+  Head 20% Mean:     0.1622
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: cb
-  Gini Coefficient:  0.9106
-  Coverage:          0.1161
-  Head 20% Mean:     0.2310
+  Gini Coefficient:  0.9246
+  Coverage:          0.0879
+  Head 20% Mean:     0.1112
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid
-  Gini Coefficient:  0.9512
-  Coverage:          0.0648
-  Head 20% Mean:     0.1224
+  Gini Coefficient:  0.9024
+  Coverage:          0.1381
+  Head 20% Mean:     0.2180
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_no_context
-  Gini Coefficient:  0.9530
-  Coverage:          0.0636
-  Head 20% Mean:     0.1208
+  Gini Coefficient:  0.9621
+  Coverage:          0.0586
+  Head 20% Mean:     0.0950
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mmr_lambda_0.0
-  Gini Coefficient:  0.9512
-  Coverage:          0.0648
-  Head 20% Mean:     0.1224
+  Gini Coefficient:  0.9024
+  Coverage:          0.1381
+  Head 20% Mean:     0.2180
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mmr_lambda_0.3
-  Gini Coefficient:  0.9547
-  Coverage:          0.0607
-  Head 20% Mean:     0.1150
+  Gini Coefficient:  0.9083
+  Coverage:          0.1297
+  Head 20% Mean:     0.1966
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mmr_lambda_0.5
-  Gini Coefficient:  0.9613
-  Coverage:          0.0513
-  Head 20% Mean:     0.1010
+  Gini Coefficient:  0.9127
+  Coverage:          0.1255
+  Head 20% Mean:     0.1798
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mmr_lambda_0.7
-  Gini Coefficient:  0.9638
-  Coverage:          0.0490
-  Head 20% Mean:     0.0943
+  Gini Coefficient:  0.9445
+  Coverage:          0.0837
+  Head 20% Mean:     0.1321
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mmr_lambda_1.0
-  Gini Coefficient:  0.9629
-  Coverage:          0.0484
-  Head 20% Mean:     0.0779
+  Gini Coefficient:  0.9498
+  Coverage:          0.0753
+  Head 20% Mean:     0.1031
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
 Model: hybrid_mab_mmr
-  Gini Coefficient:  0.9528
-  Coverage:          0.0630
-  Head 20% Mean:     0.1190
+  Gini Coefficient:  0.9024
+  Coverage:          0.1381
+  Head 20% Mean:     0.2173
   Tail 20% Mean:     0.0000
   Head/Tail Ratio:   0.0000
 
@@ -169,47 +169,47 @@ Model: hybrid_mab_mmr
 3. MAB FINAL STATE (CONTEXTUAL)
 ================================================================================
 MAB Type: ContextualMAB
-Total Contexts: 1342
-Total Selections (All Contexts): 1764
-Most Common Best Lambda: 0.00
+Total Contexts: 231
+Total Selections (All Contexts): 0
+Most Common Best Lambda: 0.50
 
 Aggregated Arm Statistics:
-  lambda=0.00: 1342 total selections, avg reward=0.2444
-  lambda=0.30: 349 total selections, avg reward=0.2439
-  lambda=0.50: 61 total selections, avg reward=0.2266
-  lambda=0.70: 11 total selections, avg reward=0.2540
-  lambda=1.00: 1 total selections, avg reward=0.0000
+  lambda=0.00: 231 total selections, avg reward=0.2395
+  lambda=0.30: 8 total selections, avg reward=0.2908
+  lambda=0.50: 0 total selections, avg reward=0.0000
+  lambda=0.70: 0 total selections, avg reward=0.0000
+  lambda=1.00: 0 total selections, avg reward=0.0000
 
 Top 10 Contexts:
-  hujan_weekend_musim_kemarau_malam_sedang_festival_kuliner_notviral:
-    Selections: 2
+  hujan_weekend_musim_hujan_malam_puncak_kepadatan_festival_budaya_viral:
+    Selections: 0
     Best Lambda: 0.00
-  mendung_weekend_musim_kemarau_siang_ramai_festival_budaya_notviral:
-    Selections: 2
+  mendung_weekday_musim_hujan_sore_puncak_kepadatan_festival_budaya_notviral:
+    Selections: 0
     Best Lambda: 0.00
-  hujan_weekend_musim_kemarau_malam_sedang_None_notviral:
-    Selections: 3
+  cerah_libur_nasional_musim_hujan_sore_sangat_ramai_festival_kuliner_notviral:
+    Selections: 0
     Best Lambda: 0.00
-  hujan_weekend_musim_hujan_siang_ramai_festival_budaya_viral:
-    Selections: 2
+  mendung_weekend_musim_kemarau_malam_ramai_festival_kuliner_viral:
+    Selections: 0
     Best Lambda: 0.00
-  mendung_libur_lebaran_musim_hujan_pagi_puncak_kepadatan_festival_budaya_viral:
-    Selections: 2
+  mendung_libur_nasional_musim_kemarau_siang_puncak_kepadatan_festival_budaya_viral:
+    Selections: 0
     Best Lambda: 0.00
-  mendung_libur_lebaran_musim_kemarau_pagi_ramai_festival_budaya_notviral:
-    Selections: 2
+  cerah_weekday_musim_hujan_pagi_sangat_ramai_None_notviral:
+    Selections: 0
     Best Lambda: 0.00
-  hujan_weekend_musim_hujan_sore_sedang_festival_budaya_viral:
-    Selections: 2
+  mendung_weekend_musim_kemarau_pagi_sepi_None_notviral:
+    Selections: 0
     Best Lambda: 0.00
-  cerah_libur_lebaran_musim_hujan_pagi_sangat_ramai_festival_budaya_viral:
-    Selections: 4
-    Best Lambda: 0.50
-  cerah_libur_lebaran_musim_hujan_pagi_ramai_festival_budaya_notviral:
-    Selections: 4
-    Best Lambda: 0.50
-  hujan_weekend_musim_kemarau_malam_sepi_None_viral:
-    Selections: 2
+  hujan_weekend_musim_hujan_siang_sangat_ramai_festival_budaya_viral:
+    Selections: 0
+    Best Lambda: 0.00
+  cerah_weekday_musim_hujan_malam_sangat_sepi_festival_budaya_viral:
+    Selections: 0
+    Best Lambda: 0.00
+  hujan_libur_nasional_musim_hujan_siang_puncak_kepadatan_festival_kuliner_viral:
+    Selections: 0
     Best Lambda: 0.00
 
 ================================================================================

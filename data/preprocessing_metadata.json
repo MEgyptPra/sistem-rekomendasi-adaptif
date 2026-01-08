@@ -1,0 +1,32 @@
+{
+  "preprocessing_date": "2026-01-01 18:30:45",
+  "random_seed": 42,
+  "parameters": {
+    "min_user_ratings": 5,
+    "min_item_ratings": 1,
+    "target_size": 2000,
+    "max_users": 250
+  },
+  "raw_dataset": {
+    "n_users": 28394,
+    "n_items": 231,
+    "n_ratings": 38697,
+    "sparsity": 0.9941001803014904,
+    "avg_ratings_per_user": 1.362858350355709,
+    "cold_start_percentage": 0.9974994717193774
+  },
+  "proper_dataset": {
+    "n_users": 250,
+    "n_items": 192,
+    "n_ratings": 2123,
+    "sparsity": 0.9557708333333333,
+    "avg_ratings_per_user": 8.492,
+    "median_ratings_per_user": 6.0,
+    "cold_start_percentage": 0.8
+  },
+  "retention_rate": {
+    "users": 0.00880467704444601,
+    "items": 0.8311688311688312,
+    "ratings": 0.054862134015556764
+  }
+}

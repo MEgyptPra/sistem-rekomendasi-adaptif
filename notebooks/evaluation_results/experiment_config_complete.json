@@ -2,7 +2,7 @@
   "experiment": {
     "name": "MAB-MMR Tourism Recommender Evaluation",
     "version": "3.0-FINAL",
-    "date": "2025-11-23 12:21:15",
+    "date": "2026-01-01 21:41:01",
     "author": "Thesis Evaluation Framework",
     "notebook": "evaluasi_kuantitatif_FINAL copy.ipynb"
   },
@@ -13,15 +13,15 @@
     "notes": "All random operations use fixed seed for reproducibility"
   },
   "data": {
-    "total_ratings": 36992,
-    "total_users": 27431,
-    "total_items": 224,
-    "date_range": "2013-10-06 03:57:24.361098 to 2025-11-03 20:15:23.999903",
+    "total_ratings": 2123,
+    "total_users": 250,
+    "total_items": 192,
+    "date_range": "2023-12-04 19:46:34.899497 to 2025-12-02 19:46:34.899497",
     "train_test_split": "80/20 temporal stratified",
     "min_ratings_per_user": 5,
-    "train_size": 6120,
-    "test_size": 2331,
-    "eligible_users": 1714
+    "train_size": 1608,
+    "test_size": 515,
+    "eligible_users": 239
   },
   "models": {
     "collaborative_filtering": {
